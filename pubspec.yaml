@@ -22,6 +22,7 @@ dependencies:
   otp_timer_button: ^1.1.0
   firebase_core: 2.8.0
   firebase_auth: 4.3.0
+  firebase_app_check: 0.1.1+14
   cloud_firestore: 4.4.5
   cloud_functions: 4.0.13
   firebase_database: ^10.0.9
@@ -47,6 +48,7 @@ dependencies:
   date_format: ^2.0.7
   app_settings: ^4.2.0
   firebase_messaging: 14.3.0
+  intl:
 
 dev_dependencies:
   flutter_test:

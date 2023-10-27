@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constant/colors.dart';
@@ -161,7 +162,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
         .textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Earnings", style: Theme.of(context).textTheme.headline4),
+        title: Text("My Earnings", style: Theme.of(context).textTheme.headlineMedium),
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
@@ -181,7 +182,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
                   children: [
                     const SizedBox(height: 10,),
                     Container(
-                      width: 150,
+                      width: 160,
                       height: 60,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
@@ -212,16 +213,16 @@ class _EarningTabPageState extends State<EarningTabPage> {
                       ),
                     ),
                     const SizedBox(height: 20.0),
-                    Text("$_selectedDays", style: txtTheme.headline2),
+                    Text("$_selectedDays", style: txtTheme.displayMedium),
                     const SizedBox(height: 10,),
                     if(_selectedDays == "30 Days Earnings")...[
-                      Text("NGN $_total30", style: txtTheme.headline6?.apply(fontSizeFactor: 2.2)),
+                      Text(MyOgaFormatter.currencyFormatter(_total30), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ] else if(_selectedDays == "7 Days Earnings")...[
-                      Text("NGN $_total7", style: txtTheme.headline6?.apply(fontSizeFactor: 2.2)),
+                      Text("NGN $_total7", style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]else if(_selectedDays == "24 Hours Earnings")...[
-                      Text("NGN $_total1", style: txtTheme.headline6?.apply(fontSizeFactor: 2.2)),
+                      Text("NGN $_total1", style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]else if(_selectedDays == "Total Earnings")...[
-                      Text("NGN $_total", style: txtTheme.headline6?.apply(fontSizeFactor: 2.2)),
+                      Text(MyOgaFormatter.currencyFormatter(_total), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]
                   ],
                 ),
