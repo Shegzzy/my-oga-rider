@@ -83,8 +83,8 @@ class _RatingTabPageState extends State<RatingTabPage> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: "${_average.round()}",
-                            style: const TextStyle(fontSize: 48.0),
+                            text: _average.toStringAsFixed(1),
+                            style: const TextStyle(fontSize: 35.0),
                           ),
                           const TextSpan(
                             text: "/5",
