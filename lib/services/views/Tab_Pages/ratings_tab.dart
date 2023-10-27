@@ -65,7 +65,7 @@ class _RatingTabPageState extends State<RatingTabPage> {
             icon: const Icon(LineAwesomeIcons.angle_left)),
         title: Text(
           "Total Average Reviews",
-          style: Theme.of(context).textTheme.headline6,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         centerTitle: true,
       ),
@@ -73,7 +73,6 @@ class _RatingTabPageState extends State<RatingTabPage> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            const SizedBox(height: 30.0,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -84,7 +83,7 @@ class _RatingTabPageState extends State<RatingTabPage> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: "$_average",
+                            text: "${_average.round()}",
                             style: const TextStyle(fontSize: 48.0),
                           ),
                           const TextSpan(
@@ -116,41 +115,42 @@ class _RatingTabPageState extends State<RatingTabPage> {
                   ],
                 ),
                 const SizedBox(width: 10,),
-                SizedBox(
-                  width: 150.0,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    reverse: true,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "${index + 1}",
-                                style: const TextStyle(fontSize: 18.0),
-                              ),
-                              const SizedBox(width: 4.0),
-                              const Icon(Icons.star, color: Colors.orange),
-                              const SizedBox(width: 4.0),
-                              LinearPercentIndicator(
-                                lineHeight: 6.0,
-                                // linearStrokeCap: LinearStrokeCap.roundAll,
-                                width: MediaQuery.of(context).size.width / 3.8,
-                                animation: true,
-                                animationDuration: 2500,
-                                percent: ratings[index],
-                                progressColor: Colors.orange,
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
+                Expanded(
+                  child: SizedBox(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      reverse: true,
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "${index + 1}",
+                                  style: const TextStyle(fontSize: 15.0),
+                                ),
+                                const SizedBox(width: 2.0),
+                                const Icon(Icons.star, color: Colors.orange),
+                                const SizedBox(width: 2.0),
+                                LinearPercentIndicator(
+                                  lineHeight: 6.0,
+                                  // linearStrokeCap: LinearStrokeCap.roundAll,
+                                  width: MediaQuery.of(context).size.width / 3.8,
+                                  animation: true,
+                                  animationDuration: 2500,
+                                  percent: ratings[index],
+                                  progressColor: Colors.orange,
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
-                const SizedBox(width: 10,),
               ],
             ),
             const SizedBox(height: 30.0,),
