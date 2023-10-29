@@ -32,7 +32,6 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
   
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
       _userRepo.getDriverData().listen((event) {
         if(mounted) {
@@ -45,7 +44,6 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _userRepo.dispose();
   }
@@ -71,7 +69,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                                     child: ClipRRect(
                                         borderRadius:
                                         BorderRadius.circular(100),
-                                        child: _userModel!.profilePic == null
+                                        child: _userModel?.profilePic == null
                                             ? const Icon(LineAwesomeIcons.user_circle, size: 35,)
                                             : Image(
                                           image: NetworkImage(_userModel!.profilePic ?? ""),
@@ -113,12 +111,12 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                                 ],
                               ),
                               const SizedBox(height: 10.0),
-                              Text(_userModel!.fullname ?? "",
+                              Text(_userModel?.fullname ?? "",
                                   style:
-                                  Theme.of(context).textTheme.headline4),
-                              Text(_userModel!.email ?? "",
+                                  Theme.of(context).textTheme.headlineMedium),
+                              Text(_userModel?.email ?? "",
                                   style:
-                                  Theme.of(context).textTheme.bodyText2),
+                                  Theme.of(context).textTheme.bodyMedium),
                               const SizedBox(height: 10.0),
                               SizedBox(
                                 width: 200.0,

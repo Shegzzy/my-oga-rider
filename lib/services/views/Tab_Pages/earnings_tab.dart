@@ -222,7 +222,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
                     ]else if(_selectedDays == "24 Hours Earnings")...[
                       Text("NGN $_total1", style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]else if(_selectedDays == "Total Earnings")...[
-                      Text(MyOgaFormatter.currencyFormatter(_total), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
+                      Text(MyOgaFormatter.currencyFormatter(_total).toString(), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]
                   ],
                 ),
@@ -263,7 +263,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Flexible(child: Text(snapshot.data![index].bookingNumber ?? "",
-                                            style: Theme.of(context).textTheme.headline4,
+                                            style: Theme.of(context).textTheme.headlineMedium,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis)),
                                         Flexible(child: Text(snapshot.data![index].status ?? "",
@@ -276,12 +276,15 @@ class _EarningTabPageState extends State<EarningTabPage> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Flexible(child: Text("N${snapshot.data![index].amount ?? ""}",
-                                            style: Theme.of(context).textTheme.headline4,
+                                        Flexible(child: Text(MyOgaFormatter.currencyFormatter(
+                                              double.parse(snapshot
+                                                      .data![index].amount ??
+                                                  "")),
+                                            style: Theme.of(context).textTheme.headlineMedium,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis)),
                                         Flexible(child: Text(snapshot.data![index].distance ?? "",
-                                            style: Theme.of(context).textTheme.headline4,
+                                            style: Theme.of(context).textTheme.headlineMedium,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis)),
                                       ],
@@ -291,7 +294,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Flexible(child: Text(snapshot.data![index].created_at ?? "",
-                                            style: Theme.of(context).textTheme.headline4,
+                                            style: Theme.of(context).textTheme.headlineMedium,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis)),
                                       ],
