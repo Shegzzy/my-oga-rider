@@ -38,13 +38,13 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
       getDriver();
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _userRepo.onClose();
-    _userRepo.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   // TODO: implement dispose
+  //   super.dispose();
+  //   _userRepo.onClose();
+  //   _userRepo.dispose();
+  // }
 
   void getOrderStatus(){
     _userRepo.getOrderStatusData(widget.bookingData!.bookingNumber!).listen((event) {
@@ -167,8 +167,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 6.0,),
-                    Center(child: Text("Booking Number: ${widget.bookingData!.bookingNumber!}", style: Theme.of(context).textTheme.headline6,)),
+                    Center(child: Text("Booking Number:  ${widget.bookingData!.bookingNumber!}", style: Theme.of(context).textTheme.headline6,)),
                     const SizedBox(height: 15,),
                     Row(
                       children: [
