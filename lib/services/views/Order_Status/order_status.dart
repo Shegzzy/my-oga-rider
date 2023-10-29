@@ -205,8 +205,8 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_bookerModel!.fullname ?? " ", style: theme.textTheme.headline6),
-                            Text(_bookerModel!.phoneNo ?? " ", style: theme.textTheme.bodyText1),
+                            Text(_bookerModel?.fullname ?? " ", style: theme.textTheme.titleLarge),
+                            Text(_bookerModel?.phoneNo ?? " ", style: theme.textTheme.bodyLarge),
 
                           ],
                         ),
