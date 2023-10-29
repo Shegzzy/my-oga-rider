@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:date_format/date_format.dart';
 import 'package:get/get.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -276,7 +277,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                                   children: [
 
                                                     TextSpan(
-                                                        text: userData.dateCreated,
+                                                        text: MyOgaFormatter.dateFormatter(DateTime.parse(userData.dateCreated!)),
                                                         style: const TextStyle(
                                                             fontWeight: FontWeight
                                                                 .bold,
