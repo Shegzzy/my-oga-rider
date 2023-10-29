@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_oga_rider/constant/image_string.dart';
+import 'package:my_oga_rider/utils/formatter/formatter.dart';
 
 import '../../../constant/colors.dart';
 import '../../controller/profile_controller.dart';
@@ -72,21 +73,21 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Flexible(child: Text(snapshot.data![index].bookingNumber!,
-                                        style: Theme.of(context).textTheme.headline4,
+                                    Text(snapshot.data![index].bookingNumber!,
+                                        style: Theme.of(context).textTheme.headlineMedium,
                                         maxLines: 2,
-                                        overflow: TextOverflow.ellipsis)),
+                                        overflow: TextOverflow.ellipsis),
                                     Flexible(child: Text(snapshot.data![index].status!,
                                         style: TextStyle(color: snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis)),
                                   ],
                                 ),
-                                const SizedBox(height: 20,),
+                                const SizedBox(height: 10,),
                                 Row(
                                   children: [
                                     ElevatedButton(
-                                      style: ElevatedButton.styleFrom(shape: const CircleBorder()),
+                                      style: ElevatedButton.styleFrom(shape: const CircleBorder(), minimumSize: Size(35, 35)),
                                       onPressed: () {},
                                       child: const Icon(Icons.location_pin),
                                     ),
@@ -97,25 +98,25 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(snapshot.data![index].pickup_address ?? "", style: Theme.of(context).textTheme.bodyText1, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                                            Text(snapshot.data![index].pickup_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
                                             const SizedBox(height: 10,),
-                                            Text(snapshot.data![index].dropOff_address ?? "", style: Theme.of(context).textTheme.bodyText1, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                                            Text(snapshot.data![index].dropOff_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
                                           ],
                                         ),
                                       ),
                                     )
                                   ],
                                 ),
-                                const SizedBox(height: 20,),
+                                const SizedBox(height: 10,),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Flexible(child: Text("N${snapshot.data![index].amount ?? ""}",
-                                        style: Theme.of(context).textTheme.headline4,
+                                    Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
+                                        style: Theme.of(context).textTheme.headlineMedium,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis)),
                                     Flexible(child: Text(snapshot.data![index].distance ?? "",
-                                        style: Theme.of(context).textTheme.headline4,
+                                        style: Theme.of(context).textTheme.headlineMedium,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis)),
                                   ],
