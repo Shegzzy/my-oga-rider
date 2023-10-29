@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../constant/colors.dart';
@@ -174,7 +175,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Get.back(), icon: const Icon(LineAwesomeIcons.angle_left)),
-        title: Text("Booking Details", style: Theme.of(context).textTheme.headline4),
+        title: Text("Booking Details", style: Theme.of(context).textTheme.headlineMedium),
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
@@ -189,10 +190,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 15,),
                 Center(
                   child: Text("BN: ${bookingData.bookingNumber}",
-                    style: theme.textTheme.bodyText1,),
+                    style: theme.textTheme.headlineSmall,),
                 ),
                 const SizedBox(height: 15,),
                 Row(
@@ -201,9 +201,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(bookingData.customer_name!, style: theme.textTheme.bodyText1,),
+                        Text(bookingData.customer_name!, style: theme.textTheme.titleSmall,),
                         const SizedBox(height: 5,),
-                        Text(bookingData.customer_phone!, style: theme.textTheme.bodyText1,),
+                        Text(bookingData.customer_phone!, style: theme.textTheme.titleSmall,),
                         const SizedBox(height: 5,),
                       ],
                     ),
@@ -211,9 +211,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text("N${bookingData.amount}", style: theme.textTheme.bodyText1,),
+                        Text(MyOgaFormatter.currencyFormatter(double.parse(bookingData.amount!)), style: theme.textTheme.titleSmall,),
                         const SizedBox(height: 10,),
-                        Text("${bookingData.distance}", style: theme.textTheme.bodyText1,),
+                        Text("${bookingData.distance}", style: theme.textTheme.titleSmall,),
                       ],
                     )
                   ],
@@ -223,19 +223,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(child: Text("Package Type: ${bookingData.packageType}",
-                      style: theme.textTheme.headline6,
+                      style: theme.textTheme.titleSmall,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,)),
-                    const SizedBox(width: 10,),
                     Flexible(
-                      child: Text("Delivery Mode: ",
-                        style: theme.textTheme.headline6,
-                        overflow: TextOverflow.ellipsis,),
-                    ),
-                    Flexible(
-                      child: Text(bookingData.deliveryMode ?? "" ,
-                        style: theme.textTheme.headline6,
-                        maxLines: 2,
+                      child: Text("Delivery Mode: ${bookingData.deliveryMode ?? ""}",
+                        style: theme.textTheme.titleSmall,
                         overflow: TextOverflow.ellipsis,),
                     ),
                   ],
@@ -246,20 +239,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   children: [
                     Flexible(
                       child: Text("Payment Mode: ${bookingData.payment_method}",
-                        style: theme.textTheme.headline6,
+                        style: theme.textTheme.titleSmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 10,),
                     Flexible(
-                      child: Text("Ride Type: ",
-                        style: theme.textTheme.headline6,
-                        overflow: TextOverflow.ellipsis,),
-                    ),
-                    Flexible(
-                      child: Text(bookingData.rideType ?? "",
-                        style: theme.textTheme.headline6,
+                      child: Text("Ride Type: ${bookingData.rideType ?? ""}",
+                        style: theme.textTheme.titleSmall,
                         overflow: TextOverflow.ellipsis,),
                     ),
                   ],
@@ -278,12 +265,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   children: [
                     Flexible(
                       child: Text("Pick Up Location",
-                        style: theme.textTheme.bodyText1,
+                        style: theme.textTheme.titleSmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: 10,),
                     Flexible(
                       child: TextButton(
                         child: const Text("View on Map",
@@ -295,8 +281,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 5,),
-                Flexible(child: Text(bookingData.pickup_address??"", style: theme.textTheme.headline6, overflow: TextOverflow.ellipsis,)),
+                Flexible(child: Text(bookingData.pickup_address??"", style: theme.textTheme.titleLarge, overflow: TextOverflow.ellipsis,)),
                 const SizedBox(height: 15,),
                 const Divider(
                   color: Colors.black,
@@ -311,12 +296,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   children: [
                     Flexible(
                       child: Text("Drop Off Location",
-                        style: theme.textTheme.bodyText1,
+                        style: theme.textTheme.titleSmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    SizedBox(width: 10,),
                     Flexible(
                       child: TextButton(
                         child: const Text("View on Map",
