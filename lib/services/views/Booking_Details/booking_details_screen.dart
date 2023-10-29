@@ -36,7 +36,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _userRepo.getUserDetailsWithPhone(bookingData.customer_phone!).then((value) {
       setState(() {
