@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/constant/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../repo/user_repo.dart';
@@ -22,7 +23,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
   String? docId;
   String? cusId;
-  var Int1, Int2, Int3, Int4, Int5, Int6;
+  var Int1, Int2, Int3, Int4, Int5, Int6, Int7;
  OrderStatusModel? _orderStats;
   BookerModel? _bookerModel;
   final _userRepo = Get.put(UserRepository());
@@ -59,6 +60,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
       Int4 = int.tryParse(_orderStats!.percelPicked!);
       Int5 = int.tryParse(_orderStats!.wayToDrop!);
       Int6 = int.tryParse(_orderStats!.arriveDrop!);
+      Int7 = int.tryParse(_orderStats!.completed!);
     });
   }
 
@@ -170,57 +172,62 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                     Center(child: Text("Booking Number:  ${widget.bookingData!.bookingNumber!}", style: Theme.of(context).textTheme.headline6,)),
                     const SizedBox(height: 15,),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          width: 40.0,
-                          height: 40.0,
-                          child: ClipRRect(
-                              borderRadius:
-                              BorderRadius.circular(100),
-                              child: _bookerModel?.profilePic == null
-                                  ? const Icon(LineAwesomeIcons.user_circle, size: 35,)
-                                  : Image(
-                                image: NetworkImage(_bookerModel!.profilePic!),
-                                fit: BoxFit.cover,
-                                loadingBuilder: (context,
-                                    child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return child;
-                                  }
-                                  return const Center(
-                                      child:
-                                      CircularProgressIndicator());
-                                },
-                                errorBuilder:
-                                    (context, object, stack) {
-                                  return const Icon(
-                                    Icons.person,
-                                    color: Colors.red,
-                                  );
-                                },
-                              )),
-                        ),
-                        const SizedBox(width: 10,),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
-                            Text(_bookerModel?.fullname ?? " ", style: theme.textTheme.titleLarge),
-                            Text(_bookerModel?.phoneNo ?? " ", style: theme.textTheme.bodyLarge),
+                            SizedBox(
+                              width: 40.0,
+                              height: 40.0,
+                              child: ClipRRect(
+                                  borderRadius:
+                                  BorderRadius.circular(100),
+                                  child: _bookerModel?.profilePic == null
+                                      ? const Icon(LineAwesomeIcons.user_circle, size: 35,)
+                                      : Image(
+                                    image: NetworkImage(_bookerModel!.profilePic!),
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context,
+                                        child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return const Center(
+                                          child:
+                                          CircularProgressIndicator());
+                                    },
+                                    errorBuilder:
+                                        (context, object, stack) {
+                                      return const Icon(
+                                        Icons.person,
+                                        color: Colors.red,
+                                      );
+                                    },
+                                  )),
+                            ),
+                            const SizedBox(width: 10,),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(_bookerModel?.fullname ?? " ", style: theme.textTheme.titleLarge),
+                                Text(_bookerModel?.phoneNo ?? " ", style: theme.textTheme.bodyLarge),
+
+                              ],
+                            ),
 
                           ],
                         ),
-                        const SizedBox(width: 92,),
                         GestureDetector(child: const Icon(Icons.phone, color: Colors.purple,), onTap: () async {
                           final Uri url = Uri(
                             scheme: 'tel',
                             path: _bookerModel!.phoneNo,
                           );
                           if(await canLaunchUrl(url)){
-                          await launchUrl(url);
+                            await launchUrl(url);
                           } else {
-                          Get.snackbar("Notice!", "Not Supported yet", snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.redAccent.withOpacity(0.1),
-                          colorText: Colors.red);
+                            Get.snackbar("Notice!", "Not Supported yet", snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.redAccent.withOpacity(0.1),
+                                colorText: Colors.red);
                           }
                         },)
                       ],
@@ -235,7 +242,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                             children: [
                               Icon(Icons.circle_outlined, size: 20, color: Int1 == 1 ? Colors.purple : Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Order Assigned", style: theme.textTheme.headline6),
+                              Text("Order Assigned", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
@@ -261,7 +268,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                             children: [
                               Icon(Icons.circle_outlined, size: 20, color: Int2 == 1 ? Colors.purple : Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Out For Pickup",style: theme.textTheme.headline6),
+                              Text("Out For Pickup",style: theme.textTheme.titleLarge),
 
                             ],
                           ),
@@ -287,7 +294,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                             children: [
                               Icon(Icons.circle_outlined, size: 20, color: Int3 == 1 ? Colors.purple : Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Arrive at Pickup Location", style: theme.textTheme.headline6),
+                              Text("Arrive at Pickup Location", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
@@ -313,7 +320,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                             children: [
                               Icon(Icons.circle_outlined, size: 20, color: Int4 == 1 ? Colors.purple : Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Parcel Picked", style: theme.textTheme.headline6),
+                              Text("Parcel Picked", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
@@ -339,7 +346,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                             children: [
                               Icon(Icons.circle_outlined, size: 20, color: Int5 == 1 ? Colors.purple : Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("On the way to Drop Location", style: theme.textTheme.headline6),
+                              Text("On the way to Drop Location", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
@@ -365,7 +372,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                             children: [
                               Icon(Icons.circle_outlined, size: 20, color: Int6 == 1 ? Colors.purple : Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Arrived at Drop Location", style: theme.textTheme.headline6),
+                              Text("Arrived at Drop Location", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
@@ -575,12 +582,12 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               ]else ...[
                                 Expanded(
                                   child: OutlinedButton(
-                                    onPressed: ()  {
+                                    onPressed: Int7 ==1 ? null:(){
                                      completeOrder();
                                      Navigator.of(context).pop();
                                     },
                                     style: Theme.of(context).elevatedButtonTheme.style,
-                                    child: Text("Confirm Order Completed".toUpperCase()),
+                                    child: Text(Int7 ==1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
                                   ),
                                 ),
                               ],
