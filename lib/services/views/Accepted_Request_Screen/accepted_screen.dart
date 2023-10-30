@@ -105,7 +105,6 @@ class _AcceptScreenState extends State<AcceptScreen> {
                         Text("Booking Number: ${bookingData!.bookingNumber}", style: theme.textTheme.titleSmall,),
                       ],
                     ),
-                    const SizedBox(width: 20,),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
