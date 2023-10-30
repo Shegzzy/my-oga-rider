@@ -72,7 +72,8 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
     /// Stop Progress Bar
     isUploading(false);
 
-    Get.to(() => const OTPScreen());
+    // Get.to(() => const OTPScreen());
+    Get.to(() => const CarRegistrationWidget());
   }
 
 

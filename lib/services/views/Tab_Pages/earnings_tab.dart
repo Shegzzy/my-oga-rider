@@ -293,7 +293,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Flexible(child: Text(snapshot.data![index].created_at ?? "",
+                                        Flexible(child: Text(My ?? "",
                                             style: Theme.of(context).textTheme.headlineMedium,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis)),
