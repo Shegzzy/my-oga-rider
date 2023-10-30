@@ -35,7 +35,7 @@ class _UploadDocumentState extends State<UploadDocument> {
 
         Text('Upload Documents (License and Vehicle Papers)',style: Theme.of(context).textTheme.headline5,),
 
-        const SizedBox(height: 30,),
+        const SizedBox(height: 15,),
 
 
         GestureDetector(
@@ -54,10 +54,7 @@ class _UploadDocumentState extends State<UploadDocument> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.cloud_upload,size: 40,color: Color(0xff7D7D7D),),
-
                 Text(selectedImage.isEmpty?'Tap here to upload ': 'Document is selected.',style: const TextStyle(fontSize: 14,fontWeight: FontWeight.w500,color: Color(0xff7D7D7D)),),
-
-
               ],
             ),
           ),
@@ -65,7 +62,7 @@ class _UploadDocumentState extends State<UploadDocument> {
         const SizedBox(height: 30,),
         SizedBox(
           width: Get.width,
-          height: 150,
+          height: 130,
           child: selectedImage.isEmpty
               ? const Center(
                   child: Text("No image found"),

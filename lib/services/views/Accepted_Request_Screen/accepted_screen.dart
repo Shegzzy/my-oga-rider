@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:my_oga_rider/constant/image_string.dart';
+import 'package:my_oga_rider/utils/formatter/formatter.dart';
 
 import '../../../constant/colors.dart';
 import 'package:get/get.dart';
@@ -66,12 +67,11 @@ class _AcceptScreenState extends State<AcceptScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(30.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 6.0,),
-                Center(child: Text("BOOKING DETAILS", style: Theme.of(context).textTheme.headline6,)),
+                Center(child: Text("BOOKING DETAILS", style: Theme.of(context).textTheme.titleLarge,)),
                 const SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -81,7 +81,7 @@ class _AcceptScreenState extends State<AcceptScreen> {
                       height: 60.0,
                       child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child:  _bookerModel!.profilePic == null
+                          child:  _bookerModel?.profilePic == null
                                 ? const Icon(LineAwesomeIcons.user_circle, size: 35,)
                                 : Image(image: NetworkImage( _bookerModel!.profilePic!),
                                   fit: BoxFit.cover,
@@ -95,24 +95,23 @@ class _AcceptScreenState extends State<AcceptScreen> {
                                 )
                       ),
                     ),
-                    const SizedBox(width: 10,),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children:  [
-                        Text(bookingData!.customer_name??"", style: theme.textTheme.bodyText1,),
+                        Text(bookingData!.customer_name??"", style: theme.textTheme.titleSmall,),
                         const SizedBox(height: 5,),
-                        Text(bookingData!.customer_phone??"", style: theme.textTheme.bodyText1,),
+                        Text(bookingData!.customer_phone??"", style: theme.textTheme.titleSmall,),
                         const SizedBox(height: 5,),
-                        Text("Booking Number: ${bookingData!.bookingNumber}", style: theme.textTheme.bodyText1,),
+                        Text("Booking Number: ${bookingData!.bookingNumber}", style: theme.textTheme.titleSmall,),
                       ],
                     ),
-                    const SizedBox(width: 30,),
+                    const SizedBox(width: 20,),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(bookingData!.amount??"", style: theme.textTheme.bodyText1,),
+                        Text(MyOgaFormatter.currencyFormatter(double.parse(bookingData!.amount??"")), style: theme.textTheme.titleSmall,),
                         const SizedBox(height: 10,),
-                        Text(bookingData!.distance??"", style: theme.textTheme.bodyText1,),
+                        Text(bookingData!.distance??"", style: theme.textTheme.titleSmall,),
                       ],
                     ),
                   ],
@@ -142,9 +141,9 @@ class _AcceptScreenState extends State<AcceptScreen> {
                   endIndent: 2,
                 ),
                 const SizedBox(height: 15,),
-                Text("Drop", style: theme.textTheme.bodyText1,),
+                Text("Drop Off", style: theme.textTheme.bodyLarge,),
                 const SizedBox(height: 5,),
-                Text(bookingData!.dropOff_address??"", style: theme.textTheme.headline6,),
+                Text(bookingData!.dropOff_address??"", style: theme.textTheme.titleLarge,),
                 const SizedBox(height: 20),
 
                 Row(
