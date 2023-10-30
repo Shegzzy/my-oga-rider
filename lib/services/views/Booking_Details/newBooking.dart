@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controller/request_controller.dart';
@@ -110,7 +111,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
         child: Column(
           children: [
             const SizedBox(height: 50.0,),
-            Text("New Booking Request", style: Theme.of(context).textTheme.bodyText1,),
+            Text("New Booking Request", style: Theme.of(context).textTheme.titleLarge,),
             const SizedBox(height: 20,),
             Row(
               children: [
@@ -126,23 +127,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
-                      child: Text("Pickup",
-                        style: Theme.of(context).textTheme.headline6,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      //borderRadius: BorderRadius.circular(1.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Text(_incomingRequest?.pickup_address??"",
-                        style: Theme.of(context).textTheme.bodyText1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Text("Pickup: ${_incomingRequest?.pickup_address??""}",
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
                   ),
@@ -164,23 +150,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
-                      child: Text("Drop-Off",
-                        style: Theme.of(context).textTheme.headline6,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      //borderRadius: BorderRadius.circular(1.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Text(_incomingRequest?.dropOff_address??"",
-                        style: Theme.of(context).textTheme.bodyText1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Text("Drop-Off: ${_incomingRequest?.dropOff_address??""}",
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
                   ),
@@ -192,15 +163,15 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text( _incomingRequest?.distance??"", style: Theme.of(context).textTheme.bodyText2,),
+                Text( _incomingRequest?.distance??"", style: Theme.of(context).textTheme.bodyMedium,),
                 const SizedBox(width: 20,),
-                Text(_incomingRequest?.amount??"", style: Theme.of(context).textTheme.bodyText2,),
+                Text(MyOgaFormatter.currencyFormatter(double.parse(_incomingRequest?.amount??"")), style: Theme.of(context).textTheme.bodyMedium,),
               ],
             ),
             const SizedBox(height: 35,),
-            Text("Payment Method", style: Theme.of(context).textTheme.headline6,),
+            Text("Payment Method", style: Theme.of(context).textTheme.titleLarge,),
             const SizedBox(height: 10,),
-            Text(_incomingRequest?.payment_method??"", style: Theme.of(context).textTheme.bodyText1,),
+            Text(_incomingRequest?.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
             const SizedBox(height: 35,),
             Column(
               children: [

@@ -94,14 +94,14 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
                         Icons.location_on,
                       ),
                       label:Text( appState.requestModelFirebase.pickUpAddy ?? "Nada",
-                      style: Theme.of(context).textTheme.bodyText1,)),
+                      style: Theme.of(context).textTheme.bodyLarge,)),
                 ),
                 const Divider(),
                 ListTile(
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Drop Off", style: Theme.of(context).textTheme.headline6,
+                      Text("Drop Off", style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],
                   ),
