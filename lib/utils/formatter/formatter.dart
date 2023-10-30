@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 class MyOgaFormatter{
   static String dateFormatter(DateTime? date){
     date ??= DateTime.now();
-    return DateFormat('dd-MM-yyyy').format(date);
+    return DateFormat('dd-MM-yyyy hh:mm a').format(date);
   }
 
   static String currencyFormatter(double amount){

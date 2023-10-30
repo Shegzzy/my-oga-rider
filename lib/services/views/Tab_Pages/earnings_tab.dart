@@ -293,7 +293,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Flexible(child: Text(My ?? "",
+                                        Flexible(child: Text(MyOgaFormatter.dateFormatter(DateTime.parse(snapshot.data![index].created_at!)),
                                             style: Theme.of(context).textTheme.headlineMedium,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis)),
