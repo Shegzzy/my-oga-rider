@@ -614,7 +614,35 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
               ),
             ),
           ),
+          Positioned(
+            right: 325,
+            top: 65,
+            child: GestureDetector(
+                onTap: (){
+                  Get.to(_buildPendingBookings(context));
+                },
+                child: Icon(Icons.notifications))
+          )
         ],
+      ),
+    );
+  }
+
+  Widget _buildPendingBookings(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Pending Requests'),
+      ),
+      body: ListView.builder(
+        itemCount: requestHistory.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(requestHistory[index].bookingNumber!),
+            // Add more details as needed
+            // Add a button to accept the request
+            // onPressed: () => acceptRequest(pendingBookings[index]),
+          );
+        },
       ),
     );
   }
