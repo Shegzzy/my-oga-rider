@@ -9,6 +9,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/widgets/custom_btn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/text_strings.dart';
@@ -633,16 +634,48 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
       appBar: AppBar(
         title: Text('Pending Requests'),
       ),
-      body: ListView.builder(
-        itemCount: requestHistory.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(requestHistory[index].bookingNumber!),
-            // Add more details as needed
-            // Add a button to accept the request
-            // onPressed: () => acceptRequest(pendingBookings[index]),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        child: ListView.builder(
+          itemCount: requestHistory.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                dense: true,
+
+                title: Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Pickup Address: ${requestHistory[index].pickup_address!}'),
+                      const SizedBox(height: 10,),
+                      Text('DropOff Address: ${requestHistory[index].dropOff_address!}'),
+
+                    ],
+                  ),
+                ),
+                subtitle: Column(
+                  children: [
+                    const SizedBox(height: 10,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Delivery Mode: ${requestHistory[index].deliveryMode!}'),
+                        Text('Distance: ${requestHistory[index].distance!}'),
+                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestHistory[index].amount!))}')
+                      ],
+                    ),
+                    const SizedBox(height: 10,),
+                    CustomBtn(text: 'Accept', bgColor: Colors.purple, onTap: (){})
+                  ]
+                ),
+                // Add more details as needed
+                // Add a button to accept the request
+                // onPressed: () => acceptRequest(pendingBookings[index]),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
