@@ -37,6 +37,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   late var timer;
   BookingModel? currentRequest;
   List<BookingModel> requestHistory = [];
+  List<BookingModel> acceptedBookingList = [];
 
   late Position currentPosition;
   late Stream queryData;
@@ -271,7 +272,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     WidgetsBinding.instance.addObserver(this);
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async{
       print(requestHistory);
-      if (currentRequest == null || requestHistory.length < 3) {
+      if (acceptedBookingList.length < 3) {
         final latestRequest = await requestController.getBookingData().first;
 
         if (latestRequest != null) {
@@ -461,6 +462,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       child: ElevatedButton(
                         onPressed: () async {
                           await requestController.updateDetail(incomingRequest.bookingNumber);
+                          acceptedBookingList.add(incomingRequest);
                           showAcceptModalBottomSheet(context, incomingRequest);
 
                         },
