@@ -13,6 +13,7 @@ class FirestoreService {
   late SharedPreferences prefs;
   BookingModel? bookingModel;
 
+  // Get pending bookings
   Stream<BookingModel> getBookingData(){
     return _db.collection("Bookings")
         .where("Status", isEqualTo: "pending")

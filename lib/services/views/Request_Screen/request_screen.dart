@@ -33,7 +33,7 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
             elevation: 0,
             centerTitle: true,
             title: Text( "New Ride Request",
-              style: Theme.of(context).textTheme.headline6,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           backgroundColor: white,
@@ -84,7 +84,7 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Pick Up", style: Theme.of(context).textTheme.headline6,
+                      Text("Pick Up", style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],
                   ),
@@ -111,7 +111,7 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
                         Icons.location_on,
                       ),
                       label:Text( appState.requestModelFirebase.dropOffAddy ?? "Nada",
-                        style: Theme.of(context).textTheme.bodyText1,)),
+                        style: Theme.of(context).textTheme.bodyLarge,)),
                 ),
                 const Divider(),
                 Row(

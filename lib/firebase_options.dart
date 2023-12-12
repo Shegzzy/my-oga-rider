@@ -65,7 +65,7 @@ class DefaultFirebaseOptions {
     projectId: 'myoga-80daa',
     databaseURL: 'https://myoga-80daa-default-rtdb.firebaseio.com',
     storageBucket: 'myoga-80daa.appspot.com',
-    androidClientId: '762957034592-92ki6mlm0e964h9qn1pdff68cp1hrd0q.apps.googleusercontent.com',
+    androidClientId: '762957034592-562st3drt7gj6lv4lc6dtatpqlqc2isn.apps.googleusercontent.com',
     iosClientId: '762957034592-dr650cbiniu96n78akujhi93o0fm9jkb.apps.googleusercontent.com',
     iosBundleId: 'com.example.myOgaRider',
   );

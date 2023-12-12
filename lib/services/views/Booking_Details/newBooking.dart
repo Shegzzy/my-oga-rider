@@ -163,15 +163,21 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text( _incomingRequest?.distance??"", style: Theme.of(context).textTheme.bodyMedium,),
+                Text('Distance: ${ _incomingRequest?.distance}', style: Theme.of(context).textTheme.bodyMedium,),
                 const SizedBox(width: 20,),
-                Text(MyOgaFormatter.currencyFormatter(double.parse(_incomingRequest?.amount??"")), style: Theme.of(context).textTheme.bodyMedium,),
+                Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(_incomingRequest?.amount ?? ""))}', style: Theme.of(context).textTheme.bodyMedium,),
               ],
             ),
             const SizedBox(height: 35,),
             Text("Payment Method", style: Theme.of(context).textTheme.titleLarge,),
             const SizedBox(height: 10,),
             Text(_incomingRequest?.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
+            const SizedBox(height: 35,),
+
+            const SizedBox(height: 35,),
+            Text("Delivery Mode", style: Theme.of(context).textTheme.titleLarge,),
+            const SizedBox(height: 10,),
+            Text(_incomingRequest?.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
             const SizedBox(height: 35,),
             Column(
               children: [

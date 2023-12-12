@@ -12,6 +12,7 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/text_strings.dart';
+import '../../../utils/formatter/formatter.dart';
 import '../../controller/getx_switch_state.dart';
 import '../../controller/request_controller.dart';
 import '../../controller/signup_controller.dart';
@@ -33,7 +34,9 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   late GoogleMapController newGoogleMapController;
 
   late var timer;
-  BookingModel? request;
+  BookingModel? currentRequest;
+  List<BookingModel> requestHistory = [];
+
   late Position currentPosition;
   late Stream queryData;
   var geoLocator = Geolocator();
@@ -265,17 +268,24 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    timer = Timer.periodic(const Duration(seconds: 30), (timer){
-      if(getController.isOnline.value == true){
-        requestController.getBookingData().listen((event) {
-          request = event;
-        });
+    timer = Timer.periodic(const Duration(seconds: 30), (timer) async{
+      print(requestHistory);
+      if (currentRequest == null || requestHistory.length < 3) {
+        final latestRequest = await requestController.getBookingData().first;
 
-        if (request == null) {
-          return;
-        }
-        else {
-          showBookingNotification(context, request!);
+        if (latestRequest != null) {
+          setState(() {
+            currentRequest = latestRequest;
+          });
+
+          if (!requestHistory.any((previousRequest) =>
+          previousRequest.bookingNumber == latestRequest.bookingNumber)) {
+            setState(() {
+              requestHistory.add(latestRequest);
+            });
+
+            showBookingNotification(context, latestRequest);
+          }
         }
       } else{
         return;
@@ -312,7 +322,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   void _startRefreshTimer() {
     timer = Timer.periodic(const Duration(minutes: 5), (timer) {
       setState(() {
-        showBookingNotification(context, request!);
+        showBookingNotification(context, currentRequest!);
       });
     });
   }
@@ -327,14 +337,14 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
         return AlertDialog(
           content: Container(
             width: double.infinity,
-            height: 380,
+            height: 430,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(1.0),
             ),
             child: Column(
               children: [
-                Text("New Booking Request", style: Theme.of(context).textTheme.bodyText1,),
+                Text("New Booking Request", style: Theme.of(context).textTheme.bodyLarge,),
                 const SizedBox(height: 20,),
                 Row(
                   children: [
@@ -351,7 +361,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                         child: Padding(
                           padding: const EdgeInsets.all(4.0),
                           child: Text("Pickup",
-                            style: Theme.of(context).textTheme.headline6,
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
                         ),
                       ),
@@ -365,7 +375,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                         child: Padding(
                           padding: const EdgeInsets.all(1.0),
                           child: Text(incomingRequest.pickup_address??"",
-                            style: Theme.of(context).textTheme.bodyText1,
+                            style: Theme.of(context).textTheme.bodyLarge,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -389,7 +399,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                         child: Padding(
                           padding: const EdgeInsets.all(4.0),
                           child: Text("Drop-Off",
-                            style: Theme.of(context).textTheme.headline6,
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
                         ),
                       ),
@@ -403,7 +413,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                         child: Padding(
                           padding: const EdgeInsets.all(1.0),
                           child: Text(incomingRequest.dropOff_address??"",
-                            style: Theme.of(context).textTheme.bodyText1,
+                            style: Theme.of(context).textTheme.bodyLarge,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -416,16 +426,22 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text( incomingRequest.distance??"", style: Theme.of(context).textTheme.bodyText2,),
+                    Text('Distance: ${incomingRequest.distance ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
                     const SizedBox(width: 20,),
-                    Text(incomingRequest.amount??"", style: Theme.of(context).textTheme.bodyText2,),
+                    Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(incomingRequest.amount ?? ""))}', style: Theme.of(context).textTheme.bodyMedium,),
                   ],
                 ),
                 const SizedBox(height: 35,),
-                Text("Payment Method", style: Theme.of(context).textTheme.headline6,),
+                Text("Payment Method:", style: Theme.of(context).textTheme.titleLarge,),
                 const SizedBox(height: 10,),
-                Text(incomingRequest.payment_method??"", style: Theme.of(context).textTheme.bodyText1,),
-                const SizedBox(height: 35,),
+                Text(incomingRequest.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
+
+                const SizedBox(height: 15,),
+                Text("Delivery Mode:", style: Theme.of(context).textTheme.titleLarge,),
+                const SizedBox(height: 10,),
+                Text(incomingRequest.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
+
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(

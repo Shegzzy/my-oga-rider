@@ -1,4 +1,4 @@
-package com.example.my_oga_rider
+package com.myoga.myogarider
 
 import io.flutter.embedding.android.FlutterActivity
 
