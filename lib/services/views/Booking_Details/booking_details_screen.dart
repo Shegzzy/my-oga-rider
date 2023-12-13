@@ -313,7 +313,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   ],
                 ),
                 const SizedBox(height: 5,),
-                Flexible(child: Text(bookingData.dropOff_address??"", style: theme.textTheme.headline6, overflow: TextOverflow.ellipsis,)),
+                Flexible(child: Text(bookingData.dropOff_address??"", style: theme.textTheme.titleLarge, overflow: TextOverflow.ellipsis,)),
                 const SizedBox(height: 20),
                 const Divider(
                   color: Colors.black,
@@ -328,7 +328,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   children: [
                     Flexible(
                       child: Text("Date Created: ${bookingData.created_at}",
-                        style: theme.textTheme.headline6,
+                        style: theme.textTheme.titleLarge,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -336,21 +336,21 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     const SizedBox(width: 10,),
                     Flexible(
                       child: Text("Status: ${bookingData.status}",
-                        style: theme.textTheme.headline6,
+                        style: theme.textTheme.titleLarge,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                Flexible(child: Text("Additional Details: ${bookingData.additional_details}", style: theme.textTheme.headline6, maxLines: 3, overflow: TextOverflow.ellipsis,)),
+                Flexible(child: Text("Additional Details: ${bookingData.additional_details}", style: theme.textTheme.titleLarge, maxLines: 3, overflow: TextOverflow.ellipsis,)),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
                       child: Text("Customer Details",
-                        style: theme.textTheme.headline6,
+                        style: theme.textTheme.titleLarge,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),

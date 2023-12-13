@@ -292,6 +292,14 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
   DateTime? lastNotificationTime;
 
+  void removePendingBookings() {
+    if(requestHistory.any((previousRequest) => previousRequest.status == 'active')){
+      setState(() {
+        requestHistory.removeWhere((booking) => booking.bookingNumber == currentRequest?.bookingNumber);
+      });
+    }
+  }
+
 
   @override
   void initState() {
@@ -310,6 +318,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                   currentRequest = latestRequest;
                 });
 
+                removePendingBookings();
                 // Check if the distance between rider and pickup is below a threshold
                 final double distanceThreshold = 4.0;
 
@@ -581,10 +590,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             Navigator.of(context).pop();
             showStatusModalBottomSheet(context, newRequest);
 
-            // Remove the booking from requestHistory
-            setState(() {
-                requestHistory.removeWhere((booking) => booking.bookingNumber == newRequest.bookingNumber);
-              });
             },
             bookingData: newRequest,
           ),

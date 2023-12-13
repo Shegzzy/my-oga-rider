@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:my_oga_rider/constant/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../repo/user_repo.dart';
@@ -580,6 +581,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                   ),
                                 ),
                               ]else ...[
+                                Int1 == 1 ?
                                 Expanded(
                                   child: OutlinedButton(
                                     onPressed: Int7 ==1 ? null:(){
@@ -587,7 +589,31 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                      Navigator.of(context).pop();
                                     },
                                     style: Theme.of(context).elevatedButtonTheme.style,
-                                    child: Text(Int7 ==1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
+                                    child: Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
+                                  ),
+                                ) :
+                                Expanded(
+                                  child: OutlinedButton(
+                                      onPressed: () async{
+                                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                                        final userID = prefs.getString("UserID")!;
+                                        final order = OrderStatusModel(
+                                            customerID: newRequest.customer_id,
+                                            driverID: userID,
+                                            bookingNumber: newRequest.bookingNumber,
+                                            orderAssign: "1",
+                                            outForPick: "0",
+                                            arrivePick: "0",
+                                            percelPicked: "0",
+                                            wayToDrop: "0",
+                                            arriveDrop: "0",
+                                            completed: "0",
+                                            dateCreated: DateTime.now().toString(),
+                                            timeStamp: Timestamp.now()
+                                        );
+                                      },
+                                      style: Theme.of(context).elevatedButtonTheme.style,
+                                      child: Text("Start Service".toUpperCase())
                                   ),
                                 ),
                               ],
