@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:my_oga_rider/widgets/custom_btn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../constant/colors.dart';
 import '../../../constant/text_strings.dart';
 import '../../../utils/formatter/formatter.dart';
 import '../../controller/getx_switch_state.dart';
@@ -266,6 +268,26 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 ''');
   }
 
+  // Function to calculate distance between two points using Haversine formula
+  double calculateDistance(double startLat, double startLng, double endLat, double endLng) {
+    const R = 6371.0; // Earth radius in kilometers
+
+    final double dLat = _toRadians(endLat - startLat);
+    final double dLng = _toRadians(endLng - startLng);
+
+    final double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRadians(startLat)) * cos(_toRadians(endLat)) * sin(dLng / 2) * sin(dLng / 2);
+
+    final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    return R * c;
+  }
+
+  // Helper function to convert degrees to radians
+  double _toRadians(double degree) {
+    return degree * (pi / 180);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -279,6 +301,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
           setState(() {
             currentRequest = latestRequest;
           });
+          print(currentRequest?.pickUp_latitude);
+          print(currentRequest?.pickUp_longitude);
+          print(currentPosition.latitude);
+          print(currentPosition.longitude);
 
           if (!requestHistory.any((previousRequest) =>
           previousRequest.bookingNumber == latestRequest.bookingNumber)) {
@@ -455,16 +481,13 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                         child: Text("Cancel".toUpperCase()),
                       ),
                     ),
-                    const SizedBox(
-                      width: 10.0,
-                    ),
+                    const SizedBox(width: 10.0,),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
                           await requestController.updateDetail(incomingRequest.bookingNumber);
                           acceptedBookingList.add(incomingRequest);
                           showAcceptModalBottomSheet(context, incomingRequest);
-
                         },
                         style: Theme.of(context).elevatedButtonTheme.style,
                         child: Text("Accept".toUpperCase()),
@@ -521,9 +544,13 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             );
             await requestController.storeOrderStatus(order);
             /// Stop Progress Bar
-            // ignore: use_build_context_synchronously
             Navigator.of(context).pop();
             showStatusModalBottomSheet(context, newRequest);
+
+            // Remove the booking from requestHistory
+            setState(() {
+                requestHistory.removeWhere((booking) => booking.bookingNumber == newRequest.bookingNumber);
+              });
             },
             bookingData: newRequest,
           ),
@@ -635,6 +662,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     return Scaffold(
       appBar: AppBar(
         title: Text('Pending Requests'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -642,9 +670,9 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
           itemCount: requestHistory.length,
           itemBuilder: (context, index) {
             return Card(
+              elevation: 5,
               child: ListTile(
                 dense: true,
-
                 title: Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -668,7 +696,17 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       ],
                     ),
                     const SizedBox(height: 10,),
-                    CustomBtn(text: 'Accept', bgColor: Colors.purple, onTap: (){})
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: PButtonColor
+                      ),
+                      child: Text('Accept'.toUpperCase(), style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12
+                      )))
                   ]
                 ),
                 // Add more details as needed
