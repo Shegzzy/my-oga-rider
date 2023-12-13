@@ -14,14 +14,15 @@ class FirestoreService {
   BookingModel? bookingModel;
 
   // Get pending bookings
-  Stream<BookingModel> getBookingData(){
+  Stream<List<BookingModel>> getBookingData() {
     return _db.collection("Bookings")
         .where("Status", isEqualTo: "pending")
         .snapshots()
         .map((snapshot) => snapshot.docs
-        .map((document) => BookingModel.fromSnapshot(document.data())).first
-    );
+        .map((document) => BookingModel.fromSnapshot(document.data()))
+        .toList());
   }
+
 
   Stream<BookingModel> getBookingDataByNum(String num){
     return _db.collection("Bookings")

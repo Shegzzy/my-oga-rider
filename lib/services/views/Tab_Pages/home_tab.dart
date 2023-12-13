@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
@@ -279,8 +281,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
         cos(_toRadians(startLat)) * cos(_toRadians(endLat)) * sin(dLng / 2) * sin(dLng / 2);
 
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-    return R * c;
+    double result = R * c;
+    return result.roundToDouble();
   }
 
   // Helper function to convert degrees to radians
@@ -288,38 +290,70 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     return degree * (pi / 180);
   }
 
+  DateTime? lastNotificationTime;
+
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    timer = Timer.periodic(const Duration(seconds: 30), (timer) async{
-      print(requestHistory);
+    timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+
       if (acceptedBookingList.length < 3) {
-        final latestRequest = await requestController.getBookingData().first;
+        // Listen to updates in the stream of pending booking requests
+        requestController.getBookingData().listen((List<BookingModel> bookingList) async {
+          if (bookingList.isNotEmpty) {
+            // Take the latest pending booking request
+            for (final latestRequest in bookingList) {
+              if (latestRequest != null) {
+                setState(() {
+                  currentRequest = latestRequest;
+                });
 
-        if (latestRequest != null) {
-          setState(() {
-            currentRequest = latestRequest;
-          });
-          print(currentRequest?.pickUp_latitude);
-          print(currentRequest?.pickUp_longitude);
-          print(currentPosition.latitude);
-          print(currentPosition.longitude);
+                // Check if the distance between rider and pickup is below a threshold
+                final double distanceThreshold = 4.0;
 
-          if (!requestHistory.any((previousRequest) =>
-          previousRequest.bookingNumber == latestRequest.bookingNumber)) {
-            setState(() {
-              requestHistory.add(latestRequest);
-            });
+                final double riderLat = currentPosition.latitude;
+                final double riderLng = currentPosition.longitude;
+                final double pickupLng = double.parse(latestRequest.pickUp_longitude!);
+                final double pickupLat = double.parse(latestRequest.pickUp_latitude!);
 
-            showBookingNotification(context, latestRequest);
+                final double distance = calculateDistance(riderLat, riderLng, pickupLat, pickupLng);
+                print(distance);
+
+                // String directionUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=${currentPosition.latitude},${currentPosition.longitude}&destination=${latestRequest.pickUp_latitude},${latestRequest.pickUp_longitude}&key=AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM";
+                // http.Response response = await http.get(Uri.parse(directionUrl));
+                // if (response.statusCode == 200) {
+                //   // Parse the response body into a map
+                //   Map<String, dynamic> responseData = json.decode(response.body);
+                //
+                //   // Access the required distance value
+                //   int distanceValue = responseData['routes'][0]['legs'][0]['distance']['value'];
+                //   print("Distance: $distanceValue meters");
+                // } else {
+                //   print("Failed to fetch directions. Status code: ${response.statusCode}");
+                // }
+
+                // Checking if the booking is not a duplicate, if the booking is within proximity and if enough time has passed since the last notification
+                if (distance <= distanceThreshold && !requestHistory.any((previousRequest) => previousRequest.bookingNumber == latestRequest.bookingNumber) &&
+                    (lastNotificationTime == null || DateTime.now().difference(lastNotificationTime!) > const Duration(seconds: 35))) {
+                  setState(() {
+                    requestHistory.add(latestRequest);
+                  });
+
+                  showBookingNotification(context, latestRequest);
+
+                  // Update the timestamp of the last shown notification
+                  lastNotificationTime = DateTime.now();
+                }
+              }
+            }
           }
-        }
-      } else{
+        });
+      } else {
         return;
       }
     });
-
   }
 
 
