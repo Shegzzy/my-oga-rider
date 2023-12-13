@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../repo/user_repo.dart';
+import '../../controller/request_controller.dart';
 import '../../model/booker_model.dart';
 import '../../model/booking_model.dart';
 import '../../model/earningModel.dart';
@@ -30,6 +31,8 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
   final _userRepo = Get.put(UserRepository());
   final _db = FirebaseFirestore.instance;
   UserModel? _userModel;
+  FirestoreService requestController = FirestoreService();
+
 
   @override
   void initState() {
@@ -598,9 +601,9 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                         SharedPreferences prefs = await SharedPreferences.getInstance();
                                         final userID = prefs.getString("UserID")!;
                                         final order = OrderStatusModel(
-                                            customerID: newRequest.customer_id,
-                                            driverID: userID,
-                                            bookingNumber: newRequest.bookingNumber,
+                                            customerID: widget.bookingData?.customer_id,
+                                            // driverID: userID,
+                                            bookingNumber: widget.bookingData?.bookingNumber,
                                             orderAssign: "1",
                                             outForPick: "0",
                                             arrivePick: "0",
@@ -611,6 +614,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                             dateCreated: DateTime.now().toString(),
                                             timeStamp: Timestamp.now()
                                         );
+                                        requestController.storeOrderStatus(order);
                                       },
                                       style: Theme.of(context).elevatedButtonTheme.style,
                                       child: Text("Start Service".toUpperCase())
