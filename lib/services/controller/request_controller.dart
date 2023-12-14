@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -12,6 +14,7 @@ class FirestoreService {
   FirebaseFirestore _db = FirebaseFirestore.instance;
   late SharedPreferences prefs;
   BookingModel? bookingModel;
+  List<BookingModel> acceptedBookingList = [];
 
   // Get pending bookings
   Stream<List<BookingModel>> getBookingData() {
@@ -76,6 +79,39 @@ class FirestoreService {
       //String deviceToken = await fcm.getToken();
      // await prefs.setString('token', deviceToken);
     }
+  }
+
+  // Function to load accepted bookings from shared preferences
+  Future<void> loadAcceptedBookings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String>? serializedList = prefs.getStringList('acceptedBookings');
+
+    if (serializedList != null) {
+      acceptedBookingList = serializedList
+          .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
+          .toList();
+    }
+  }
+
+  // Function to save accepted bookings to shared preferences
+  Future<void> saveAcceptedBookings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> serializedList =
+    acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
+
+    prefs.setStringList('acceptedBookings', serializedList);
+  }
+
+  // Function to add a new accepted booking
+  void addAcceptedBooking(BookingModel newBooking) {
+    acceptedBookingList.add(newBooking);
+    saveAcceptedBookings(); // Save the updated list to shared preferences
+  }
+
+  // Function to remove a completed booking
+  void removeCompletedBooking(String bookingNumber) {
+    acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
+    saveAcceptedBookings(); // Save the updated list to shared preferences
   }
 
 }

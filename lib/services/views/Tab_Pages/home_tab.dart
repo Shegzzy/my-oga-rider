@@ -41,7 +41,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   late var timer;
   BookingModel? currentRequest;
   List<BookingModel> requestHistory = [];
-  List<BookingModel> acceptedBookingList = [];
 
   late Position currentPosition;
   late Stream queryData;
@@ -301,48 +300,14 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     }
   }
 
-  // Function to load accepted bookings from shared preferences
-  Future<void> loadAcceptedBookings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String>? serializedList = prefs.getStringList('acceptedBookings');
-
-    if (serializedList != null) {
-      acceptedBookingList = serializedList
-          .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
-          .toList();
-    }
-  }
-
-  // Function to save accepted bookings to shared preferences
-  Future<void> saveAcceptedBookings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> serializedList =
-    acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
-
-    prefs.setStringList('acceptedBookings', serializedList);
-  }
-
-  // Function to add a new accepted booking
-  void addAcceptedBooking(BookingModel newBooking) {
-    acceptedBookingList.add(newBooking);
-    saveAcceptedBookings(); // Save the updated list to shared preferences
-  }
-
-  // Function to remove a completed booking
-  void removeCompletedBooking(String bookingNumber) {
-    acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
-    saveAcceptedBookings(); // Save the updated list to shared preferences
-  }
-
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    requestController.loadAcceptedBookings();
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
-      if (acceptedBookingList.length < 3) {
-        print(acceptedBookingList);
+      if (requestController.acceptedBookingList.length < 3) {
         // Listen to updates in the stream of pending booking requests
         requestController.getBookingData().listen((List<BookingModel> bookingList) async {
           if (bookingList.isNotEmpty) {
@@ -564,7 +529,9 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       child: ElevatedButton(
                         onPressed: () async {
                           await requestController.updateDetail(incomingRequest.bookingNumber);
-                          acceptedBookingList.add(incomingRequest);
+                          if(mounted){
+                            requestController.addAcceptedBooking(incomingRequest);
+                          }
                           showAcceptModalBottomSheet(context, incomingRequest);
                         },
                         style: Theme.of(context).elevatedButtonTheme.style,
