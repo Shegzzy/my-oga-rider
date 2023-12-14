@@ -245,14 +245,16 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.circle_outlined, size: 20, color: Int1 == 1 ? Colors.purple : Colors.grey,),
+                              Int1 == 1 ?
+                              Icon(Icons.circle, size: 20, color: Colors.purple):
+                              Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
                               Text("Order Assigned", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsets.only(left: 8),
                             child: SizedBox(
                               height: 25,
                               child: Row(
@@ -260,7 +262,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     VerticalDivider(
                                       color: Int1 == 1 ? Colors.purple : Colors.grey,
                                       width: 2,
-                                      thickness: 2,
+                                      thickness: 5,
 
                                     ),
                                   ]
@@ -271,14 +273,16 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
                           Row(
                             children: [
-                              Icon(Icons.circle_outlined, size: 20, color: Int2 == 1 ? Colors.purple : Colors.grey,),
+                              Int2 == 1 ?
+                              Icon(Icons.circle, size: 20, color: Colors.purple):
+                              Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
                               Text("Out For Pickup",style: theme.textTheme.titleLarge),
 
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsets.only(left: 8),
                             child: SizedBox(
                               height: 25,
                               child: Row(
@@ -286,7 +290,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     VerticalDivider(
                                       color: Int2 == 1 ? Colors.purple : Colors.grey,
                                       width: 2,
-                                      thickness: 2,
+                                      thickness: 5,
 
                                     ),
                                   ]
@@ -297,6 +301,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
                           Row(
                             children: [
+                              Icon(Icons.circle_outlined, size: 20, color: Int3 == 1 ? Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Int3 == 1 ? Colors.purple : Colors.grey,),
                               const SizedBox(width: 15,),
                               Text("Arrive at Pickup Location", style: theme.textTheme.titleLarge),
@@ -304,7 +309,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsets.only(left: 8),
                             child: SizedBox(
                               height: 25,
                               child: Row(
@@ -312,7 +317,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     VerticalDivider(
                                       color: Int3 == 1 ? Colors.purple : Colors.grey,
                                       width: 2,
-                                      thickness: 2,
+                                      thickness: 5,
 
                                     ),
                                   ]
@@ -590,6 +595,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                   child: OutlinedButton(
                                     onPressed: Int7 ==1 ? null:(){
                                      completeOrder();
+                                     requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                      Navigator.of(context).pop();
                                     },
                                     style: Theme.of(context).elevatedButtonTheme.style,

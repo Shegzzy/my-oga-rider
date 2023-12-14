@@ -308,6 +308,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
       if (requestController.acceptedBookingList.length < 3) {
+        print(requestController.acceptedBookingList);
         // Listen to updates in the stream of pending booking requests
         requestController.getBookingData().listen((List<BookingModel> bookingList) async {
           if (bookingList.isNotEmpty) {
