@@ -105,13 +105,13 @@ class FirestoreService {
   // Function to add a new accepted booking
   void addAcceptedBooking(BookingModel newBooking) {
     acceptedBookingList.add(newBooking);
-    saveAcceptedBookings(); // Save the updated list to shared preferences
+    saveAcceptedBookings();
   }
 
   // Function to remove a completed booking
   void removeCompletedBooking(String bookingNumber) {
     acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
-    saveAcceptedBookings(); // Save the updated list to shared preferences
+    saveAcceptedBookings();
   }
 
 }

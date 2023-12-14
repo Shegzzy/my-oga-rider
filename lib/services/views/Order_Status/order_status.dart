@@ -301,8 +301,9 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
                           Row(
                             children: [
-                              Icon(Icons.circle_outlined, size: 20, color: Int3 == 1 ? Colors.purple):
-                              Icon(Icons.circle_outlined, size: 20, color: Int3 == 1 ? Colors.purple : Colors.grey,),
+                              Int3 == 1 ?
+                              Icon(Icons.circle, size: 20, color: Colors.purple):
+                              Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
                               Text("Arrive at Pickup Location", style: theme.textTheme.titleLarge),
 
@@ -328,14 +329,16 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
                           Row(
                             children: [
-                              Icon(Icons.circle_outlined, size: 20, color: Int4 == 1 ? Colors.purple : Colors.grey,),
+                              Int4 == 1 ?
+                              Icon(Icons.circle, size: 20, color: Colors.purple):
+                              Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
                               Text("Parcel Picked", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsets.only(left: 8),
                             child: SizedBox(
                               height: 25,
                               child: Row(
@@ -343,7 +346,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     VerticalDivider(
                                       color: Int4 == 1 ? Colors.purple : Colors.grey,
                                       width: 2,
-                                      thickness: 2,
+                                      thickness: 5,
 
                                     ),
                                   ]
@@ -354,14 +357,16 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
                           Row(
                             children: [
-                              Icon(Icons.circle_outlined, size: 20, color: Int5 == 1 ? Colors.purple : Colors.grey,),
+                              Int5 == 1 ?
+                              Icon(Icons.circle, size: 20, color: Colors.purple):
+                              Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
                               Text("On the way to Drop Location", style: theme.textTheme.titleLarge),
 
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsets.only(left: 8),
                             child: SizedBox(
                               height: 25,
                               child: Row(
@@ -369,7 +374,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     VerticalDivider(
                                       color: Int5 == 1 ? Colors.purple : Colors.grey,
                                       width: 2,
-                                      thickness: 2,
+                                      thickness: 5,
 
                                     ),
                                   ]
@@ -380,7 +385,9 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
                           Row(
                             children: [
-                              Icon(Icons.circle_outlined, size: 20, color: Int6 == 1 ? Colors.purple : Colors.grey,),
+                              Int6 == 1 ?
+                              Icon(Icons.circle, size: 20, color: Colors.purple):
+                              Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
                               Text("Arrived at Drop Location", style: theme.textTheme.titleLarge),
 
