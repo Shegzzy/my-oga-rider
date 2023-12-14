@@ -292,12 +292,46 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
   DateTime? lastNotificationTime;
 
+  // Method to remove pending booking from list once its accepted
   void removePendingBookings() {
     if(requestHistory.any((previousRequest) => previousRequest.status == 'active')){
       setState(() {
         requestHistory.removeWhere((booking) => booking.bookingNumber == currentRequest?.bookingNumber);
       });
     }
+  }
+
+  // Function to load accepted bookings from shared preferences
+  Future<void> loadAcceptedBookings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String>? serializedList = prefs.getStringList('acceptedBookings');
+
+    if (serializedList != null) {
+      acceptedBookingList = serializedList
+          .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
+          .toList();
+    }
+  }
+
+  // Function to save accepted bookings to shared preferences
+  Future<void> saveAcceptedBookings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> serializedList =
+    acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
+
+    prefs.setStringList('acceptedBookings', serializedList);
+  }
+
+  // Function to add a new accepted booking
+  void addAcceptedBooking(BookingModel newBooking) {
+    acceptedBookingList.add(newBooking);
+    saveAcceptedBookings(); // Save the updated list to shared preferences
+  }
+
+  // Function to remove a completed booking
+  void removeCompletedBooking(String bookingNumber) {
+    acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
+    saveAcceptedBookings(); // Save the updated list to shared preferences
   }
 
 
@@ -308,6 +342,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
       if (acceptedBookingList.length < 3) {
+        print(acceptedBookingList);
         // Listen to updates in the stream of pending booking requests
         requestController.getBookingData().listen((List<BookingModel> bookingList) async {
           if (bookingList.isNotEmpty) {
@@ -320,7 +355,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
                 removePendingBookings();
                 // Check if the distance between rider and pickup is below a threshold
-                final double distanceThreshold = 4.0;
+                final double distanceThreshold = 5.0;
 
                 final double riderLat = currentPosition.latitude;
                 final double riderLng = currentPosition.longitude;
@@ -690,8 +725,23 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 onTap: (){
                   Get.to(_buildPendingBookings(context));
                 },
-                child: Icon(Icons.notifications))
-          )
+                child: Icon(Icons.notifications, color: PButtonColor,))
+          ),
+          Positioned(
+              right: 325,
+              top: 65,
+              child: Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.grey.shade500
+                ),
+                child: Center(
+                    child: Text('${requestHistory.length}',
+                      style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600),)),
+              )
+            )
         ],
       ),
     );
@@ -712,16 +762,14 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
               elevation: 5,
               child: ListTile(
                 dense: true,
-                title: Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Pickup Address: ${requestHistory[index].pickup_address!}'),
-                      const SizedBox(height: 10,),
-                      Text('DropOff Address: ${requestHistory[index].dropOff_address!}'),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Pickup Address: ${requestHistory[index].pickup_address!}'),
+                    const SizedBox(height: 10,),
+                    Text('DropOff Address: ${requestHistory[index].dropOff_address!}'),
 
-                    ],
-                  ),
+                  ],
                 ),
                 subtitle: Column(
                   children: [
@@ -736,7 +784,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                     ),
                     const SizedBox(height: 10,),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
                         color: PButtonColor
