@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/services/controller/request_controller.dart';
 import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -34,6 +35,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   final _userRepo = Get.put(UserRepository());
 
   BookerModel? _bookerModel;
+  FirestoreService firestoreService = FirestoreService();
 
   @override
   void initState() {
@@ -327,7 +329,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
-                      child: Text("Date Created: ${bookingData.created_at}",
+                      child: Text("Date Created: ${MyOgaFormatter.dateFormatter(DateTime.parse(bookingData.created_at!))}",
                         style: theme.textTheme.titleLarge,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

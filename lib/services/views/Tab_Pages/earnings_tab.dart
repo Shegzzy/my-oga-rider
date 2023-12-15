@@ -44,11 +44,15 @@ class _EarningTabPageState extends State<EarningTabPage> {
   void initState() {
     super.initState();
     userFuture = _getBookings();
-    getTotal();
-    get30days();
-    get7days();
-    get1days();
+    initializeData();
   }
+
+Future<void> initializeData() async {
+  await getTotal();
+  await get30days();
+  await get7days();
+  await get1days();
+}
 
   Future<List<BookingModel>?>_getBookings() async {
     return await controller.getAllUserBookings();
@@ -136,23 +140,30 @@ class _EarningTabPageState extends State<EarningTabPage> {
     }
   }
 
-  Future<void>getTotal() async {
+  Future<void> getTotal() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userID = prefs.getString("UserID")!;
-    await _db.collection("Earnings").where("Driver", isEqualTo:userID).get().then((value){
-          for (var element in value.docs) {
-            _amount = double.tryParse(element.data()["Amount"]);
-            setState(() {
-              _total = _total + _amount!;
-            });
-          }
-          if (kDebugMode) {
-            print("THIS IS TOTAL $_total");
-          }
-        });
-    if(!mounted){return;}
+    _total = 0; // Initialize _total to 0
 
-}
+    await _db.collection("Earnings").where("Driver", isEqualTo: userID).get().then((value) {
+      for (var element in value.docs) {
+        _amount = double.tryParse(element.data()["Amount"]);
+        if (_amount != null) {
+          setState(() {
+            _total += _amount!;
+          });
+        }
+      }
+      if (kDebugMode) {
+        print("THIS IS TOTAL $_total");
+      }
+    });
+
+    if (!mounted) {
+      return;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -218,9 +229,9 @@ class _EarningTabPageState extends State<EarningTabPage> {
                     if(_selectedDays == "30 Days Earnings")...[
                       Text(MyOgaFormatter.currencyFormatter(_total30), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ] else if(_selectedDays == "7 Days Earnings")...[
-                      Text("NGN $_total7", style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
+                      Text(MyOgaFormatter.currencyFormatter(_total7).toString(), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]else if(_selectedDays == "24 Hours Earnings")...[
-                      Text("NGN $_total1", style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
+                      Text(MyOgaFormatter.currencyFormatter(_total1).toString(), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]else if(_selectedDays == "Total Earnings")...[
                       Text(MyOgaFormatter.currencyFormatter(_total).toString(), style: txtTheme.titleLarge?.apply(fontSizeFactor: 2.2)),
                     ]

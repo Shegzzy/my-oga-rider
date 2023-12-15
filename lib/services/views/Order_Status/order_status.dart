@@ -42,7 +42,17 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
       getOrderStatus();
       getUserDetails();
       getDriver();
+      initializeData();
   }
+
+  Future<void> initializeData() async {
+    await loadRequest();
+  }
+
+  Future<void> loadRequest() async {
+    await requestController.loadAcceptedBookings();
+  }
+
 
   // @override
   // void dispose() {
@@ -530,110 +540,222 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     child: Text("Parcel Picked".toUpperCase()),
                                   ),
                                 ),
-                              ]else if(Int4 == 1 && Int5 == 0)...[
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () async  {
-                                      ///Start Circular Progress Bar
-                                      showDialog(
-                                          context: context,
-                                          builder: (context){
-                                            return const Center(child: CircularProgressIndicator());
-                                          }
-                                      );
-                                      await _db.collection("Order_Status").doc(_orderStats?.id).update({
-                                        "Going to DropOff": "1",
-                                      }).whenComplete(() =>
-                                          Get.snackbar(
-                                              "Success", "Order Status Updated.",
-                                              snackPosition: SnackPosition.TOP,
-                                              backgroundColor: Colors.white,
-                                              colorText: Colors.green),
-                                      ).catchError((error, stackTrace) {
-                                        Get.snackbar("Error", "Something went wrong. Try again.",
-                                            snackPosition: SnackPosition.BOTTOM,
-                                            backgroundColor: Colors.white,
-                                            colorText: Colors.red);
-                                      });
-                                      /// Stop Progress Bar
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.of(context).pop();
-                                    },
-                                    style: Theme.of(context).elevatedButtonTheme.style,
-                                    child: Text("On My Way to Dropoff".toUpperCase()),
-                                  ),
-                                ),
-                              ]else if(Int5 == 1 && Int6 == 0)...[
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () async {
-                                      ///Start Circular Progress Bar
-                                      showDialog(
-                                          context: context,
-                                          builder: (context){
-                                            return const Center(child: CircularProgressIndicator());
-                                          }
-                                      );
-                                      await _db.collection("Order_Status").doc(_orderStats?.id).update({
-                                        "Arrive DropOff": "1",
-                                      }).whenComplete(() =>
-                                          Get.snackbar(
-                                              "Success", "Order Status Updated.",
-                                              snackPosition: SnackPosition.TOP,
-                                              backgroundColor: Colors.white,
-                                              colorText: Colors.green),
-                                      ).catchError((error, stackTrace) {
-                                        Get.snackbar("Error", "Something went wrong. Try again.",
-                                            snackPosition: SnackPosition.BOTTOM,
-                                            backgroundColor: Colors.white,
-                                            colorText: Colors.red);
-                                      });
-                                      /// Stop Progress Bar
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.of(context).pop();
-                                    },
-                                    style: Theme.of(context).elevatedButtonTheme.style,
-                                    child: Text("Arrived at DropOff".toUpperCase()),
-                                  ),
-                                ),
-                              ]else ...[
-                                Int1 == 1 ?
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: Int7 ==1 ? null:(){
-                                     completeOrder();
-                                     requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
-                                     Navigator.of(context).pop();
-                                    },
-                                    style: Theme.of(context).elevatedButtonTheme.style,
-                                    child: Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
-                                  ),
-                                ) :
-                                Expanded(
-                                  child: OutlinedButton(
-                                      onPressed: () async{
-                                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                                        final userID = prefs.getString("UserID")!;
-                                        final order = OrderStatusModel(
-                                            customerID: widget.bookingData?.customer_id,
-                                            // driverID: userID,
-                                            bookingNumber: widget.bookingData?.bookingNumber,
-                                            orderAssign: "1",
-                                            outForPick: "0",
-                                            arrivePick: "0",
-                                            percelPicked: "0",
-                                            wayToDrop: "0",
-                                            arriveDrop: "0",
-                                            completed: "0",
-                                            dateCreated: DateTime.now().toString(),
-                                            timeStamp: Timestamp.now()
+                              ]else if (requestController.acceptedBookingList.any((element) => element.deliveryMode == 'Express' && element.status == 'active')) ...[
+                                if(widget.bookingData?.deliveryMode == 'Express')...[
+                                  if(Int4 == 1 && Int5 == 0)...[
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () async  {
+                                          ///Start Circular Progress Bar
+                                          showDialog(
+                                              context: context,
+                                              builder: (context){
+                                                return const Center(child: CircularProgressIndicator());
+                                              }
+                                          );
+                                          await _db.collection("Order_Status").doc(_orderStats?.id).update({
+                                            "Going to DropOff": "1",
+                                          }).whenComplete(() =>
+                                              Get.snackbar(
+                                                  "Success", "Order Status Updated.",
+                                                  snackPosition: SnackPosition.TOP,
+                                                  backgroundColor: Colors.white,
+                                                  colorText: Colors.green),
+                                          ).catchError((error, stackTrace) {
+                                            Get.snackbar("Error", "Something went wrong. Try again.",
+                                                snackPosition: SnackPosition.BOTTOM,
+                                                backgroundColor: Colors.white,
+                                                colorText: Colors.red);
+                                          });
+                                          /// Stop Progress Bar
+                                          // ignore: use_build_context_synchronously
+                                          Navigator.of(context).pop();
+                                        },
+                                        style: Theme.of(context).elevatedButtonTheme.style,
+                                        child: Text("On My Way to Dropoff".toUpperCase()),
+                                      ),
+                                    ),
+                                  ]else if(Int5 == 1 && Int6 == 0)...[
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () async {
+                                          ///Start Circular Progress Bar
+                                          showDialog(
+                                              context: context,
+                                              builder: (context){
+                                                return const Center(child: CircularProgressIndicator());
+                                              }
+                                          );
+                                          await _db.collection("Order_Status").doc(_orderStats?.id).update({
+                                            "Arrive DropOff": "1",
+                                          }).whenComplete(() =>
+                                              Get.snackbar(
+                                                  "Success", "Order Status Updated.",
+                                                  snackPosition: SnackPosition.TOP,
+                                                  backgroundColor: Colors.white,
+                                                  colorText: Colors.green),
+                                          ).catchError((error, stackTrace) {
+                                            Get.snackbar("Error", "Something went wrong. Try again.",
+                                                snackPosition: SnackPosition.BOTTOM,
+                                                backgroundColor: Colors.white,
+                                                colorText: Colors.red);
+                                          });
+                                          /// Stop Progress Bar
+                                          // ignore: use_build_context_synchronously
+                                          Navigator.of(context).pop();
+                                        },
+                                        style: Theme.of(context).elevatedButtonTheme.style,
+                                        child: Text("Arrived at DropOff".toUpperCase()),
+                                      ),
+                                    ),
+                                  ]else ...[
+                                    Int1 == 1 ?
+                                    Expanded(
+                                      child: OutlinedButton(
+                                          onPressed: Int7 ==1 ? null:(){
+                                            completeOrder();
+                                            requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
+                                            Navigator.of(context).pop();
+                                          },
+                                          style: Theme.of(context).elevatedButtonTheme.style,
+                                          child: Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
+                                      ),
+                                    ) :
+                                    Expanded(
+                                      child: OutlinedButton(
+                                          onPressed: () async{
+                                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                                            final userID = prefs.getString("UserID")!;
+                                            final order = OrderStatusModel(
+                                                customerID: widget.bookingData?.customer_id,
+                                                driverID: userID,
+                                                bookingNumber: widget.bookingData?.bookingNumber,
+                                                orderAssign: "1",
+                                                outForPick: "0",
+                                                arrivePick: "0",
+                                                percelPicked: "0",
+                                                wayToDrop: "0",
+                                                arriveDrop: "0",
+                                                completed: "0",
+                                                dateCreated: DateTime.now().toString(),
+                                                timeStamp: Timestamp.now()
+                                            );
+                                            requestController.storeOrderStatus(order);
+                                          },
+                                          style: Theme.of(context).elevatedButtonTheme.style,
+                                          child: Text("Start Service".toUpperCase())
+                                      ),
+                                    ),
+                                  ],
+                                ]else ...[
+                                  Text('Please Complete Express Booking')
+                                ]
+                              ] else ...[
+                                if(Int4 == 1 && Int5 == 0)...[
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () async  {
+                                        ///Start Circular Progress Bar
+                                        showDialog(
+                                            context: context,
+                                            builder: (context){
+                                              return const Center(child: CircularProgressIndicator());
+                                            }
                                         );
-                                        requestController.storeOrderStatus(order);
+                                        await _db.collection("Order_Status").doc(_orderStats?.id).update({
+                                          "Going to DropOff": "1",
+                                        }).whenComplete(() =>
+                                            Get.snackbar(
+                                                "Success", "Order Status Updated.",
+                                                snackPosition: SnackPosition.TOP,
+                                                backgroundColor: Colors.white,
+                                                colorText: Colors.green),
+                                        ).catchError((error, stackTrace) {
+                                          Get.snackbar("Error", "Something went wrong. Try again.",
+                                              snackPosition: SnackPosition.BOTTOM,
+                                              backgroundColor: Colors.white,
+                                              colorText: Colors.red);
+                                        });
+                                        /// Stop Progress Bar
+                                        // ignore: use_build_context_synchronously
+                                        Navigator.of(context).pop();
                                       },
                                       style: Theme.of(context).elevatedButtonTheme.style,
-                                      child: Text("Start Service".toUpperCase())
+                                      child: Text("On My Way to Dropoff".toUpperCase()),
+                                    ),
                                   ),
-                                ),
+                                ]else if(Int5 == 1 && Int6 == 0)...[
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () async {
+                                        ///Start Circular Progress Bar
+                                        showDialog(
+                                            context: context,
+                                            builder: (context){
+                                              return const Center(child: CircularProgressIndicator());
+                                            }
+                                        );
+                                        await _db.collection("Order_Status").doc(_orderStats?.id).update({
+                                          "Arrive DropOff": "1",
+                                        }).whenComplete(() =>
+                                            Get.snackbar(
+                                                "Success", "Order Status Updated.",
+                                                snackPosition: SnackPosition.TOP,
+                                                backgroundColor: Colors.white,
+                                                colorText: Colors.green),
+                                        ).catchError((error, stackTrace) {
+                                          Get.snackbar("Error", "Something went wrong. Try again.",
+                                              snackPosition: SnackPosition.BOTTOM,
+                                              backgroundColor: Colors.white,
+                                              colorText: Colors.red);
+                                        });
+                                        /// Stop Progress Bar
+                                        // ignore: use_build_context_synchronously
+                                        Navigator.of(context).pop();
+                                      },
+                                      style: Theme.of(context).elevatedButtonTheme.style,
+                                      child: Text("Arrived at DropOff".toUpperCase()),
+                                    ),
+                                  ),
+                                ]else ...[
+                                  Int1 == 1 ?
+                                  Expanded(
+                                    child: OutlinedButton(
+                                        onPressed: Int7 ==1 ? null:(){
+                                          completeOrder();
+                                          requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
+                                          Navigator.of(context).pop();
+                                        },
+                                        style: Theme.of(context).elevatedButtonTheme.style,
+                                        child: Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
+                                    ),
+                                  ) :
+                                  Expanded(
+                                    child: OutlinedButton(
+                                        onPressed: () async{
+                                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                                          final userID = prefs.getString("UserID")!;
+                                          final order = OrderStatusModel(
+                                              customerID: widget.bookingData?.customer_id,
+                                              driverID: userID,
+                                              bookingNumber: widget.bookingData?.bookingNumber,
+                                              orderAssign: "1",
+                                              outForPick: "0",
+                                              arrivePick: "0",
+                                              percelPicked: "0",
+                                              wayToDrop: "0",
+                                              arriveDrop: "0",
+                                              completed: "0",
+                                              dateCreated: DateTime.now().toString(),
+                                              timeStamp: Timestamp.now()
+                                          );
+                                          requestController.storeOrderStatus(order);
+                                        },
+                                        style: Theme.of(context).elevatedButtonTheme.style,
+                                        child: Text("Start Service".toUpperCase())
+                                    ),
+                                  ),
+                                ],
                               ],
                               const SizedBox(
                                 width: 10.0,

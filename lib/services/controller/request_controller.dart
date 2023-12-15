@@ -14,7 +14,9 @@ class FirestoreService {
   FirebaseFirestore _db = FirebaseFirestore.instance;
   late SharedPreferences prefs;
   BookingModel? bookingModel;
-  List<BookingModel> acceptedBookingList = [];
+  List<BookingModel> _acceptedBookingList = [];
+  List<BookingModel> get acceptedBookingList => _acceptedBookingList;
+
 
   // Get pending bookings
   Stream<List<BookingModel>> getBookingData() {
@@ -42,19 +44,47 @@ class FirestoreService {
     return reference.snapshots();
   }
 
-  Future <void> updateDetail(String? bookingNum) async {
-    late String docId;
+  // Future <void> updateDetail(String? bookingNum) async {
+  //   late String docId;
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final userID = prefs.getString("UserID")!;
+  //   await _db.collection("Bookings").where("Booking Number", isEqualTo:bookingNum).get().then((value) => value.docs.forEach((element) {docId = element.id;}));
+  //   var updatedBookingSnapshot = await _db.collection("Bookings").doc(docId).get();
+  //
+  //   // Add the updated booking to the acceptedBookingList
+  //   if (updatedBookingSnapshot.exists) {
+  //     BookingModel updatedBooking = BookingModel.fromSnapshot(updatedBookingSnapshot.data()!);
+  //     addAcceptedBooking(updatedBooking);
+  //   }
+  //   return _db.collection("Bookings").doc(docId).update({'Status': 'active', 'Driver ID': userID});
+  // }
+
+  Future<void> updateDetail(String? bookingNum) async {
+    String docId;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userID = prefs.getString("UserID")!;
-    await _db.collection("Bookings")
-        .where("Booking Number", isEqualTo:bookingNum)
-        .get().then((value) => value.docs.forEach((element) {
-          docId = element.id;
-        }));
-    return _db.collection("Bookings")
-        .doc(docId)
-        .update({'Status': 'active', 'Driver ID': userID});
+
+    // Fetch the booking to be updated
+    var snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: bookingNum).get();
+
+    if (snapshot.docs.isNotEmpty) {
+      docId = snapshot.docs.first.id;
+
+      // Update the booking status to 'active' and set the driver ID
+      await _db.collection("Bookings").doc(docId).update({'Status': 'active', 'Driver ID': userID});
+
+      // Fetch the updated booking details after the update
+      var updatedBookingSnapshot = await _db.collection("Bookings").doc(docId).get();
+
+      // Add the updated booking to the acceptedBookingList
+      if (updatedBookingSnapshot.exists) {
+        BookingModel updatedBooking = BookingModel.fromSnapshot(updatedBookingSnapshot.data()!);
+        addAcceptedBooking(updatedBooking);
+      }
+    }
   }
+
 
   ///Stores Order Status info in FireStore
   storeOrderStatus(OrderStatusModel order) async {
@@ -87,7 +117,7 @@ class FirestoreService {
     final List<String>? serializedList = prefs.getStringList('acceptedBookings');
 
     if (serializedList != null) {
-      acceptedBookingList = serializedList
+      _acceptedBookingList = serializedList
           .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
           .toList();
     }
@@ -97,20 +127,20 @@ class FirestoreService {
   Future<void> saveAcceptedBookings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<String> serializedList =
-    acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
+    _acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
 
     prefs.setStringList('acceptedBookings', serializedList);
   }
 
   // Function to add a new accepted booking
   void addAcceptedBooking(BookingModel newBooking) {
-    acceptedBookingList.add(newBooking);
+    _acceptedBookingList.add(newBooking);
     saveAcceptedBookings();
   }
 
   // Function to remove a completed booking
   void removeCompletedBooking(String bookingNumber) {
-    acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
+    _acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
     saveAcceptedBookings();
   }
 

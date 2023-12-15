@@ -307,8 +307,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     requestController.loadAcceptedBookings();
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
-      if (requestController.acceptedBookingList.length < 3) {
-        print(requestController.acceptedBookingList);
+      if (requestController.acceptedBookingList.length < 4) {
+        for(int i = 0; i < requestController.acceptedBookingList.length; i++){
+          print(requestController.acceptedBookingList[i].deliveryMode);
+        }
         // Listen to updates in the stream of pending booking requests
         requestController.getBookingData().listen((List<BookingModel> bookingList) async {
           if (bookingList.isNotEmpty) {
@@ -319,7 +321,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                   currentRequest = latestRequest;
                 });
 
-                removePendingBookings();
                 // Check if the distance between rider and pickup is below a threshold
                 final double distanceThreshold = 5.0;
 
@@ -530,10 +531,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       child: ElevatedButton(
                         onPressed: () async {
                           await requestController.updateDetail(incomingRequest.bookingNumber);
-                          if(mounted){
-                            requestController.addAcceptedBooking(incomingRequest);
-                          }
+                          // if(mounted){
+                          //   requestController.addAcceptedBooking(incomingRequest);
+                          // }
                           showAcceptModalBottomSheet(context, incomingRequest);
+                          removePendingBookings();
                         },
                         style: Theme.of(context).elevatedButtonTheme.style,
                         child: Text("Accept".toUpperCase()),
@@ -691,7 +693,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             top: 65,
             child: GestureDetector(
                 onTap: (){
-                  Get.to(_buildPendingBookings(context));
+                  Get.to(_buildPendingBookings(context, ));
                 },
                 child: Icon(Icons.notifications, color: PButtonColor,))
           ),
@@ -751,17 +753,33 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       ],
                     ),
                     const SizedBox(height: 10,),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: PButtonColor
-                      ),
-                      child: Text('Accept'.toUpperCase(), style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12
-                      )))
+                    requestHistory[index].status == 'active' ? SizedBox() :
+                    GestureDetector(
+                      onTap: () async{
+                        if(requestHistory.any((element) =>
+                          element.bookingNumber == currentRequest!.bookingNumber
+                        )){
+                          await requestController.updateDetail(requestHistory[index].bookingNumber);
+                          if(mounted){
+                            // requestController.addAcceptedBooking(requestHistory[index]);
+                            showAcceptModalBottomSheet(context, requestHistory[index]);
+                          }
+                          removePendingBookings();
+                          print(requestHistory[index].bookingNumber);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: PButtonColor
+                        ),
+                        child: Text('Accept'.toUpperCase(), style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12
+                        ))),
+                    )
                   ]
                 ),
                 // Add more details as needed

@@ -27,7 +27,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
     userFuture = _getBookings();
   }
 
-  Future<List<BookingModel>?>_getBookings() async {
+  Future<List<BookingModel>?> _getBookings() async {
     return await controller.getAllUserBookings();
   }
 
