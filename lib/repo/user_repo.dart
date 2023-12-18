@@ -168,12 +168,24 @@ class UserRepository extends GetxController {
   ///Retrieving Booking Details From Database
   Future<List<BookingModel>?> getUserBookingDetails() async {
     final email = userId!.email;
-      UserModel userInfo = await getUserDetailsWithEmail(email!);
-      final snapshot = await _db.collection("Bookings").where("Driver ID", isEqualTo: userInfo.id).get();
-      final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).toList();
-      return bookingData;
+    UserModel userInfo = await getUserDetailsWithEmail(email!);
 
+    final snapshot = await _db
+        .collection("Bookings")
+        .where("Driver ID", isEqualTo: userInfo.id)
+        .get();
+
+    // Retrieve the booking data and sort it by date
+    List<BookingModel> bookingData = snapshot.docs
+        .map((e) => BookingModel.fromSnapshot(e.data()))
+        .toList();
+
+    // Sort the list by date
+    bookingData.sort((a, b) => DateTime.parse(b.created_at!).compareTo(DateTime.parse(a.created_at!)));
+
+    return bookingData;
   }
+
 
   ///Fetch  User Details
   Future<BookingModel> getBookingDetails(String bookingNumber) async {
