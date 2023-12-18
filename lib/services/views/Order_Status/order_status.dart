@@ -259,7 +259,11 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               Icon(Icons.circle, size: 20, color: Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Order Assigned", style: theme.textTheme.titleLarge),
+                              Int1 == 1 ? Text("Order Assigned", style: theme.textTheme.titleLarge)
+                                  : const Text("Order Assigned", style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              )),
 
                             ],
                           ),
@@ -287,8 +291,11 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               Icon(Icons.circle, size: 20, color: Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Out For Pickup",style: theme.textTheme.titleLarge),
-
+                              Int2 == 1 ? Text("Out For Pickup",style: theme.textTheme.titleLarge)
+                                  :const Text("Out For Pickup", style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              )),
                             ],
                           ),
                           Padding(
@@ -315,8 +322,11 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               Icon(Icons.circle, size: 20, color: Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Arrive at Pickup Location", style: theme.textTheme.titleLarge),
-
+                              Int3 == 1 ? Text("Arrive at Pickup Location", style: theme.textTheme.titleLarge)
+                                  :const Text("Arrive at Pickup Location", style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              )),
                             ],
                           ),
                           Padding(
@@ -343,8 +353,11 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               Icon(Icons.circle, size: 20, color: Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Parcel Picked", style: theme.textTheme.titleLarge),
-
+                              Int4 == 1 ? Text("Parcel Picked", style: theme.textTheme.titleLarge)
+                                  : const Text("Parcel Picked", style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),),
                             ],
                           ),
                           Padding(
@@ -371,8 +384,12 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               Icon(Icons.circle, size: 20, color: Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("On the way to Drop Location", style: theme.textTheme.titleLarge),
-
+                              Int5 == 1 ? Text("On the way to Drop Location", style: theme.textTheme.titleLarge)
+                                  :const Text("On the way to Drop Location", style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                              ),
                             ],
                           ),
                           Padding(
@@ -399,8 +416,12 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               Icon(Icons.circle, size: 20, color: Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
-                              Text("Arrived at Drop Location", style: theme.textTheme.titleLarge),
-
+                              Int6 == 1 ? Text("Arrived at Drop Location", style: theme.textTheme.titleLarge)
+                                  : const Text("Arrived at Drop Location", style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                              ),
                             ],
                           ),
 

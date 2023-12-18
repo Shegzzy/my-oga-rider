@@ -168,9 +168,7 @@ Future<void> initializeData() async {
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    final txtTheme = Theme
-        .of(context)
-        .textTheme;
+    final txtTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: Text("My Earnings", style: Theme.of(context).textTheme.headlineMedium),

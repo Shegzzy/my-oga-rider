@@ -61,7 +61,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Customer", style: Theme.of(context).textTheme.bodyText1,),
+                Text("Customer", style: Theme.of(context).textTheme.bodyLarge,),
                 const SizedBox(height: 20,),
                 SizedBox(
                   width: 120.0,
@@ -93,13 +93,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 ),
                 const SizedBox(width: 2,),
                 Text(_bookerModel?.fullname ?? " ",
-                  style: Theme.of(context).textTheme.headline4,
+                  style: Theme.of(context).textTheme.headlineMedium,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 5,),
                 Text(_bookerModel?.phoneNo ?? " ",
-                  style: Theme.of(context).textTheme.headline4,
+                  style: Theme.of(context).textTheme.headlineMedium,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -283,7 +283,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ),
                   ],
                 ),
-                Flexible(child: Text(bookingData.pickup_address??"", style: theme.textTheme.titleLarge, overflow: TextOverflow.ellipsis,)),
+                Text(bookingData.pickup_address??"", style: theme.textTheme.titleLarge,),
                 const SizedBox(height: 15,),
                 const Divider(
                   color: Colors.black,
@@ -315,8 +315,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   ],
                 ),
                 const SizedBox(height: 5,),
-                Flexible(child: Text(bookingData.dropOff_address??"", style: theme.textTheme.titleLarge, overflow: TextOverflow.ellipsis,)),
-                const SizedBox(height: 20),
+                Text(bookingData.dropOff_address??"", style: theme.textTheme.titleLarge,),
+                const SizedBox(height: 15),
                 const Divider(
                   color: Colors.black,
                   height: 2,
@@ -324,15 +324,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   indent: 2,
                   endIndent: 2,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
                       child: Text("Date Created: ${MyOgaFormatter.dateFormatter(DateTime.parse(bookingData.created_at!))}",
                         style: theme.textTheme.titleLarge,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 10,),

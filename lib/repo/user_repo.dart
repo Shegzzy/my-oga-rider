@@ -166,7 +166,7 @@ class UserRepository extends GetxController {
   }
 
   ///Retrieving Booking Details From Database
-  Future<List<BookingModel>?>getUserBookingDetails() async {
+  Future<List<BookingModel>?> getUserBookingDetails() async {
     final email = userId!.email;
       UserModel userInfo = await getUserDetailsWithEmail(email!);
       final snapshot = await _db.collection("Bookings").where("Driver ID", isEqualTo: userInfo.id).get();

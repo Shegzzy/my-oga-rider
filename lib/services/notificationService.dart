@@ -6,9 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get/get.dart';
 import 'package:my_oga_rider/services/views/Booking_Details/newBooking.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationService {
 
