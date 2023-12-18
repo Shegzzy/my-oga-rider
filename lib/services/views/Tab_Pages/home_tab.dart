@@ -40,7 +40,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
   late var timer;
   BookingModel? currentRequest;
-  List<BookingModel> requestHistory = [];
 
   late Position currentPosition;
   late Stream queryData;
@@ -291,14 +290,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
   DateTime? lastNotificationTime;
 
-  // Method to remove pending booking from list once its accepted
-  void removePendingBookings() {
-    if(requestHistory.any((previousRequest) => previousRequest.status == 'active')){
-      setState(() {
-        requestHistory.removeWhere((booking) => booking.bookingNumber == currentRequest?.bookingNumber);
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -307,7 +298,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     requestController.loadAcceptedBookings();
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
-      if (requestController.acceptedBookingList.length < 4) {
+      if (requestController.acceptedBookingList.length < 3) {
         for(int i = 0; i < requestController.acceptedBookingList.length; i++){
           print(requestController.acceptedBookingList[i].deliveryMode);
         }
@@ -346,10 +337,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 // }
 
                 // Checking if the booking is not a duplicate, if the booking is within proximity and if enough time has passed since the last notification
-                if (distance <= distanceThreshold && !requestHistory.any((previousRequest) => previousRequest.bookingNumber == latestRequest.bookingNumber) &&
+                if (distance <= distanceThreshold && !requestController.requestHistory.any((previousRequest) => previousRequest.bookingNumber == latestRequest.bookingNumber) &&
                     (lastNotificationTime == null || DateTime.now().difference(lastNotificationTime!) > const Duration(seconds: 35))) {
                   setState(() {
-                    requestHistory.add(latestRequest);
+                    requestController.requestHistory.add(latestRequest);
                   });
 
                   showBookingNotification(context, latestRequest);
@@ -530,12 +521,23 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
-                          await requestController.updateDetail(incomingRequest.bookingNumber);
-                          // if(mounted){
-                          //   requestController.addAcceptedBooking(incomingRequest);
-                          // }
-                          showAcceptModalBottomSheet(context, incomingRequest);
-                          removePendingBookings();
+                          if(requestController.acceptedBookingList.any((element) => element.deliveryMode == 'Express')){
+                            if(incomingRequest.deliveryMode == 'Express'){
+                              Get.snackbar(
+                                  "Error", "You can only take one express booking",
+                                  snackPosition: SnackPosition.TOP,
+                                  backgroundColor: Colors.white,
+                                  colorText: Colors.red);
+                            }else {
+                              await requestController.updateDetail(incomingRequest.bookingNumber);
+                              showAcceptModalBottomSheet(context, incomingRequest);
+                              requestController.removePendingBookings(incomingRequest.bookingNumber!);
+                            }
+                          }else {
+                            await requestController.updateDetail(incomingRequest.bookingNumber);
+                            showAcceptModalBottomSheet(context, incomingRequest);
+                            requestController.removePendingBookings(incomingRequest.bookingNumber!);
+                          }
                         },
                         style: Theme.of(context).elevatedButtonTheme.style,
                         child: Text("Accept".toUpperCase()),
@@ -708,7 +710,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                   color: Colors.grey.shade500
                 ),
                 child: Center(
-                    child: Text('${requestHistory.length}',
+                    child: Text('${requestController.requestHistory.length}',
                       style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600),)),
               )
             )
@@ -726,7 +728,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         child: ListView.builder(
-          itemCount: requestHistory.length,
+          itemCount: requestController.requestHistory.length,
           itemBuilder: (context, index) {
             return Card(
               elevation: 5,
@@ -735,9 +737,9 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Pickup Address: ${requestHistory[index].pickup_address!}'),
+                    Text('Pickup Address: ${requestController.requestHistory[index].pickup_address!}'),
                     const SizedBox(height: 10,),
-                    Text('DropOff Address: ${requestHistory[index].dropOff_address!}'),
+                    Text('DropOff Address: ${requestController.requestHistory[index].dropOff_address!}'),
 
                   ],
                 ),
@@ -747,25 +749,24 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Delivery Mode: ${requestHistory[index].deliveryMode!}'),
-                        Text('Distance: ${requestHistory[index].distance!}'),
-                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestHistory[index].amount!))}')
+                        Text('Delivery Mode: ${requestController.requestHistory[index].deliveryMode!}'),
+                        Text('Distance: ${requestController.requestHistory[index].distance!}'),
+                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestController.requestHistory[index].amount!))}')
                       ],
                     ),
                     const SizedBox(height: 10,),
-                    requestHistory[index].status == 'active' ? SizedBox() :
                     GestureDetector(
                       onTap: () async{
-                        if(requestHistory.any((element) =>
+                        if(requestController.requestHistory.any((element) =>
                           element.bookingNumber == currentRequest!.bookingNumber
                         )){
-                          await requestController.updateDetail(requestHistory[index].bookingNumber);
+                          await requestController.updateDetail(requestController.requestHistory[index].bookingNumber);
                           if(mounted){
                             // requestController.addAcceptedBooking(requestHistory[index]);
-                            showAcceptModalBottomSheet(context, requestHistory[index]);
+                            showAcceptModalBottomSheet(context, requestController.requestHistory[index]);
                           }
-                          removePendingBookings();
-                          print(requestHistory[index].bookingNumber);
+                          requestController.removePendingBookings(requestController.requestHistory[index].bookingNumber!);
+                          print(requestController.requestHistory[index].bookingNumber);
                         }
                       },
                       child: Container(

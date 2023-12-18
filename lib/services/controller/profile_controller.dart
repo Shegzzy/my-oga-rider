@@ -30,7 +30,7 @@ class ProfileController extends GetxController {
         final phone = _user?.phoneNumber;
         return await _userRepo.getUserDetailsWithPhone(phone!);
       } else {
-        return await _userRepo.getUserDetailsWithEmail(email!);
+        return await _userRepo.getUserDetailsWithEmail(email);
       }
     });
   }

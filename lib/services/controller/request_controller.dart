@@ -9,11 +9,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/booking_model.dart';
 import '../model/order_status_model.dart';
 
-class FirestoreService {
+class FirestoreService extends GetxController {
 
   FirebaseFirestore _db = FirebaseFirestore.instance;
   late SharedPreferences prefs;
   BookingModel? bookingModel;
+  List<BookingModel> _requestHistory = [];
+  List<BookingModel> get requestHistory => _requestHistory;
   List<BookingModel> _acceptedBookingList = [];
   List<BookingModel> get acceptedBookingList => _acceptedBookingList;
 
@@ -143,5 +145,21 @@ class FirestoreService {
     _acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
     saveAcceptedBookings();
   }
+
+  // Method to remove pending booking from list once its accepted
+  void removePendingBookings(String bookingNumber) {
+    // Listen to real-time updates on the booking document
+    FirebaseFirestore.instance.collection("Bookings").doc(bookingNumber).snapshots().listen((snapshot) {
+      if (snapshot.exists) {
+        // Check if the booking status is now 'active'
+        if (snapshot.data()?['Status'] == 'active') {
+          // Booking has been accepted by another rider, remove it from the UI
+            requestHistory.removeWhere((booking) => booking.bookingNumber == bookingNumber);
+            update();
+        }
+      }
+    });
+  }
+
 
 }

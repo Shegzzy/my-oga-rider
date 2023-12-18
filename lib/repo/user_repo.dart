@@ -220,7 +220,7 @@ class UserRepository extends GetxController {
       });
     }
 
-  Stream<OrderStatusModel> getOrderStatusData( String num){
+  Stream<OrderStatusModel> getOrderStatusData(String num){
     return _db.collection("Order_Status")
         .where("Booking Number", isEqualTo: num)
         .snapshots()

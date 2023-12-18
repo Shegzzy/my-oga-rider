@@ -75,6 +75,7 @@ class _AcceptScreenState extends State<AcceptScreen> {
                 const SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: 60.0,
@@ -105,24 +106,28 @@ class _AcceptScreenState extends State<AcceptScreen> {
                         Text("Booking Number: ${bookingData!.bookingNumber}", style: theme.textTheme.titleSmall,),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(MyOgaFormatter.currencyFormatter(double.parse(bookingData!.amount??"")), style: theme.textTheme.titleSmall,),
-                        const SizedBox(height: 10,),
-                        Text(bookingData!.distance??"", style: theme.textTheme.titleSmall,),
-                      ],
-                    ),
+
                   ],
                 ),
                 const SizedBox(height: 20,),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(bookingData!.packageType??"", style: theme.textTheme.headline6,),
+                    Text(
+                    'Package: ${bookingData!.packageType ?? ""}', style: theme.textTheme.titleLarge,),
                     const SizedBox(width: 4,),
-                    Text(bookingData!.deliveryMode == "1" ? "Express (2hrs)" : "Normal (8hrs)", style: theme.textTheme.titleLarge, maxLines: 2,
+                    Text('Delivery Mode: ${bookingData!.deliveryMode == "1" ? "Express" : "Normal"}', style: theme.textTheme.titleLarge, maxLines: 2,
                     overflow: TextOverflow.ellipsis,),
+                  ],
+                ),
+                const SizedBox(height: 10,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(bookingData!.amount??""))}', style: theme.textTheme.titleLarge,),
+                    const SizedBox(height: 10,),
+                    Text('Distance: ${bookingData!.distance??""}', style: theme.textTheme.titleLarge,),
                   ],
                 ),
                 const SizedBox(height: 10,),
