@@ -161,5 +161,35 @@ class FirestoreService extends GetxController {
     });
   }
 
+  Future<void> checkAndUpdateBookingStatus() async {
+    print('Checking and updating booking status...');
+
+    for (var booking in requestHistory) {
+      print('Checking booking with bookingNumber: ${booking.bookingNumber}');
+
+      var querySnapshot = await _db
+          .collection("Bookings")
+          .where("Booking Number", isEqualTo: booking.bookingNumber)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var snapshot = querySnapshot.docs.first;
+        var bookingStatus = snapshot.data()['Status'];
+        print('Booking status: $bookingStatus');
+
+        if (bookingStatus == 'active') {
+          print('Removing booking with bookingNumber: ${booking.bookingNumber}');
+          requestHistory.remove(booking);
+          print(requestHistory.length);
+          update();
+        }
+      } else {
+        print('Document not found for bookingNumber: ${booking.bookingNumber}');
+      }
+    }
+  }
+
+
+
 
 }

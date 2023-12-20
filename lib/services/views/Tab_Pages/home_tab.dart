@@ -39,6 +39,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   late GoogleMapController newGoogleMapController;
 
   late var timer;
+  late Timer statusCheckTimer;
+
   BookingModel? currentRequest;
 
   late Position currentPosition;
@@ -296,6 +298,9 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     requestController.loadAcceptedBookings();
+    statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
+      await requestController.checkAndUpdateBookingStatus();
+    });
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
       if (requestController.acceptedBookingList.length < 3) {
@@ -757,17 +762,30 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                     const SizedBox(height: 10,),
                     GestureDetector(
                       onTap: () async{
-                        if(requestController.requestHistory.any((element) =>
-                          element.bookingNumber == currentRequest!.bookingNumber
-                        )){
+                        if(requestController.acceptedBookingList.any((element) => element.deliveryMode == 'Express')){
+                          if(requestController.requestHistory[index].deliveryMode == 'Express'){
+                            Get.snackbar(
+                                "Error", "You can only take one express booking",
+                                snackPosition: SnackPosition.TOP,
+                                backgroundColor: Colors.white,
+                                colorText: Colors.red);
+                          }else {
+                            await requestController.updateDetail(requestController.requestHistory[index].bookingNumber);
+                            if(mounted){
+                              showAcceptModalBottomSheet(context, requestController.requestHistory[index]);
+                            }
+                            requestController.removePendingBookings(requestController.requestHistory[index].bookingNumber!);
+                            print(requestController.requestHistory[index].bookingNumber);
+                          }
+                        }else {
                           await requestController.updateDetail(requestController.requestHistory[index].bookingNumber);
                           if(mounted){
-                            // requestController.addAcceptedBooking(requestHistory[index]);
                             showAcceptModalBottomSheet(context, requestController.requestHistory[index]);
                           }
                           requestController.removePendingBookings(requestController.requestHistory[index].bookingNumber!);
                           print(requestController.requestHistory[index].bookingNumber);
                         }
+
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

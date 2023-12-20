@@ -41,7 +41,6 @@ class _BookingTabPageState extends State<BookingTabPage> {
       ),
       body: Container(
         padding: const EdgeInsets.all(30.0),
-
         ///Future Builder
         child: FutureBuilder<List<BookingModel>?>(
           future: userFuture,
@@ -112,11 +111,15 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
-                                        style: Theme.of(context).textTheme.headlineMedium,
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis)),
+                                    Flexible(child: Text(snapshot.data![index].deliveryMode ?? "",
+                                        style: Theme.of(context).textTheme.titleLarge,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis)),
                                     Flexible(child: Text(snapshot.data![index].distance ?? "",
-                                        style: Theme.of(context).textTheme.headlineMedium,
+                                        style: Theme.of(context).textTheme.titleLarge,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis)),
                                   ],
