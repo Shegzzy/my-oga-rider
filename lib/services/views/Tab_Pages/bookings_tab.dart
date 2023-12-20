@@ -33,6 +33,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
 
   @override
   Widget build(BuildContext context) {
+    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Bookings"),
@@ -40,7 +41,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
 
       ),
       body: Container(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ///Future Builder
         child: FutureBuilder<List<BookingModel>?>(
           future: userFuture,
@@ -56,76 +57,74 @@ class _BookingTabPageState extends State<BookingTabPage> {
                       onTap: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context) => BookingDetailsScreen(bookingData: snapshot.data![index],)));
                       },
-                      child: SizedBox(
-                        width: 380,
-                        height: 210,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10.0, top: 5.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                color: moPrimaryColor),
-                            padding: const EdgeInsets.all(10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(snapshot.data![index].bookingNumber!,
-                                        style: Theme.of(context).textTheme.headlineMedium,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis),
-                                    Flexible(child: Text(snapshot.data![index].status!,
-                                        style: TextStyle(color: snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis)),
-                                  ],
-                                ),
-                                const SizedBox(height: 10,),
-                                Row(
-                                  children: [
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(shape: const CircleBorder(), minimumSize: Size(35, 35)),
-                                      onPressed: () {},
-                                      child: const Icon(Icons.location_pin),
-                                    ),
-                                    const SizedBox(width: 20.0),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(snapshot.data![index].pickup_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
-                                            const SizedBox(height: 10,),
-                                            Text(snapshot.data![index].dropOff_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
-                                          ],
-                                        ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10.0, top: 5.0),
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 5),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: isDark ? moAccentColor : moPrimaryColor),
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(snapshot.data![index].bookingNumber!,
+                                      style: Theme.of(context).textTheme.headlineMedium,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis),
+                                  Flexible(child: Text(snapshot.data![index].status!,
+                                      style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.purple : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis)),
+                                ],
+                              ),
+                              const SizedBox(height: 10,),
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(shape: const CircleBorder(), minimumSize: const Size(30, 30)),
+                                    onPressed: () {},
+                                    child: const Icon(Icons.location_pin, size: 20,),
+                                  ),
+                                  const SizedBox(width: 10.0),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(snapshot.data![index].pickup_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                                          const SizedBox(height: 10,),
+                                          Text(snapshot.data![index].dropOff_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                                        ],
                                       ),
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(height: 10,),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
-                                        style: Theme.of(context).textTheme.titleLarge,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis)),
-                                    Flexible(child: Text(snapshot.data![index].deliveryMode ?? "",
-                                        style: Theme.of(context).textTheme.titleLarge,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis)),
-                                    Flexible(child: Text(snapshot.data![index].distance ?? "",
-                                        style: Theme.of(context).textTheme.titleLarge,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis)),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 10,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis)),
+                                  Flexible(child: Text(snapshot.data![index].deliveryMode ?? "",
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis)),
+                                  Flexible(child: Text(snapshot.data![index].distance ?? "",
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis)),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),

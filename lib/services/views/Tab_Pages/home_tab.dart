@@ -700,7 +700,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             top: 65,
             child: GestureDetector(
                 onTap: (){
-                  Get.to(_buildPendingBookings(context, ));
+                  Get.to(_buildPendingBookings);
                 },
                 child: Icon(Icons.notifications, color: PButtonColor,))
           ),
