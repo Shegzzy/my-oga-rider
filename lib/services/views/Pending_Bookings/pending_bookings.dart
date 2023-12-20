@@ -1,11 +1,11 @@
-class PendingBookingScreen extends StatefulWidget {
-  const PendingBookingScreen({super.key});
+class  extends StatefulWidget {
+  const ({super.key});
 
   @override
-  State<PendingBookingScreen> createState() => _PendingBookingScreenState();
+  State<> createState() => _State();
 }
 
-class _PendingBookingScreenState extends State<PendingBookingScreen> {
+class _State extends State<> {
   @override
   Widget build(BuildContext context) {
     return const Placeholder();
