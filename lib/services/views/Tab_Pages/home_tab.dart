@@ -299,7 +299,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     WidgetsBinding.instance.addObserver(this);
     requestController.loadAcceptedBookings();
     statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
-      await requestController.checkAndUpdateBookingStatus();
+      await checkAndUpdateBookingStatus();
     });
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
@@ -326,8 +326,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 final double pickupLat = double.parse(latestRequest.pickUp_latitude!);
 
                 final double distance = calculateDistance(riderLat, riderLng, pickupLat, pickupLng);
-                print(distance);
-
                 // String directionUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=${currentPosition.latitude},${currentPosition.longitude}&destination=${latestRequest.pickUp_latitude},${latestRequest.pickUp_longitude}&key=AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM";
                 // http.Response response = await http.get(Uri.parse(directionUrl));
                 // if (response.statusCode == 200) {
@@ -384,6 +382,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   void dispose() {
     super.dispose();
     timer.cancel();
+    statusCheckTimer.cancel();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -399,6 +398,30 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   void _stopRefreshTimer() {
     timer.cancel();
   }
+
+  Future<void> checkAndUpdateBookingStatus() async {
+
+    for (var booking in requestController.requestHistory) {
+      var querySnapshot = await _db
+          .collection("Bookings")
+          .where("Booking Number", isEqualTo: booking.bookingNumber)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var snapshot = querySnapshot.docs.first;
+        var bookingStatus = snapshot.data()['Status'];
+
+        if (bookingStatus == 'active') {
+          setState(() {
+            requestController.requestHistory.remove(booking);
+          });
+        }
+      } else {
+        return;
+      }
+    }
+  }
+
 
   Future<void>showBookingNotification(BuildContext context, BookingModel incomingRequest) async {
     return await showDialog(context: context, builder: (context){
@@ -700,7 +723,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             top: 65,
             child: GestureDetector(
                 onTap: (){
-                  Get.to(_buildPendingBookings);
+                  Get.to(_buildPendingBookings(context));
                 },
                 child: Icon(Icons.notifications, color: PButtonColor,))
           ),
@@ -742,26 +765,25 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Pickup Address: ${requestController.requestHistory[index].pickup_address!}'),
+                    Text('Pickup Address: ${requestController.requestHistory[index].pickup_address!}', style: Theme.of(context).textTheme.labelLarge,),
                     const SizedBox(height: 10,),
-                    Text('DropOff Address: ${requestController.requestHistory[index].dropOff_address!}'),
+                    Text('DropOff Address: ${requestController.requestHistory[index].dropOff_address!}', style: Theme.of(context).textTheme.labelLarge),
 
                   ],
                 ),
                 subtitle: Column(
                   children: [
                     const SizedBox(height: 10,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
                       children: [
-                        Text('Delivery Mode: ${requestController.requestHistory[index].deliveryMode!}'),
-                        Text('Distance: ${requestController.requestHistory[index].distance!}'),
-                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestController.requestHistory[index].amount!))}')
+                        Text('Delivery Mode: ${requestController.requestHistory[index].deliveryMode!}', style: Theme.of(context).textTheme.labelMedium),
+                        Text('Distance: ${requestController.requestHistory[index].distance!}', style: Theme.of(context).textTheme.labelMedium),
+                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestController.requestHistory[index].amount!))}', style: Theme.of(context).textTheme.labelMedium)
                       ],
                     ),
                     const SizedBox(height: 10,),
-                    GestureDetector(
-                      onTap: () async{
+                    InkWell(
+                      onTap: requestController.acceptedBookingList.length < 3 ? () async{
                         if(requestController.acceptedBookingList.any((element) => element.deliveryMode == 'Express')){
                           if(requestController.requestHistory[index].deliveryMode == 'Express'){
                             Get.snackbar(
@@ -786,6 +808,14 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                           print(requestController.requestHistory[index].bookingNumber);
                         }
 
+                      } : () {
+                          Get.snackbar(
+                          "Error",
+                          "You cannot accept more than 3 bookings",
+                          snackPosition: SnackPosition.TOP,
+                          backgroundColor: Colors.white,
+                          colorText: Colors.red,
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

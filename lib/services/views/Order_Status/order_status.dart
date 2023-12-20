@@ -669,7 +669,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     ),
                                   ],
                                 ]else ...[
-                                  Text('Please Complete Express Booking')
+                                  Center(child: Text('Please Complete Express Booking', style: Theme.of(context).textTheme.labelMedium,))
                                 ]
                               ] else ...[
                                 if(Int4 == 1 && Int5 == 0)...[
