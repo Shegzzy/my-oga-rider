@@ -7,6 +7,10 @@ class GetXSwitchState extends GetxController {
 
   RxBool isOnline = false.obs;
   RxBool isNotify = false.obs;
+
+  RxBool _isDarkMode = false.obs;
+  bool get isDarkMode => _isDarkMode.value;
+
   final switchDataController = GetStorage();
 
   changeSwitchState(bool val){
@@ -21,6 +25,11 @@ class GetXSwitchState extends GetxController {
     update();
   }
 
+  changeThemeMode(bool val){
+    _isDarkMode.value = val;
+    switchDataController.write('themeMode', _isDarkMode.value);
+    update();
+  }
 
 
   GetXSwitchState(){
@@ -31,6 +40,11 @@ class GetXSwitchState extends GetxController {
 
     if(switchDataController.read('notifyData') != null){
       isNotify.value = switchDataController.read('notifyData');
+      update();
+    }
+
+    if(switchDataController.read('themeMode') != null){
+      _isDarkMode.value = switchDataController.read('themeMode');
       update();
     }
   }

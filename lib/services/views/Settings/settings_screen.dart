@@ -34,7 +34,6 @@ class _SettingScreenState extends State<SettingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 30.0,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -56,6 +55,23 @@ class _SettingScreenState extends State<SettingScreen> {
             Text(moTerms, style: Theme.of(context).textTheme.headlineMedium,),
             const SizedBox(height: 20.0,),
             Text(moAbout, style: Theme.of(context).textTheme.headlineMedium,),
+            const SizedBox(height: 20.0,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Dark Mode', style: Theme.of(context).textTheme.headlineMedium,),
+                const SizedBox(width: 30.0,),
+                Switch(
+                  value: getController.isDarkMode,
+                  activeColor: Colors.green,
+                  onChanged: (newValue){
+                    setState(() {
+                      getController.changeThemeMode(newValue);
+                    });
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),
