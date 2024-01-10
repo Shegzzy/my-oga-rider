@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../constant/colors.dart';
 import '../../../constant/text_strings.dart';
 import '../../../repo/user_repo.dart';
+import '../../controller/getx_switch_state.dart';
 import '../../controller/profile_controller.dart';
 import '../../model/booker_model.dart';
 import '../../model/booking_model.dart';
@@ -33,6 +34,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
   ProfileController controller = Get.put(ProfileController());
   final _userRepo = Get.put(UserRepository());
+  final GetXSwitchState getXSwitchState = Get.find();
 
   BookerModel? _bookerModel;
   FirestoreService firestoreService = FirestoreService();
@@ -49,13 +51,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
   Future<void>showDriverDialog(BuildContext context) async {
     return await showDialog(context: context, builder: (context){
+      var isDark = getXSwitchState.isDarkMode;
       return StatefulBuilder(builder: (context, setState){
         return AlertDialog(
           content: Container(
             width: double.infinity,
             height: 400,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Colors.black12.withOpacity(0.01) : Colors.white,
               borderRadius: BorderRadius.circular(30),
             ),
             child: Column(

@@ -4,6 +4,7 @@ import 'package:my_oga_rider/constant/image_string.dart';
 import 'package:my_oga_rider/utils/formatter/formatter.dart';
 
 import '../../../constant/colors.dart';
+import '../../controller/getx_switch_state.dart';
 import '../../controller/profile_controller.dart';
 import '../../model/booking_model.dart';
 import '../Booking_Details/booking_details_screen.dart';
@@ -18,6 +19,7 @@ class BookingTabPage extends StatefulWidget {
 
 class _BookingTabPageState extends State<BookingTabPage> {
 
+  final GetXSwitchState getXSwitchState = Get.find();
   late Future<List<BookingModel>?> userFuture;
   ProfileController controller = Get.put(ProfileController());
 
@@ -33,7 +35,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    var isDark = getXSwitchState.isDarkMode;
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Bookings"),
@@ -77,7 +79,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis),
                                   Flexible(child: Text(snapshot.data![index].status!,
-                                      style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.purple : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
+                                      style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis)),
                                 ],
