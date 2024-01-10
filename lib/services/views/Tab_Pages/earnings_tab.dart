@@ -263,7 +263,7 @@ Future<void> initializeData() async {
                               child: Container(
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10.0),
-                                    color: PCardBgColor),
+                                    color: isDark ? Colors.black.withOpacity(0.1) : PCardBgColor),
                                 padding: const EdgeInsets.all(10.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

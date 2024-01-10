@@ -137,12 +137,14 @@ class FirestoreService extends GetxController {
   // Function to add a new accepted booking
   void addAcceptedBooking(BookingModel newBooking) {
     _acceptedBookingList.add(newBooking);
+    update();
     saveAcceptedBookings();
   }
 
   // Function to remove a completed booking
   void removeCompletedBooking(String bookingNumber) {
     _acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
+    update();
     saveAcceptedBookings();
   }
 
@@ -151,9 +153,7 @@ class FirestoreService extends GetxController {
     // Listen to real-time updates on the booking document
     FirebaseFirestore.instance.collection("Bookings").doc(bookingNumber).snapshots().listen((snapshot) {
       if (snapshot.exists) {
-        // Check if the booking status is now 'active'
         if (snapshot.data()?['Status'] == 'active') {
-          // Booking has been accepted by another rider, remove it from the UI
             requestHistory.removeWhere((booking) => booking.bookingNumber == bookingNumber);
             update();
         }

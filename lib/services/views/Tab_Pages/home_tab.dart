@@ -300,6 +300,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     requestController.loadAcceptedBookings();
     statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
       await checkAndUpdateBookingStatus();
+      await checkAndUpdateAcceptedBooking();
     });
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
 
@@ -399,6 +400,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     timer.cancel();
   }
 
+  // Method to check if pending booking have been accepted
   Future<void> checkAndUpdateBookingStatus() async {
 
     for (var booking in requestController.requestHistory) {
@@ -418,6 +420,27 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
         }
       } else {
         return;
+      }
+    }
+  }
+
+  // Method to check if accepted booking have been canceled by users
+  Future<void> checkAndUpdateAcceptedBooking() async {
+    print(requestController.acceptedBookingList.length);
+    for (var bookings in requestController.acceptedBookingList) {
+      print(bookings.bookingNumber);
+
+      var querySnapshot = await _db
+          .collection("Bookings")
+          .where("Booking Number", isEqualTo: bookings.bookingNumber)
+          .get();
+      // print(bookings.bookingNumber);
+      // print(querySnapshot);
+
+      if (querySnapshot.docs.isEmpty) {
+        setState(() {
+          requestController.removeCompletedBooking(bookings.bookingNumber!);
+        });
       }
     }
   }
@@ -558,12 +581,16 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                                   colorText: Colors.red);
                             }else {
                               await requestController.updateDetail(incomingRequest.bookingNumber);
-                              showAcceptModalBottomSheet(context, incomingRequest);
+                              if(mounted){
+                                showAcceptModalBottomSheet(context, incomingRequest);
+                              }
                               requestController.removePendingBookings(incomingRequest.bookingNumber!);
                             }
                           }else {
                             await requestController.updateDetail(incomingRequest.bookingNumber);
-                            showAcceptModalBottomSheet(context, incomingRequest);
+                            if(mounted){
+                              showAcceptModalBottomSheet(context, incomingRequest);
+                            }
                             requestController.removePendingBookings(incomingRequest.bookingNumber!);
                           }
                         },
@@ -797,7 +824,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                               showAcceptModalBottomSheet(context, requestController.requestHistory[index]);
                             }
                             requestController.removePendingBookings(requestController.requestHistory[index].bookingNumber!);
-                            print(requestController.requestHistory[index].bookingNumber);
                           }
                         }else {
                           await requestController.updateDetail(requestController.requestHistory[index].bookingNumber);
@@ -805,7 +831,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                             showAcceptModalBottomSheet(context, requestController.requestHistory[index]);
                           }
                           requestController.removePendingBookings(requestController.requestHistory[index].bookingNumber!);
-                          print(requestController.requestHistory[index].bookingNumber);
                         }
 
                       } : () {

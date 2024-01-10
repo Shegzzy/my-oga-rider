@@ -259,8 +259,8 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               Icon(Icons.circle, size: 20, color: Colors.purple):
                               Icon(Icons.circle_outlined, size: 20, color: Colors.grey,),
                               const SizedBox(width: 15,),
-                              Int1 == 1 ? Text("Order Assigned", style: theme.textTheme.titleLarge)
-                                  : const Text("Order Assigned", style: TextStyle(
+                              Int1 == 1 ? Text("Service Started", style: theme.textTheme.titleLarge)
+                                  : const Text("Start Service", style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 14,
                               )),
@@ -633,7 +633,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     Int1 == 1 ?
                                     Expanded(
                                       child: OutlinedButton(
-                                          onPressed: Int7 ==1 ? null:(){
+                                          onPressed: Int7 == 1 ? null:(){
                                             completeOrder();
                                             requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                             Navigator.of(context).pop();
@@ -669,7 +669,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     ),
                                   ],
                                 ]else ...[
-                                  Center(child: Text('Please Complete Express Booking', style: Theme.of(context).textTheme.labelMedium,))
+                                  Center(child: Text('Please Complete Express Booking Proceeding to DropOff', style: Theme.of(context).textTheme.titleSmall,))
                                 ]
                               ] else ...[
                                 if(Int4 == 1 && Int5 == 0)...[

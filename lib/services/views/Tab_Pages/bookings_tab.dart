@@ -63,7 +63,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
                           margin: EdgeInsets.only(bottom: 5),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10.0),
-                              color: isDark ? moAccentColor : moPrimaryColor),
+                              color: isDark ? Colors.black.withOpacity(0.1) : moPrimaryColor),
                           padding: const EdgeInsets.all(10.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,14 +110,16 @@ class _BookingTabPageState extends State<BookingTabPage> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
-                                      style: Theme.of(context).textTheme.titleLarge,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis)),
                                   Flexible(child: Text(snapshot.data![index].deliveryMode ?? "",
                                       style: Theme.of(context).textTheme.titleLarge,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis)),
+
+                                  Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis)),
+
                                   Flexible(child: Text(snapshot.data![index].distance ?? "",
                                       style: Theme.of(context).textTheme.titleLarge,
                                       maxLines: 2,
