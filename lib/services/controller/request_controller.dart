@@ -148,6 +148,19 @@ class FirestoreService extends GetxController {
     saveAcceptedBookings();
   }
 
+  // Function to load pending bookings from shared preferences
+  Future<void> loadPendingBookings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String>? serializedPendingList = prefs.getStringList('pendingBookings');
+
+    if (serializedPendingList != null) {
+      _requestHistory = serializedPendingList
+          .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
+          .toList();
+    }
+    print('Pending: ${_requestHistory.length}');
+  }
+
   // Function to save pending bookings to shared preferences
   Future<void> savePendingBookings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -155,13 +168,14 @@ class FirestoreService extends GetxController {
     _requestHistory.map((booking) => json.encode(booking.toJson())).toList();
 
     prefs.setStringList('pendingBookings', serializedPendingList);
+    update();
   }
 
   // Function to add a new pending booking
   void addPendingBooking(BookingModel newBooking) {
     _requestHistory.add(newBooking);
-    update();
     savePendingBookings();
+    update();
   }
 
   // Method to remove pending booking from list once its accepted

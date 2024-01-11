@@ -90,34 +90,40 @@ class MyApp extends StatelessWidget {
 
   MyApp({super.key});
 
-  final FirestoreService _db = FirestoreService();
+  final FirestoreService _db = Get.put(FirestoreService());
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<GetXSwitchState>(builder: (_) {
-      return MultiProvider(
-        providers: [
-          StreamProvider(create: (BuildContext context) => _db.getBookingData(),
-            initialData: Loading(),
-            catchError: (context, e) {
-              //or pop a dialogue...whatever.
-              return null;
-            },
+    return GetBuilder<FirestoreService>(builder: (_) {
+      _db.loadPendingBookings();
+      return GetBuilder<GetXSwitchState>(builder: (_) {
+        return MultiProvider(
+          providers: [
+            StreamProvider(
+              create: (BuildContext context) => _db.getBookingData(),
+              initialData: Loading(),
+              catchError: (context, e) {
+                //or pop a dialogue...whatever.
+                return null;
+              },
+            ),
+            ChangeNotifierProvider<AppStateProvider>.value(
+              value: AppStateProvider(),),
+          ],
+          child: GetMaterialApp(
+            theme: getXSwitchState.isDarkMode
+                ? MyOgaTheme.darkTheme
+                : MyOgaTheme
+                .lightTheme,
+            themeMode: ThemeMode.system,
+            debugShowCheckedModeBanner: false,
+            defaultTransition: Transition.leftToRightWithFade,
+            transitionDuration: const Duration(milliseconds: 200),
+            home: const Scaffold(body: Center(child: CircularProgressIndicator(
+              color: moAccentColor, backgroundColor: Colors.white,),)),
           ),
-          ChangeNotifierProvider<AppStateProvider>.value(
-            value: AppStateProvider(),),
-        ],
-        child: GetMaterialApp(
-          theme: getXSwitchState.isDarkMode ? MyOgaTheme.darkTheme : MyOgaTheme
-              .lightTheme,
-          themeMode: ThemeMode.system,
-          debugShowCheckedModeBanner: false,
-          defaultTransition: Transition.leftToRightWithFade,
-          transitionDuration: const Duration(milliseconds: 200),
-          home: const Scaffold(body: Center(child: CircularProgressIndicator(
-            color: moAccentColor, backgroundColor: Colors.white,),)),
-        ),
-      );
+        );
+      });
     });
   }
 }

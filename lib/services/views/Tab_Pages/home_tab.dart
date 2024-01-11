@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,6 +27,7 @@ import '../../model/order_status_model.dart';
 import '../Accepted_Request_Screen/accepted_screen.dart';
 import '../Order_Status/order_status.dart';
 
+
 class HomeTabPage extends StatefulWidget {
   const HomeTabPage({Key? key}) : super(key: key);
 
@@ -33,9 +35,10 @@ class HomeTabPage extends StatefulWidget {
   State<HomeTabPage> createState() => _HomeTabPageState();
 }
 
-class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
+class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
-  final Completer<GoogleMapController> _controllerGoogleMap = Completer<GoogleMapController>();
+  final Completer<GoogleMapController> _controllerGoogleMap = Completer<
+      GoogleMapController>();
   late GoogleMapController newGoogleMapController;
   final GetXSwitchState getXSwitchState = Get.find();
 
@@ -76,20 +79,27 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
     currentPosition = position;
 
     LatLng latLngPosition = LatLng(position.latitude, position.longitude);
 
-    CameraPosition cameraPosition = CameraPosition(target: latLngPosition, zoom: 14);
-    newGoogleMapController.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    CameraPosition cameraPosition = CameraPosition(
+        target: latLngPosition, zoom: 14);
+    newGoogleMapController.animateCamera(
+        CameraUpdate.newCameraPosition(cameraPosition));
 
-    placeMarks = await placemarkFromCoordinates(currentPosition.latitude, currentPosition.longitude);
+    placeMarks = await placemarkFromCoordinates(
+        currentPosition.latitude, currentPosition.longitude);
     Placemark pMark = placeMarks![0];
 
-    String driverLocation = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
+    String driverLocation = '${pMark.subThoroughfare} ${pMark
+        .thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark
+        .subAdministrativeArea}, ${pMark.administrativeArea} ${pMark
+        .postalCode}, ${pMark.country}';
 
-    Map<String,dynamic> locationData = {
+    Map<String, dynamic> locationData = {
       'Driver Latitude': currentPosition.latitude.toString(),
       'Driver Longitude': currentPosition.longitude.toString(),
       'Driver Address': driverLocation,
@@ -97,7 +107,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userID = prefs.getString("UserID")!;
-    await FirebaseFirestore.instance.collection('Drivers').doc(userID).set(locationData,SetOptions(merge: true));
+    await FirebaseFirestore.instance.collection('Drivers').doc(userID).set(
+        locationData, SetOptions(merge: true));
   }
 
   static const CameraPosition _kGooglePlex = CameraPosition(
@@ -105,7 +116,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     zoom: 14.4746,
   );
 
-  blackThemeGoogleMap () {
+  blackThemeGoogleMap() {
     newGoogleMapController.setMapStyle('''
                     [
                       {
@@ -272,14 +283,16 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   }
 
   // Function to calculate distance between two points using Haversine formula
-  double calculateDistance(double startLat, double startLng, double endLat, double endLng) {
+  double calculateDistance(double startLat, double startLng, double endLat,
+      double endLng) {
     const R = 6371.0; // Earth radius in kilometers
 
     final double dLat = _toRadians(endLat - startLat);
     final double dLng = _toRadians(endLng - startLng);
 
     final double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_toRadians(startLat)) * cos(_toRadians(endLat)) * sin(dLng / 2) * sin(dLng / 2);
+        cos(_toRadians(startLat)) * cos(_toRadians(endLat)) * sin(dLng / 2) *
+            sin(dLng / 2);
 
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     double result = R * c;
@@ -297,20 +310,25 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   @override
   void initState() {
     super.initState();
+    if (Platform.isAndroid) {
+      _requestLocationPermission();
+    }
     WidgetsBinding.instance.addObserver(this);
     requestController.loadAcceptedBookings();
-    statusCheckTimer = Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
-      await checkAndUpdateBookingStatus();
-      await checkAndUpdateAcceptedBooking();
-    });
+    requestController.loadPendingBookings();
+    statusCheckTimer =
+        Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
+          await checkAndUpdateBookingStatus();
+          await checkAndUpdateAcceptedBooking();
+        });
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
-
       if (requestController.acceptedBookingList.length < 3) {
-        for(int i = 0; i < requestController.acceptedBookingList.length; i++){
-          print(requestController.acceptedBookingList[i].deliveryMode);
-        }
+        // for(int i = 0; i < requestController.acceptedBookingList.length; i++){
+        //   print(requestController.acceptedBookingList[i].deliveryMode);
+        // }
         // Listen to updates in the stream of pending booking requests
-        requestController.getBookingData().listen((List<BookingModel> bookingList) async {
+        requestController.getBookingData().listen((
+            List<BookingModel> bookingList) async {
           if (bookingList.isNotEmpty) {
             // Take the latest pending booking request
             for (final latestRequest in bookingList) {
@@ -324,10 +342,13 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
                 final double riderLat = currentPosition.latitude;
                 final double riderLng = currentPosition.longitude;
-                final double pickupLng = double.parse(latestRequest.pickUp_longitude!);
-                final double pickupLat = double.parse(latestRequest.pickUp_latitude!);
+                final double pickupLng = double.parse(
+                    latestRequest.pickUp_longitude!);
+                final double pickupLat = double.parse(
+                    latestRequest.pickUp_latitude!);
 
-                final double distance = calculateDistance(riderLat, riderLng, pickupLat, pickupLng);
+                final double distance = calculateDistance(
+                    riderLat, riderLng, pickupLat, pickupLng);
                 // String directionUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=${currentPosition.latitude},${currentPosition.longitude}&destination=${latestRequest.pickUp_latitude},${latestRequest.pickUp_longitude}&key=AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM";
                 // http.Response response = await http.get(Uri.parse(directionUrl));
                 // if (response.statusCode == 200) {
@@ -342,10 +363,15 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 // }
 
                 // Checking if the booking is not a duplicate, if the booking is within proximity and if enough time has passed since the last notification
-                if (distance <= distanceThreshold && !requestController.requestHistory.any((previousRequest) => previousRequest.bookingNumber == latestRequest.bookingNumber) &&
-                    (lastNotificationTime == null || DateTime.now().difference(lastNotificationTime!) > const Duration(seconds: 35))) {
+                if (distance <= distanceThreshold &&
+                    !requestController.requestHistory.any((previousRequest) =>
+                    previousRequest.bookingNumber ==
+                        latestRequest.bookingNumber) &&
+                    (lastNotificationTime == null ||
+                        DateTime.now().difference(lastNotificationTime!) >
+                            const Duration(seconds: 35))) {
                   setState(() {
-                    requestController.requestHistory.add(latestRequest);
+                    requestController.addPendingBooking(latestRequest);
                   });
 
                   showBookingNotification(context, latestRequest);
@@ -369,12 +395,12 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     // TODO: implement didChangeAppLifecycleState
     super.didChangeAppLifecycleState(state);
 
-    if(state == AppLifecycleState.paused ||
+    if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) return;
 
     final isDetached = state == AppLifecycleState.detached;
 
-    if(isDetached){
+    if (isDetached) {
       getController.switchDataController.write('isSwitched', false);
       timer.stop;
     }
@@ -386,6 +412,36 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     timer.cancel();
     statusCheckTimer.cancel();
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  Future<void> _requestLocationPermission() async {
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      if (mounted) {
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Location Permission"),
+              content: Text(
+                  "We need your location to provide courier services. Please grant location access."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    locatePosition();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else {
+      locatePosition();
+    }
   }
 
 
@@ -403,7 +459,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
   // Method to check if pending booking have been accepted
   Future<void> checkAndUpdateBookingStatus() async {
-
     for (var booking in requestController.requestHistory) {
       var querySnapshot = await _db
           .collection("Bookings")
@@ -417,6 +472,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
         if (bookingStatus == 'active') {
           setState(() {
             requestController.requestHistory.remove(booking);
+            requestController.savePendingBookings();
           });
         }
       } else {
@@ -427,9 +483,9 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
   // Method to check if accepted booking have been canceled by users
   Future<void> checkAndUpdateAcceptedBooking() async {
-    print(requestController.acceptedBookingList.length);
+    // print(requestController.acceptedBookingList.length);
     for (var bookings in requestController.acceptedBookingList) {
-      print(bookings.bookingNumber);
+      // print(bookings.bookingNumber);
 
       var querySnapshot = await _db
           .collection("Bookings")
@@ -447,10 +503,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
   }
 
 
-  Future<void>showBookingNotification(BuildContext context, BookingModel incomingRequest) async {
+  Future<void> showBookingNotification(BuildContext context,
+      BookingModel incomingRequest) async {
     var isDark = getXSwitchState.isDarkMode;
-    return await showDialog(context: context, builder: (context){
-      return StatefulBuilder(builder: (context, setState){
+    return await showDialog(context: context, builder: (context) {
+      return StatefulBuilder(builder: (context, setState) {
         return AlertDialog(
           content: Container(
             width: double.infinity,
@@ -461,7 +518,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             ),
             child: Column(
               children: [
-                Text("New Booking Request", style: Theme.of(context).textTheme.bodyLarge,),
+                Text("New Booking Request", style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyLarge,),
                 const SizedBox(height: 20,),
                 Row(
                   children: [
@@ -473,15 +533,21 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: Text("Pickup",
-                          style: Theme.of(context).textTheme.titleLarge,
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .titleLarge,
                         ),
                       ),
                     ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(1.0),
-                        child: Text(incomingRequest.pickup_address??"",
-                          style: Theme.of(context).textTheme.bodyLarge,
+                        child: Text(incomingRequest.pickup_address ?? "",
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .bodyLarge,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -499,15 +565,21 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: Text("Drop-Off",
-                          style: Theme.of(context).textTheme.titleLarge,
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .titleLarge,
                         ),
                       ),
                     ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(1.0),
-                        child: Text(incomingRequest.dropOff_address??"",
-                          style: Theme.of(context).textTheme.bodyLarge,
+                        child: Text(incomingRequest.dropOff_address ?? "",
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .bodyLarge,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -519,25 +591,52 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text('Distance: ${incomingRequest.distance ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
+                    Text('Distance: ${incomingRequest.distance ?? ""}',
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodyMedium,),
                     const SizedBox(width: 20,),
-                    Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(incomingRequest.amount ?? ""))}', style: Theme.of(context).textTheme.bodyMedium,),
+                    Text('Cost: ${MyOgaFormatter.currencyFormatter(
+                        double.parse(incomingRequest.amount ?? ""))}',
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodyMedium,),
                   ],
                 ),
                 const SizedBox(height: 20,),
-                Text("Payment Method:", style: Theme.of(context).textTheme.titleLarge,),
+                Text("Payment Method:", style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleLarge,),
                 const SizedBox(height: 5,),
-                Text(incomingRequest.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
+                Text(incomingRequest.payment_method ?? "", style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyLarge,),
 
                 const SizedBox(height: 10,),
-                Text("Delivery Mode:", style: Theme.of(context).textTheme.titleLarge,),
+                Text("Delivery Mode:", style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleLarge,),
                 const SizedBox(height: 5,),
-                Text(incomingRequest.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
+                Text(incomingRequest.deliveryMode ?? "", style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyLarge,),
 
                 const SizedBox(height: 10,),
-                Text("Ride Type:", style: Theme.of(context).textTheme.titleLarge,),
+                Text("Ride Type:", style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleLarge,),
                 const SizedBox(height: 5,),
-                Text(incomingRequest.rideType??"", style: Theme.of(context).textTheme.bodyLarge,),
+                Text(incomingRequest.rideType ?? "", style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyLarge,),
 
                 const SizedBox(height: 10),
                 Row(
@@ -547,7 +646,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        style: Theme.of(context).outlinedButtonTheme.style,
+                        style: Theme
+                            .of(context)
+                            .outlinedButtonTheme
+                            .style,
                         child: Text("Cancel".toUpperCase()),
                       ),
                     ),
@@ -555,29 +657,40 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
-                          if(requestController.acceptedBookingList.any((element) => element.deliveryMode == 'Express')){
-                            if(incomingRequest.deliveryMode == 'Express'){
+                          if (requestController.acceptedBookingList.any((
+                              element) => element.deliveryMode == 'Express')) {
+                            if (incomingRequest.deliveryMode == 'Express') {
                               Get.snackbar(
-                                  "Error", "You can only take one express booking",
+                                  "Error",
+                                  "You can only take one express booking",
                                   snackPosition: SnackPosition.TOP,
                                   backgroundColor: Colors.white,
                                   colorText: Colors.red);
-                            }else {
-                              await requestController.updateDetail(incomingRequest.bookingNumber);
-                              if(mounted){
-                                showAcceptModalBottomSheet(context, incomingRequest);
+                            } else {
+                              await requestController.updateDetail(
+                                  incomingRequest.bookingNumber);
+                              if (mounted) {
+                                showAcceptModalBottomSheet(
+                                    context, incomingRequest);
                               }
-                              requestController.removePendingBookings(incomingRequest.bookingNumber!);
+                              requestController.removePendingBookings(
+                                  incomingRequest.bookingNumber!);
                             }
-                          }else {
-                            await requestController.updateDetail(incomingRequest.bookingNumber);
-                            if(mounted){
-                              showAcceptModalBottomSheet(context, incomingRequest);
+                          } else {
+                            await requestController.updateDetail(
+                                incomingRequest.bookingNumber);
+                            if (mounted) {
+                              showAcceptModalBottomSheet(
+                                  context, incomingRequest);
                             }
-                            requestController.removePendingBookings(incomingRequest.bookingNumber!);
+                            requestController.removePendingBookings(
+                                incomingRequest.bookingNumber!);
                           }
                         },
-                        style: Theme.of(context).elevatedButtonTheme.style,
+                        style: Theme
+                            .of(context)
+                            .elevatedButtonTheme
+                            .style,
                         child: Text("Accept".toUpperCase()),
                       ),
                     ),
@@ -591,59 +704,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     });
   }
 
-  void showAcceptModalBottomSheet(BuildContext context, BookingModel newRequest){
-    Navigator.pop(context);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30))
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.5,
-        maxChildSize: 0.9,
-        minChildSize: 0.32,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          child: AcceptScreen(btnClicked: () async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            final userID = prefs.getString("UserID")!;
-            final order = OrderStatusModel(
-              customerID: newRequest.customer_id,
-              driverID: userID,
-              bookingNumber: newRequest.bookingNumber,
-              orderAssign: "1",
-              outForPick: "0",
-              arrivePick: "0",
-              percelPicked: "0",
-              wayToDrop: "0",
-              arriveDrop: "0",
-              completed: "0",
-              dateCreated: DateTime.now().toString(),
-              timeStamp: Timestamp.now(),
-            );
-            ///Start Circular Progress Bar
-            showDialog(
-                context: context,
-                builder: (context){
-                  return const Center(child: CircularProgressIndicator());
-                }
-            );
-            await requestController.storeOrderStatus(order);
-            /// Stop Progress Bar
-            Navigator.of(context).pop();
-            showStatusModalBottomSheet(context, newRequest);
-
-            },
-            bookingData: newRequest,
-          ),
-        ),
-      ),
-    );
-  }
-
-  void showStatusModalBottomSheet(BuildContext context, BookingModel inRequest){
+  void showAcceptModalBottomSheet(BuildContext context,
+      BookingModel newRequest) {
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -651,24 +713,86 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(30))
       ),
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.6,
-        maxChildSize: 0.9,
-        minChildSize: 0.32,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          child: OrderStatusScreen(
-            bookingData: inRequest,
+      builder: (context) =>
+          DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.5,
+            maxChildSize: 0.9,
+            minChildSize: 0.32,
+            builder: (context, scrollController) =>
+                SingleChildScrollView(
+                  controller: scrollController,
+                  child: AcceptScreen(btnClicked: () async {
+                    SharedPreferences prefs = await SharedPreferences
+                        .getInstance();
+                    final userID = prefs.getString("UserID")!;
+                    final order = OrderStatusModel(
+                      customerID: newRequest.customer_id,
+                      driverID: userID,
+                      bookingNumber: newRequest.bookingNumber,
+                      orderAssign: "1",
+                      outForPick: "0",
+                      arrivePick: "0",
+                      percelPicked: "0",
+                      wayToDrop: "0",
+                      arriveDrop: "0",
+                      completed: "0",
+                      dateCreated: DateTime.now().toString(),
+                      timeStamp: Timestamp.now(),
+                    );
+
+                    ///Start Circular Progress Bar
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                    );
+                    await requestController.storeOrderStatus(order);
+
+                    /// Stop Progress Bar
+                    Navigator.of(context).pop();
+                    showStatusModalBottomSheet(context, newRequest);
+                  },
+                    bookingData: newRequest,
+                  ),
+                ),
           ),
-        ),
+    );
+  }
+
+  void showStatusModalBottomSheet(BuildContext context,
+      BookingModel inRequest) {
+    Navigator.pop(context);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30))
       ),
+      builder: (context) =>
+          DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.6,
+            maxChildSize: 0.9,
+            minChildSize: 0.32,
+            builder: (context, scrollController) =>
+                SingleChildScrollView(
+                  controller: scrollController,
+                  child: OrderStatusScreen(
+                    bookingData: inRequest,
+                  ),
+                ),
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    var isDark = MediaQuery
+        .of(context)
+        .platformBrightness == Brightness.dark;
     return Scaffold(
       body: Stack(
         children: [
@@ -683,60 +807,63 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             onMapCreated: (GoogleMapController controller) {
               _controllerGoogleMap.complete(controller);
               newGoogleMapController = controller;
-              locatePosition();
             },
           ),
           Positioned(
             right: 100,
             left: 100,
             top: 50,
-            child: Obx(() => LiteRollingSwitch(
-                //initial value
-                value: getController.isOnline.value,
-                textOn: 'Online',
-                textOff: 'Offline',
-                colorOn: const Color(0xFF00E676),
-                colorOff: const Color(0xFFFF5252),
-                iconOn: Icons.done,
-                iconOff: Icons.remove_circle_outline,
-                textSize: 16.0,
-                onChanged: (bool state) async {
-                  getController.changeSwitchState(state);
-                  if(state == true){
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    final userID = prefs.getString("UserID")!;
-                    await _db.collection("Drivers")
-                        .doc(userID)
-                        .update({'Online': '1'});
-                  } else if(state == false){
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    final userID = prefs.getString("UserID")!;
-                    await _db.collection("Drivers")
-                        .doc(userID)
-                        .update({'Online': '0'});
-                  }else {
-                    return;
-                  }
-                },
-                onTap: (){},
-                onDoubleTap: (){
-                  //showBookingNotification(context);
-                },
-                onSwipe: (){
-                  //showBookingNotification(context);
-                },
-              ),
+            child: Obx(() =>
+                LiteRollingSwitch(
+                  //initial value
+                  value: getController.isOnline.value,
+                  textOn: 'Online',
+                  textOff: 'Offline',
+                  colorOn: const Color(0xFF00E676),
+                  colorOff: const Color(0xFFFF5252),
+                  iconOn: Icons.done,
+                  iconOff: Icons.remove_circle_outline,
+                  textSize: 16.0,
+                  onChanged: (bool state) async {
+                    getController.changeSwitchState(state);
+                    if (state == true) {
+                      SharedPreferences prefs = await SharedPreferences
+                          .getInstance();
+                      final userID = prefs.getString("UserID")!;
+                      await _db.collection("Drivers")
+                          .doc(userID)
+                          .update({'Online': '1'});
+                    } else if (state == false) {
+                      SharedPreferences prefs = await SharedPreferences
+                          .getInstance();
+                      final userID = prefs.getString("UserID")!;
+                      await _db.collection("Drivers")
+                          .doc(userID)
+                          .update({'Online': '0'});
+                    } else {
+                      return;
+                    }
+                  },
+                  onTap: () {},
+                  onDoubleTap: () {
+                    //showBookingNotification(context);
+                  },
+                  onSwipe: () {
+                    //showBookingNotification(context);
+                  },
+                ),
             ),
           ),
           Positioned(
-            right: 312,
-            top: 55,
-            child: IconButton( color: PButtonColor, onPressed: () {
-              setState(() {
-                Get.to(_buildPendingBookings(context));
-              });
-            }, icon: Icon(Icons.notifications,),)
+              right: 312,
+              top: 55,
+              child: IconButton(color: PButtonColor, onPressed: () {
+                setState(() {
+                  Get.to(_buildPendingBookings(context));
+                });
+              }, icon: Icon(Icons.notifications,),)
           ),
+
           Positioned(
               right: 325,
               top: 65,
@@ -744,14 +871,15 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 height: 12,
                 width: 12,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.grey.shade500
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.grey.shade500
                 ),
                 child: Center(
                     child: Text('${requestController.requestHistory.length}',
-                      style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600),)),
+                      style: TextStyle(
+                          fontSize: 8, fontWeight: FontWeight.w600),)),
               )
-            )
+          )
         ],
       ),
     );
@@ -775,73 +903,121 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Pickup Address: ${requestController.requestHistory[index].pickup_address!}', style: Theme.of(context).textTheme.labelLarge,),
+                    Text('Pickup Address: ${requestController
+                        .requestHistory[index].pickup_address!}',
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .labelLarge,),
                     const SizedBox(height: 10,),
-                    Text('DropOff Address: ${requestController.requestHistory[index].dropOff_address!}', style: Theme.of(context).textTheme.labelLarge),
+                    Text('DropOff Address: ${requestController
+                        .requestHistory[index].dropOff_address!}',
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .labelLarge),
 
                   ],
                 ),
                 subtitle: Column(
-                  children: [
-                    const SizedBox(height: 10,),
-                    Column(
-                      children: [
-                        Text('Delivery Mode: ${requestController.requestHistory[index].deliveryMode!}', style: Theme.of(context).textTheme.labelMedium),
-                        const SizedBox(height: 5),
-                        Text('Ride Type: ${requestController.requestHistory[index].rideType!}', style: Theme.of(context).textTheme.labelMedium),
-                        const SizedBox(height: 5),
-                        Text('Distance: ${requestController.requestHistory[index].distance!}', style: Theme.of(context).textTheme.labelMedium),
-                        const SizedBox(height: 5),
-                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestController.requestHistory[index].amount!))}', style: Theme.of(context).textTheme.labelMedium),
-                      ],
-                    ),
-                    const SizedBox(height: 10,),
-                    InkWell(
-                      onTap: requestController.acceptedBookingList.length < 3 ? () async{
-                        if(requestController.acceptedBookingList.any((element) => element.deliveryMode == 'Express')){
-                          if(requestController.requestHistory[index].deliveryMode == 'Express'){
-                            Get.snackbar(
-                                "Error", "You can only take one express booking",
-                                snackPosition: SnackPosition.TOP,
-                                backgroundColor: Colors.white,
-                                colorText: Colors.red);
-                          }else {
-                            await requestController.updateDetail(requestController.requestHistory[index].bookingNumber);
-                            if(mounted){
-                              showAcceptModalBottomSheet(context, requestController.requestHistory[index]);
+                    children: [
+                      const SizedBox(height: 10,),
+                      Column(
+                        children: [
+                          Text('Delivery Mode: ${requestController
+                              .requestHistory[index].deliveryMode!}',
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .labelMedium),
+                          const SizedBox(height: 5),
+                          Text('Ride Type: ${requestController
+                              .requestHistory[index].rideType!}',
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .labelMedium),
+                          const SizedBox(height: 5),
+                          Text('Distance: ${requestController
+                              .requestHistory[index].distance!}',
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .labelMedium),
+                          const SizedBox(height: 5),
+                          Text('Cost: ${MyOgaFormatter.currencyFormatter(
+                              double.parse(
+                                  requestController.requestHistory[index]
+                                      .amount!))}', style: Theme
+                              .of(context)
+                              .textTheme
+                              .labelMedium),
+                        ],
+                      ),
+                      const SizedBox(height: 10,),
+                      InkWell(
+                        onTap: requestController.acceptedBookingList
+                            .length < 3 ? () async {
+                          if (requestController.acceptedBookingList.any((
+                              element) =>
+                          element.deliveryMode == 'Express')) {
+                            if (requestController.requestHistory[index]
+                                .deliveryMode == 'Express') {
+                              Get.snackbar(
+                                  "Error",
+                                  "You can only take one express booking",
+                                  snackPosition: SnackPosition.TOP,
+                                  backgroundColor: Colors.white,
+                                  colorText: Colors.red);
+                            } else {
+                              await requestController.updateDetail(
+                                  requestController.requestHistory[index]
+                                      .bookingNumber);
+                              if (mounted) {
+                                showAcceptModalBottomSheet(context,
+                                    requestController
+                                        .requestHistory[index]);
+                              }
+                              requestController.removePendingBookings(
+                                  requestController.requestHistory[index]
+                                      .bookingNumber!);
                             }
-                            requestController.removePendingBookings(requestController.requestHistory[index].bookingNumber!);
+                          } else {
+                            await requestController.updateDetail(
+                                requestController.requestHistory[index]
+                                    .bookingNumber);
+                            if (mounted) {
+                              showAcceptModalBottomSheet(context,
+                                  requestController.requestHistory[index]);
+                            }
+                            requestController.removePendingBookings(
+                                requestController.requestHistory[index]
+                                    .bookingNumber!);
                           }
-                        }else {
-                          await requestController.updateDetail(requestController.requestHistory[index].bookingNumber);
-                          if(mounted){
-                            showAcceptModalBottomSheet(context, requestController.requestHistory[index]);
-                          }
-                          requestController.removePendingBookings(requestController.requestHistory[index].bookingNumber!);
-                        }
-
-                      } : () {
+                        } : () {
                           Get.snackbar(
-                          "Error",
-                          "You cannot accept more than 3 bookings",
-                          snackPosition: SnackPosition.TOP,
-                          backgroundColor: Colors.white,
-                          colorText: Colors.red,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: PButtonColor
-                        ),
-                        child: Text('Accept'.toUpperCase(), style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12
-                        ))),
-                    )
-                  ]
+                            "Error",
+                            "You cannot accept more than 3 bookings",
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.white,
+                            colorText: Colors.red,
+                          );
+                        },
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                color: PButtonColor
+                            ),
+                            child: Text('Accept'.toUpperCase(),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12
+                                ))),
+                      )
+                    ]
                 ),
                 // Add more details as needed
                 // Add a button to accept the request
@@ -850,7 +1026,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             );
           },
         ),
-      ),
+      )
     );
   }
 }
