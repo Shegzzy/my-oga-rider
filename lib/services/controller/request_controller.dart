@@ -148,14 +148,31 @@ class FirestoreService extends GetxController {
     saveAcceptedBookings();
   }
 
+  // Function to save pending bookings to shared preferences
+  Future<void> savePendingBookings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> serializedPendingList =
+    _requestHistory.map((booking) => json.encode(booking.toJson())).toList();
+
+    prefs.setStringList('pendingBookings', serializedPendingList);
+  }
+
+  // Function to add a new pending booking
+  void addPendingBooking(BookingModel newBooking) {
+    _requestHistory.add(newBooking);
+    update();
+    savePendingBookings();
+  }
+
   // Method to remove pending booking from list once its accepted
   void removePendingBookings(String bookingNumber) {
     // Listen to real-time updates on the booking document
     FirebaseFirestore.instance.collection("Bookings").doc(bookingNumber).snapshots().listen((snapshot) {
       if (snapshot.exists) {
         if (snapshot.data()?['Status'] == 'active') {
-            requestHistory.removeWhere((booking) => booking.bookingNumber == bookingNumber);
+            _requestHistory.removeWhere((booking) => booking.bookingNumber == bookingNumber);
             update();
+            savePendingBookings();
         }
       }
     });

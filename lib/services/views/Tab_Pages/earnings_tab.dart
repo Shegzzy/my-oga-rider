@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
 import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +24,7 @@ class _EarningTabPageState extends State<EarningTabPage> {
     _selectedDays = _earningDays[0];
   }
 
+  final GetXSwitchState getXSwitchState = Get.find();
   late Future<List<BookingModel>?> userFuture;
   final _db = FirebaseFirestore.instance;
   String? userID;
@@ -167,7 +169,7 @@ Future<void> initializeData() async {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    var isDark = getXSwitchState.isDarkMode;
     final txtTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
@@ -177,10 +179,11 @@ Future<void> initializeData() async {
       ),
       body: Column(
         children: [
+          // Earnings area
           Card(
             elevation: 20,
             shadowColor: Colors.black,
-            color: moPrimaryColor,
+            color: isDark ? Colors.black.withOpacity(0.1) : moPrimaryColor,
             child: SizedBox(
               width: 400,
               height: 220,
@@ -195,7 +198,7 @@ Future<void> initializeData() async {
                       height: 60,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
-                        color: Colors.white,
+                        color: isDark ? Colors.black.withOpacity(0.1) : Colors.white,
                         borderRadius: BorderRadius.circular(6)
                       ),
                       child: DropdownButtonFormField(
@@ -238,7 +241,8 @@ Future<void> initializeData() async {
               ),
             ),
           ),
-          const SizedBox(height: 30,),
+
+          // Bookings area
           Expanded(
             child: FutureBuilder<List<BookingModel>?>(
               future: userFuture,
@@ -259,7 +263,7 @@ Future<void> initializeData() async {
                             width: 380,
                             height: 150,
                             child: Padding(
-                              padding: const EdgeInsets.only(right: 10.0, top: 5.0),
+                              padding: const EdgeInsets.only(right: 10.0, top: 5.0, left: 10.0),
                               child: Container(
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10.0),

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:my_oga_rider/services/controller/request_controller.dart';
+import 'package:my_oga_rider/services/views/Tab_Pages/bookings_tab.dart';
 import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -179,7 +180,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(LineAwesomeIcons.angle_left)),
+            onPressed: () => Get.off(BookingTabPage()), icon: const Icon(LineAwesomeIcons.angle_left)),
         title: Text("Booking Details", style: Theme.of(context).textTheme.headlineMedium),
         centerTitle: true,
         backgroundColor: Colors.transparent,

@@ -57,7 +57,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
                   itemBuilder: (c, index){
                     return  GestureDetector(
                       onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => BookingDetailsScreen(bookingData: snapshot.data![index],)));
+                        Get.to(BookingDetailsScreen(bookingData: snapshot.data![index],));
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(right: 10.0, top: 5.0),

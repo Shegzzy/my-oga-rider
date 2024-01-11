@@ -37,6 +37,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
   final Completer<GoogleMapController> _controllerGoogleMap = Completer<GoogleMapController>();
   late GoogleMapController newGoogleMapController;
+  final GetXSwitchState getXSwitchState = Get.find();
 
   late var timer;
   late Timer statusCheckTimer;
@@ -319,7 +320,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                 });
 
                 // Check if the distance between rider and pickup is below a threshold
-                final double distanceThreshold = 5.0;
+                const double distanceThreshold = 25.0;
 
                 final double riderLat = currentPosition.latitude;
                 final double riderLng = currentPosition.longitude;
@@ -447,14 +448,15 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
 
 
   Future<void>showBookingNotification(BuildContext context, BookingModel incomingRequest) async {
+    var isDark = getXSwitchState.isDarkMode;
     return await showDialog(context: context, builder: (context){
       return StatefulBuilder(builder: (context, setState){
         return AlertDialog(
           content: Container(
             width: double.infinity,
-            height: 430,
+            height: 425,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Colors.black12.withOpacity(0.01) : Colors.white,
               borderRadius: BorderRadius.circular(1.0),
             ),
             child: Column(
@@ -468,31 +470,19 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       width: 10.0,
                     ),
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          //borderRadius: BorderRadius.circular(1.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: Text("Pickup",
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text("Pickup",
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
                     ),
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          //borderRadius: BorderRadius.circular(1.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: Text(incomingRequest.pickup_address??"",
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Text(incomingRequest.pickup_address??"",
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -506,31 +496,19 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                       width: 10.0,
                     ),
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          //borderRadius: BorderRadius.circular(1.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: Text("Drop-Off",
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text("Drop-Off",
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
                     ),
                     Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          //borderRadius: BorderRadius.circular(1.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: Text(incomingRequest.dropOff_address??"",
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Text(incomingRequest.dropOff_address??"",
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -546,15 +524,20 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                     Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(incomingRequest.amount ?? ""))}', style: Theme.of(context).textTheme.bodyMedium,),
                   ],
                 ),
-                const SizedBox(height: 35,),
+                const SizedBox(height: 20,),
                 Text("Payment Method:", style: Theme.of(context).textTheme.titleLarge,),
-                const SizedBox(height: 10,),
+                const SizedBox(height: 5,),
                 Text(incomingRequest.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
 
-                const SizedBox(height: 15,),
-                Text("Delivery Mode:", style: Theme.of(context).textTheme.titleLarge,),
                 const SizedBox(height: 10,),
+                Text("Delivery Mode:", style: Theme.of(context).textTheme.titleLarge,),
+                const SizedBox(height: 5,),
                 Text(incomingRequest.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
+
+                const SizedBox(height: 10,),
+                Text("Ride Type:", style: Theme.of(context).textTheme.titleLarge,),
+                const SizedBox(height: 5,),
+                Text(incomingRequest.rideType??"", style: Theme.of(context).textTheme.bodyLarge,),
 
                 const SizedBox(height: 10),
                 Row(
@@ -746,13 +729,13 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
             ),
           ),
           Positioned(
-            right: 325,
-            top: 65,
-            child: GestureDetector(
-                onTap: (){
-                  Get.to(_buildPendingBookings(context));
-                },
-                child: Icon(Icons.notifications, color: PButtonColor,))
+            right: 312,
+            top: 55,
+            child: IconButton( color: PButtonColor, onPressed: () {
+              setState(() {
+                Get.to(_buildPendingBookings(context));
+              });
+            }, icon: Icon(Icons.notifications,),)
           ),
           Positioned(
               right: 325,
@@ -804,8 +787,12 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
                     Column(
                       children: [
                         Text('Delivery Mode: ${requestController.requestHistory[index].deliveryMode!}', style: Theme.of(context).textTheme.labelMedium),
+                        const SizedBox(height: 5),
+                        Text('Ride Type: ${requestController.requestHistory[index].rideType!}', style: Theme.of(context).textTheme.labelMedium),
+                        const SizedBox(height: 5),
                         Text('Distance: ${requestController.requestHistory[index].distance!}', style: Theme.of(context).textTheme.labelMedium),
-                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestController.requestHistory[index].amount!))}', style: Theme.of(context).textTheme.labelMedium)
+                        const SizedBox(height: 5),
+                        Text('Cost: ${MyOgaFormatter.currencyFormatter(double.parse(requestController.requestHistory[index].amount!))}', style: Theme.of(context).textTheme.labelMedium),
                       ],
                     ),
                     const SizedBox(height: 10,),
@@ -867,3 +854,4 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver{
     );
   }
 }
+
