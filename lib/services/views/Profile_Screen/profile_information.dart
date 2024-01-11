@@ -26,7 +26,7 @@ class ProfileInformation extends StatelessWidget {
             onPressed: () => Get.back(),
             icon: const Icon(LineAwesomeIcons.angle_left)),
         title:
-        Text(moProfileInfo, style: Theme.of(context).textTheme.headline4),
+        Text(moProfileInfo, style: Theme.of(context).textTheme.headlineMedium),
         actions: [
           IconButton(
               onPressed: () {
@@ -76,7 +76,7 @@ class ProfileInformation extends StatelessWidget {
                                     ],
                                   ),
                                   const SizedBox(height: 10.0),
-                                  Text(moProfilePics, style: Theme.of(context).textTheme.headline4),
+                                  Text(moProfilePics, style: Theme.of(context).textTheme.headlineMedium),
                                   const SizedBox(height: 15.0),
                                   const Divider(),
                                   Column(
@@ -85,7 +85,7 @@ class ProfileInformation extends StatelessWidget {
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(moProfileInfoHead, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileInfoHead, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20.0,),
@@ -93,64 +93,64 @@ class ProfileInformation extends StatelessWidget {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfileName, style: Theme.of(context).textTheme.headline5,),
-                                          Text(userData.fullname == null ? "Complete profile" : userData.fullname!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileName, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text(userData.fullname == null ? "Complete profile" : userData.fullname!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfileEmail, style: Theme.of(context).textTheme.headline5,),
-                                          Text(userData.email == null ? "Complete profile" : userData.email!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileEmail, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text(userData.email == null ? "Complete profile" : userData.email!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfilePhone, style: Theme.of(context).textTheme.headline5,),
-                                          Text(userData.phoneNo == null ? "Complete profile" : userData.phoneNo!,  style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfilePhone, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text(userData.phoneNo == null ? "Complete profile" : userData.phoneNo!,  style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfileAddress, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.address == null ? "Complete profile" : userData.address!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileAddress, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.address == null ? "Complete profile" : userData.address!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfileState, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.userState == null ? "Complete profile" : userData.userState!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileState, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.userState == null ? "Complete profile" : userData.userState!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfileDOB, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.dateOfBirth == null ? "Complete profile" : userData.dateOfBirth!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileDOB, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.dateOfBirth == null ? "Complete profile" : userData.dateOfBirth!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfileGender, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.gender == null ? "Complete profile" : userData.gender!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileGender, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.gender == null ? "Complete profile" : userData.gender!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moProfileCompany, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.userCompany == null ? "Complete profile" : userData.userCompany!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileCompany, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.userCompany == null ? "Complete profile" : userData.userCompany!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 30.0,),
@@ -159,7 +159,7 @@ class ProfileInformation extends StatelessWidget {
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(moProfileCarInfoHead, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moProfileCarInfoHead, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20.0,),
@@ -167,48 +167,48 @@ class ProfileInformation extends StatelessWidget {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moVehicleNum, style: Theme.of(context).textTheme.headline5,),
-                                          Text(userData.vehicleNumber == null ? "Contact Support" : userData.vehicleNumber!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moVehicleNum, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text(userData.vehicleNumber == null ? "Contact Support" : userData.vehicleNumber!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moVehicleMake, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.vehicleMake == null ? "Complete profile" : userData.vehicleMake!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moVehicleMake, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.vehicleMake == null ? "Complete profile" : userData.vehicleMake!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moVehicleType, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.vehicleType == null ? "Complete profile" : userData.vehicleType!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moVehicleType, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.vehicleType == null ? "Complete profile" : userData.vehicleType!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moVehicleModel, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.vehicleModel == null ? "Complete profile" : userData.vehicleModel!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moVehicleModel, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.vehicleModel == null ? "Complete profile" : userData.vehicleModel!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moVehicleYear, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.vehicleYear == null ? "Complete profile" : userData.vehicleYear!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moVehicleYear, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.vehicleYear == null ? "Complete profile" : userData.vehicleYear!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(moVehicleColor, style: Theme.of(context).textTheme.headline5,),
-                                          Text( userData.vehicleColor == null ? "Complete profile" : userData.vehicleColor!, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moVehicleColor, style: Theme.of(context).textTheme.headlineSmall,),
+                                          Text( userData.vehicleColor == null ? "Complete profile" : userData.vehicleColor!, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 30.0,),
@@ -217,7 +217,7 @@ class ProfileInformation extends StatelessWidget {
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(moDocuments, style: Theme.of(context).textTheme.bodyText1,),
+                                          Text(moDocuments, style: Theme.of(context).textTheme.bodyLarge,),
                                         ],
                                       ),
                                       const SizedBox(height: 20.0,),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +29,7 @@ class _RatingTabPageState extends State<RatingTabPage> {
   double _average = 0;
   List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
   final _db = FirebaseFirestore.instance;
+  final GetXSwitchState getXSwitchState = Get.find();
 
   void getCount()async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,8 +59,9 @@ class _RatingTabPageState extends State<RatingTabPage> {
 
   @override
   Widget build(BuildContext context) {
+    var isDark = getXSwitchState.isDarkMode;
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Get.back(),
@@ -84,13 +87,13 @@ class _RatingTabPageState extends State<RatingTabPage> {
                         children: [
                           TextSpan(
                             text: _average.toStringAsFixed(1),
-                            style: const TextStyle(fontSize: 35.0),
+                            style: TextStyle(fontSize: 35.0, color: isDark ? Colors.white : Colors.black),
                           ),
-                          const TextSpan(
+                          TextSpan(
                             text: "/5",
                             style: TextStyle(
                               fontSize: 24.0,
-                              color: PButtonColor,
+                              color: isDark ? Colors.white :PButtonColor,
                             ),
                           ),
                         ],
@@ -107,9 +110,9 @@ class _RatingTabPageState extends State<RatingTabPage> {
                     const SizedBox(height: 16.0),
                     Text(
                       "$counter Reviews",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20.0,
-                        color: PButtonColor,
+                        color: isDark ? Colors.white : PButtonColor,
                       ),
                     ),
                   ],
