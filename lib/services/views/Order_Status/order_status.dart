@@ -14,6 +14,7 @@ import '../../model/booking_model.dart';
 import '../../model/earningModel.dart';
 import '../../model/order_status_model.dart';
 import '../../model/usermodel.dart';
+import '../Rating_Screen/rating_screen.dart';
 
 class OrderStatusScreen extends StatefulWidget {
  OrderStatusScreen({Key? key, required this.bookingData}) : super(key: key);
@@ -746,6 +747,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                           completeOrder();
                                           requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                           Navigator.of(context).pop();
+                                          Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
                                         },
                                         style: Theme.of(context).elevatedButtonTheme.style,
                                         child: Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
@@ -777,6 +779,10 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     ),
                                   ),
                                 ],
+                                TextButton(onPressed: (){
+                                  Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
+                                  print(widget.bookingData!.customer_id!);
+                                }, child: Text('Text'))
                               ],
                               const SizedBox(
                                 width: 10.0,
