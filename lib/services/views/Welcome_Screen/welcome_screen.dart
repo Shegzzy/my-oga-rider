@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
 
 import '../../../constant/colors.dart';
 import '../../../constant/image_string.dart';
@@ -13,10 +14,11 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GetXSwitchState getXSwitchState = Get.find();
     var mediaQuery = MediaQuery.of(context);
     var height = mediaQuery.size.height;
     var brightness = mediaQuery.platformBrightness;
-    final isDarkMode = brightness == Brightness.dark;
+    final isDarkMode = getXSwitchState.isDarkMode;
     return Scaffold(
       backgroundColor: isDarkMode ? PDarkColor : moPrimaryColor,
       body: Container(

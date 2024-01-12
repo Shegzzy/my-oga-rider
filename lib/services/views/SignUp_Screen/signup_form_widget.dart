@@ -60,25 +60,30 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
       dateCreated: DateTime.now().toString(),
     );
 
-    ///Start Circular Progress Bar
     try{
-      isUploading(true);
+    ///Start Circular Progress Bar
+      setState(() {
+        isUploading(true);
+      });
 
       await controller.registerUser(controller.email.text.trim(), controller.password.text.trim());
       await controller.createUser(user);
       controller.phoneAuthentication(countryCode.dialCode+controller.phoneNo.text.trim());
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("Phone", countryCode.dialCode+controller.phoneNo.text.trim());
+      Get.to(() => const OTPScreen());
+
     } catch (e){
       print('Error $e');
     } finally {
 
-      /// Stop Progress Bar
-      isUploading(false);
+      setState(() {
+        /// Stop Progress Bar
+        isUploading(false);
+      });
     }
 
-    // Get.to(() => const OTPScreen());
-    Get.to(() => const CarRegistrationWidget());
+    // Get.to(() => const CarRegistrationWidget());
   }
 
 
@@ -112,16 +117,16 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
                     label: Text(moEmail),
                     prefixIcon: Icon(Icons.email_outlined)),
                 controller: controller.email,
-                validator: (value){
-                  if(value == null || value.isEmpty)
-                  {
-                    return "Please enter your email";
-                  }
-                  if(!value.contains("@")){
-                    return ("Please enter a valid email address!");
-                  }
-                  return null;
-                },
+                // validator: (value){
+                //   if(value == null || value.isEmpty)
+                //   {
+                //     return "Please enter your email";
+                //   }
+                //   if(!value.contains("@")){
+                //     return ("Please enter a valid email address!");
+                //   }
+                //   return null;
+                // },
               ),
               const SizedBox(height: 10.0),
               TextFormField(
