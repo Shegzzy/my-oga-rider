@@ -27,7 +27,22 @@ class _LoginFormState extends State<LoginForm> {
   final _formkey = GlobalKey<FormState>();
   final _controller = Get.put(LoginController());
   bool _isVisible = false;
-  var isUploading = false.obs;
+  bool isUploading = false;
+
+  Future<void> login() async{
+    try {
+      setState(() {
+        isUploading = true;
+      });
+      await _controller.loginUsers(_controller.email.text.trim(), _controller.password.text.trim());
+    } catch (e){
+      print('Error $e');
+    } finally {
+      setState(() {
+        isUploading = false;
+      });
+    }
+  }
 
 
   @override
@@ -91,18 +106,16 @@ class _LoginFormState extends State<LoginForm> {
                 child: const Text(moForgetPassword, style: TextStyle(color: moAccentColor),),
               ),
             ),
-            SizedBox(
+             SizedBox(
               width: double.infinity,
-              child: Obx(()=> isUploading.value? const Center(child: CircularProgressIndicator()) : ElevatedButton(onPressed: (){
-                        if(_formkey.currentState!.validate()) {
-                          ///Start Circular Progress Bar
-                          isUploading(true);
-                          _controller.loginUsers(_controller.email.text.trim(), _controller.password.text.trim());
-                        }
-                      },
-                    child: Text(moLogin.toUpperCase(), style: const TextStyle(fontSize: 20.0,),),
+              child: isUploading ? Center(child: CircularProgressIndicator()) : ElevatedButton(onPressed: () async {
+                if(_formkey.currentState!.validate()) {
+                ///Start Circular Progress Bar
+                await login();
+                }
+                },
+                child: Text(moLogin.toUpperCase(), style: const TextStyle(fontSize: 20.0,),),
                 ),
-              ),
             ),
           ],
         ),

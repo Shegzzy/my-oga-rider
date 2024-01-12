@@ -26,8 +26,9 @@ class _RatingScreenState extends State<RatingScreen> {
 
 
   void saveRating() async {
-    final userName = userModel?.fullname;
-    final userEmail = userModel?.email;
+    final userName = userModel?.fullname ?? '';
+    final userPhone = userModel?.phoneNo ?? '';
+    final userEmail = userModel?.email ?? '';
 
     final data = {
       "name": userName,

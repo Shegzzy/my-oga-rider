@@ -23,14 +23,14 @@ const String moWelcomeBack = "Welcome Back";
 const String moWelcomeBackTagline = "Login to access your account!";
 const String moEmail = "Email";
 const String moPassword = "Password";
-const String moDontHaveAccount = "Don't have account yet?";
+const String moDontHaveAccount = "Don't have account yet? ";
 const String moForgetPassword = "Forget Password";
 const String moGoogleSignIn = "Sign in with Phone";
 
 // Sign Up Screen Text
 const String moSignupTitle = "Get started";
 const String moSignupSubtitle = "with just a click";
-const String moAlreadyHaveAccount = "Already have an Account?";
+const String moAlreadyHaveAccount = "Already have an Account? ";
 const String moFullName = "Full Name";
 const String moRepeatPassword = "Repeat Password";
 const String moPhoneTitle = "Enter your mobile number";

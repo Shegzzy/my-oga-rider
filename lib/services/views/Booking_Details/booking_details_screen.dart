@@ -50,6 +50,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void>showDriverDialog(BuildContext context) async {
     return await showDialog(context: context, builder: (context){
       var isDark = getXSwitchState.isDarkMode;
@@ -180,7 +185,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.off(BookingTabPage()), icon: const Icon(LineAwesomeIcons.angle_left)),
+            onPressed: () => Get.back(), icon: const Icon(LineAwesomeIcons.angle_left)),
         title: Text("Booking Details", style: Theme.of(context).textTheme.headlineMedium),
         centerTitle: true,
         backgroundColor: Colors.transparent,

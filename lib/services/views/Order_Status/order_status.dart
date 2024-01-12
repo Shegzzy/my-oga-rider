@@ -746,7 +746,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                         onPressed: Int7 ==1 ? null:(){
                                           completeOrder();
                                           requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
-                                          Navigator.of(context).pop();
+                                          // Navigator.of(context).pop();
                                           Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
                                         },
                                         style: Theme.of(context).elevatedButtonTheme.style,
@@ -779,10 +779,6 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     ),
                                   ),
                                 ],
-                                TextButton(onPressed: (){
-                                  Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
-                                  print(widget.bookingData!.customer_id!);
-                                }, child: Text('Text'))
                               ],
                               const SizedBox(
                                 width: 10.0,

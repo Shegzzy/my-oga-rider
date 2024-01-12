@@ -56,7 +56,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   FirestoreService requestController = Get.find();
   List<Placemark>? placeMarks;
 
-  void locatePosition() async {
+  Future<void> locatePosition() async {
     ///Asking Users Permission
     bool serviceEnabled;
     LocationPermission permission;
@@ -80,7 +80,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     }
 
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
+        desiredAccuracy: LocationAccuracy.high);
     currentPosition = position;
 
     LatLng latLngPosition = LatLng(position.latitude, position.longitude);
@@ -310,9 +310,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) {
-      _requestLocationPermission();
-    }
+
     WidgetsBinding.instance.addObserver(this);
     requestController.loadAcceptedBookings();
     requestController.loadPendingBookings();
@@ -440,7 +438,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         );
       }
     } else {
-      locatePosition();
+      await locatePosition();
     }
   }
 
@@ -804,9 +802,15 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
             initialCameraPosition: _kGooglePlex,
             zoomControlsEnabled: true,
             zoomGesturesEnabled: true,
-            onMapCreated: (GoogleMapController controller) {
+            onMapCreated: (GoogleMapController controller) async{
               _controllerGoogleMap.complete(controller);
               newGoogleMapController = controller;
+
+              if (Platform.isAndroid) {
+                await _requestLocationPermission();
+              } else {
+                await locatePosition();
+              }
             },
           ),
           Positioned(

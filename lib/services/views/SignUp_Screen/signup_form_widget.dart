@@ -61,16 +61,21 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
     );
 
     ///Start Circular Progress Bar
-    isUploading(true);
+    try{
+      isUploading(true);
 
-    await controller.registerUser(controller.email.text.trim(), controller.password.text.trim());
-    await controller.createUser(user);
-    controller.phoneAuthentication(countryCode.dialCode+controller.phoneNo.text.trim());
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("Phone", countryCode.dialCode+controller.phoneNo.text.trim());
+      await controller.registerUser(controller.email.text.trim(), controller.password.text.trim());
+      await controller.createUser(user);
+      controller.phoneAuthentication(countryCode.dialCode+controller.phoneNo.text.trim());
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString("Phone", countryCode.dialCode+controller.phoneNo.text.trim());
+    } catch (e){
+      print('Error $e');
+    } finally {
 
-    /// Stop Progress Bar
-    isUploading(false);
+      /// Stop Progress Bar
+      isUploading(false);
+    }
 
     // Get.to(() => const OTPScreen());
     Get.to(() => const CarRegistrationWidget());
@@ -292,7 +297,7 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
                 child: Obx(()=> isUploading.value? const Center(child: CircularProgressIndicator()): ElevatedButton(
                   onPressed: () async {
                     if (_formkey.currentState!.validate()) {
-                      signUP();
+                      await signUP();
                     }
                   },
                   child: Text(moNext.toUpperCase()),

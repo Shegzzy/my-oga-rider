@@ -203,7 +203,9 @@ class AuthenticationRepository extends GetxController {
             colorText: Colors.red);
         logout();
       });
+
       var myInt = int.tryParse(docId!);
+
       if (myInt == 0) {
         await _auth.signOut();
         SharedPreferences prefs = await SharedPreferences.getInstance();
