@@ -34,6 +34,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
   final _db = FirebaseFirestore.instance;
   UserModel? _userModel;
   FirestoreService requestController = FirestoreService();
+  bool isLoading = false;
 
 
   @override
@@ -102,62 +103,63 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
 
   Future<void> completeOrder() async {
 
-    ///Start Circular Progress Bar
-    showDialog(
-        context: context,
-        builder: (context){
-          return const Center(child: CircularProgressIndicator());
-        }
-    );
+    try{
+      setState(() {
+        isLoading = true;
+      });
 
-    await _db.collection("Order_Status").doc(_orderStats?.id).update({
-      "Completed": "1",
-    }).whenComplete(() =>
-        Get.snackbar(
-            "Success", "Order Status Updated.",
-            snackPosition: SnackPosition.TOP,
+      await _db.collection("Order_Status").doc(_orderStats?.id).update({
+        "Completed": "1",
+      }).whenComplete(() =>
+          Get.snackbar(
+              "Success", "Order Status Updated.",
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.white,
+              colorText: Colors.green),
+      ).catchError((error, stackTrace) {
+        Get.snackbar("Error", "Something went wrong. Try again.",
+            snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.white,
-            colorText: Colors.green),
-    ).catchError((error, stackTrace) {
-      Get.snackbar("Error", "Something went wrong. Try again.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.white,
-          colorText: Colors.red);
-    });
+            colorText: Colors.red);
+      });
 
-    await _db.collection("Bookings")
-        .where("Booking Number", isEqualTo:widget.bookingData!.bookingNumber!)
-        .get().then((value) => value.docs.forEach((element) {
-      docId = element.id;
-    }));
-    await _db.collection("Bookings")
-        .doc(docId)
-        .update({'Status': 'completed'}).whenComplete(() =>
+      await _db.collection("Bookings")
+          .where("Booking Number", isEqualTo:widget.bookingData!.bookingNumber!)
+          .get().then((value) => value.docs.forEach((element) {
+        docId = element.id;
+      }));
+      await _db.collection("Bookings")
+          .doc(docId)
+          .update({'Status': 'completed'}).whenComplete(() =>
           Get.snackbar(
               "Success", "Order Completed.",
               snackPosition: SnackPosition.TOP,
               backgroundColor: Colors.white,
               colorText: Colors.green),
-          ).catchError((error, stackTrace) {
-            Get.snackbar("Error", "Something went wrong. Try again.",
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.white,
-                colorText: Colors.red);
-          });
+      ).catchError((error, stackTrace) {
+        Get.snackbar("Error", "Something went wrong. Try again.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.white,
+            colorText: Colors.red);
+      });
 
-    final earn = EarningModel(
-      driver: _orderStats?.driverID.toString(),
-      booking: _orderStats?.bookingNumber.toString(),
-      company: _userModel?.userCompany.toString(),
-      amount: widget.bookingData!.amount.toString(),
-      customer: widget.bookingData!.customer_id.toString(),
-      dateCreated: DateTime.now().toString(),
-      timeStamp: Timestamp.now(),
-    );
-    await _userRepo.storeEarning(earn);
-    /// Stop Progress Bar
-    // ignore: use_build_context_synchronously
-    Navigator.of(context).pop();
+      final earn = EarningModel(
+        driver: _orderStats?.driverID.toString(),
+        booking: _orderStats?.bookingNumber.toString(),
+        company: _userModel?.userCompany.toString(),
+        amount: widget.bookingData!.amount.toString(),
+        customer: widget.bookingData!.customer_id.toString(),
+        dateCreated: DateTime.now().toString(),
+        timeStamp: Timestamp.now(),
+      );
+      await _userRepo.storeEarning(earn);
+    }catch (e){
+      print('Error $e');
+    }finally{
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
 
@@ -634,13 +636,13 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     Int1 == 1 ?
                                     Expanded(
                                       child: OutlinedButton(
-                                          onPressed: Int7 == 1 ? null:(){
-                                            completeOrder();
+                                          onPressed: Int7 == 1 ? null:() async {
+                                            await completeOrder();
                                             requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
-                                            Navigator.of(context).pop();
+                                            Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
                                           },
                                           style: Theme.of(context).elevatedButtonTheme.style,
-                                          child: Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
+                                          child: isLoading ? const Center(child: CircularProgressIndicator()) : Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
                                       ),
                                     ) :
                                     Expanded(
@@ -670,7 +672,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     ),
                                   ],
                                 ]else ...[
-                                  Center(child: Text('Please Complete Express Booking Proceeding to DropOff', style: Theme.of(context).textTheme.titleSmall,))
+                                  Center(child: Text('Please Complete Express Booking \n before proceeding to DropOff', style: Theme.of(context).textTheme.titleSmall,))
                                 ]
                               ] else ...[
                                 if(Int4 == 1 && Int5 == 0)...[
@@ -743,14 +745,14 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                   Int1 == 1 ?
                                   Expanded(
                                     child: OutlinedButton(
-                                        onPressed: Int7 ==1 ? null:(){
-                                          completeOrder();
+                                        onPressed: Int7 ==1 ? null:() async {
+                                          await completeOrder();
                                           requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                           // Navigator.of(context).pop();
                                           Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
                                         },
                                         style: Theme.of(context).elevatedButtonTheme.style,
-                                        child: Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
+                                        child: isLoading ? const Center(child: CircularProgressIndicator()) : Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
                                     ),
                                   ) :
                                   Expanded(

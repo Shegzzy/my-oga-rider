@@ -205,7 +205,7 @@ class UserRepository extends GetxController {
   Future<void> updateUserRecord(UserModel user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? iD = prefs.getString("UserID");
-      await _db.collection("Drivers").doc(iD).update(user.toJson()).whenComplete(() =>
+      await _db.collection("Drivers").doc(iD).update(user.updateToJson()).whenComplete(() =>
           Get.snackbar(
               "Success", "Your account have been updated.",
               snackPosition: SnackPosition.TOP,

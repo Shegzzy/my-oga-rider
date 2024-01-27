@@ -1,6 +1,7 @@
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constant/colors.dart';
@@ -23,7 +24,7 @@ class SignupFormWidget extends StatefulWidget {
 
 class _SignupFormWidgetState extends State<SignupFormWidget> {
 
-
+  final GetXSwitchState getXSwitchState = Get.find();
   final controller = Get.put(SignUpController());
   final _formkey = GlobalKey<FormState>();
   bool _isVisible = false;
@@ -89,7 +90,7 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    var isDark = getXSwitchState.isDarkMode;
     return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -117,16 +118,16 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
                     label: Text(moEmail),
                     prefixIcon: Icon(Icons.email_outlined)),
                 controller: controller.email,
-                // validator: (value){
-                //   if(value == null || value.isEmpty)
-                //   {
-                //     return "Please enter your email";
-                //   }
-                //   if(!value.contains("@")){
-                //     return ("Please enter a valid email address!");
-                //   }
-                //   return null;
-                // },
+                validator: (value){
+                  if(value == null || value.isEmpty)
+                  {
+                    return "Please enter your email";
+                  }
+                  if(!value.contains("@")){
+                    return ("Please enter a valid email address!");
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 10.0),
               TextFormField(
@@ -213,74 +214,50 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
                       },
               ),
               const SizedBox(height: 10.0),
-              Container(
-                width: double.infinity,
-                height: 60.0,
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.black.withOpacity(0.1) : Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      spreadRadius: 3,
-                      blurRadius: 3,
-                    )
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: InkWell(
-                        onTap: () async {
-                          final code = await countryPicker.showPicker(context: context);
-                          if(code != null){
-                            countryCode = code;
-                          }
-                          setState(() {
+              Row(
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      final code = await countryPicker.showPicker(context: context);
+                      if(code != null){
+                        countryCode = code;
+                      }
+                      setState(() {
 
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 10.0,),
-                            Expanded(
-                              child: Container(
-                                child: countryCode.flagImage,
-                              ),
-                            ),
-                            Text(countryCode.dialCode, style: Theme.of(context).textTheme.bodyText2,),
-                            const Icon(Icons.keyboard_arrow_down_rounded),
-                          ],
+                      });
+                    },
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 10.0,),
+                        Container(
+                          child: countryCode.flagImage,
                         ),
+                        Text(countryCode.dialCode, style: Theme.of(context).textTheme.titleLarge,),
+                        const Icon(Icons.keyboard_arrow_down_rounded),
+                      ],
+                    ),
+                  ),
+
+                  Expanded(
+                    child: TextFormField(
+                      controller: controller.phoneNo,
+                      decoration: const InputDecoration(
+                        label: Text(moPhoneTitle),
+                        hintText: moPhoneHintTitle,
                       ),
+                      validator: (value){
+                        if(value == null || value.isEmpty)
+                        {
+                          return "Please enter a mobile number";
+                        }
+                        if(value.length > 10 || value.length < 10 ){
+                          return "Please enter a valid mobile number without 0";
+                        }
+                        return null;
+                      },
                     ),
-                    Container(
-                      width: 1,
-                      height: 60.0,
-                      color: moAccentColor.withOpacity(0.2),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: TextFormField(
-                        controller: controller.phoneNo,
-                        decoration: const InputDecoration(
-                          label: Text(moPhoneTitle),
-                          hintText: moPhoneHintTitle,
-                        ),
-                        validator: (value){
-                          if(value == null || value.isEmpty)
-                          {
-                            return "Please enter a mobile number";
-                          }
-                          if(value.length > 10 || value.length < 10 ){
-                            return "Please enter a valid mobile number without 0";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10.0),
               TextFormField(

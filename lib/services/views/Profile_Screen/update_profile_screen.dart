@@ -53,15 +53,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
               onPressed: () => Get.back(),
               icon: const Icon(LineAwesomeIcons.angle_left)),
           title:
-          Center(child: Text(moEditProfile, style: Theme
+          Text(moEditProfile, style: Theme
               .of(context)
               .textTheme
-              .headline4)),
-          actions: [
-            IconButton(
-                onPressed: () {}, icon: const Icon(LineAwesomeIcons.edit)),
-          ],
+              .headlineMedium),
           backgroundColor: Colors.transparent,
+          centerTitle: true,
         ),
         body: ChangeNotifierProvider(
           create: (_) => ProfilePhotoController(),
@@ -80,7 +77,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                             UserModel userData = snapshot.data as UserModel;
 
                             //Controllers
-                              dOB = userData.dateOfBirth;
+                            dOB = userData.dateOfBirth;
                             final email = TextEditingController(
                                 text: userData.email);
                             final fullname = TextEditingController(

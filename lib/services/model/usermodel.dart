@@ -86,6 +86,20 @@ class UserModel {
     };
   }
 
+
+  updateToJson() {
+    return {
+      "FullName": fullname,
+      "Email": email,
+      "Password": password,
+      "Phone": phoneNo,
+      "Address": address,
+      "Profile Photo": profilePic,
+      "Gender": gender,
+      "Date of Birth": dateOfBirth,
+    };
+  }
+
   ///Getting User Info Mapping
 
   /// Map user fetched from Firebase to UserModel

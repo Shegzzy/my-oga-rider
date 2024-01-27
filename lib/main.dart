@@ -1,15 +1,19 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:my_oga_rider/services/AppServices/app_provider.dart';
 import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
 import 'package:my_oga_rider/services/controller/request_controller.dart';
 import 'package:my_oga_rider/services/views/Main_Screen/main_screen.dart';
+import 'package:my_oga_rider/services/views/Permission_info_screen/permission_alert_screen.dart';
 import 'package:my_oga_rider/services/views/Welcome_Screen/welcome_screen.dart';
 import 'package:my_oga_rider/utils/theme/theme.dart';
 import 'package:my_oga_rider/widgets/loading.dart';
@@ -41,13 +45,23 @@ void main() async {
 
 _checkUserType() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  LocationPermission permission;
+  permission = await Geolocator.checkPermission();
   final iD = prefs.getString("aUserID");
   if (iD == null) {
     final iDd = prefs.getString("UserID");
     final userDoc = await FirebaseFirestore.instance.collection("Drivers").doc(
         iDd).get();
     if (userDoc.exists) {
-      Get.offAll(() => MainScreen());
+      if(Platform.isAndroid){
+        if(permission == LocationPermission.denied){
+          Get.to(() => const PermissionScreen());
+        }else{
+          Get.offAll(() => MainScreen());
+        }
+      }else{
+        Get.offAll(() => MainScreen());
+      }
     } else {
       Get.snackbar("Error", "No Access",
           snackPosition: SnackPosition.TOP,
@@ -95,7 +109,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<FirestoreService>(builder: (_) {
-      _db.loadPendingBookings();
+      // _db.loadPendingBookings();
       return GetBuilder<GetXSwitchState>(builder: (_) {
         return MultiProvider(
           providers: [

@@ -316,8 +316,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     requestController.loadPendingBookings();
     statusCheckTimer =
         Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
+          print(requestController.requestHistory.length);
+          // print(requestController.acceptedBookingList.length);
           await checkAndUpdateBookingStatus();
           await checkAndUpdateAcceptedBooking();
+
         });
     timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
       if (requestController.acceptedBookingList.length < 3) {
@@ -412,37 +415,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-  Future<void> _requestLocationPermission() async {
-    LocationPermission permission;
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      if (mounted) {
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Location Permission"),
-              content: Text(
-                  "We need your location to provide courier services. Please grant location access."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    locatePosition();
-                  },
-                  child: Text("OK"),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } else {
-      await locatePosition();
-    }
-  }
-
-
   void _startRefreshTimer() {
     timer = Timer.periodic(const Duration(minutes: 5), (timer) {
       setState(() {
@@ -462,6 +434,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
           .collection("Bookings")
           .where("Booking Number", isEqualTo: booking.bookingNumber)
           .get();
+      // print(booking.bookingNumber);
 
       if (querySnapshot.docs.isNotEmpty) {
         var snapshot = querySnapshot.docs.first;
@@ -473,8 +446,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
             requestController.savePendingBookings();
           });
         }
-      } else {
-        return;
+      } else if(querySnapshot.docs.isEmpty){
+        setState(() {
+          requestController.requestHistory.remove(booking);
+          requestController.savePendingBookings();
+        });
       }
     }
   }
@@ -802,15 +778,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
             initialCameraPosition: _kGooglePlex,
             zoomControlsEnabled: true,
             zoomGesturesEnabled: true,
-            onMapCreated: (GoogleMapController controller) async{
+            // minMaxZoomPreference: MinMaxZoomPreference.unbounded,
+            onMapCreated: (GoogleMapController controller) {
               _controllerGoogleMap.complete(controller);
               newGoogleMapController = controller;
-
-              if (Platform.isAndroid) {
-                await _requestLocationPermission();
-              } else {
-                await locatePosition();
-              }
+              locatePosition();
             },
           ),
           Positioned(
@@ -996,6 +968,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                                   requestController.requestHistory[index]
                                       .bookingNumber!);
                             }
+
                           } : () {
                             Get.snackbar(
                               "Error",

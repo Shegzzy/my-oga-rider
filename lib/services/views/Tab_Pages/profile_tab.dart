@@ -11,6 +11,7 @@ import '../../../repo/user_repo.dart';
 import '../../../widgets/profile_menu_widget.dart';
 import '../../controller/profile_photo_controller.dart';
 import '../../model/usermodel.dart';
+import '../../notificationService.dart';
 import '../Profile_Screen/profile_information.dart';
 import '../Profile_Screen/update_profile_screen.dart';
 import '../Settings/settings_screen.dart';
@@ -166,9 +167,9 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     icon: LineAwesomeIcons.alternate_sign_out,
                     textColor: Colors.red,
                     endIcon: false,
-                    onPress: () {
-                      _authController.logout();
-                      //NotificationService().showNotification(title: 'My Oga', body: 'Logged out successfully!');
+                    onPress: () async {
+                      await _authController.logout();
+                      // NotificationService().showNotification(title: 'My Oga', body: 'Logged out successfully!');
                     },
                   ),
                 ],

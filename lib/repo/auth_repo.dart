@@ -1,10 +1,13 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:my_oga_rider/repo/user_repo.dart';
+import 'package:my_oga_rider/services/views/Permission_info_screen/permission_alert_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/views/welcome_screen/welcome_screen.dart';
 import '../services/model/usermodel.dart';
@@ -164,8 +167,8 @@ class AuthenticationRepository extends GetxController {
   }
 
   Future<void> logout() async {
-    await _auth.signOut();
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    await _auth.signOut();
     prefs.remove("UserID");
     prefs.remove("aUserID");
     prefs.remove("UserEmail");
@@ -245,10 +248,20 @@ class AuthenticationRepository extends GetxController {
 
   _checkUserType() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
     final iD = prefs.getString("UserID");
     final userDoc =  await FirebaseFirestore.instance.collection("Drivers").doc(iD).get();
     if(userDoc.exists){
-      Get.offAll(() => MainScreen());
+      if(Platform.isAndroid){
+        if(permission == LocationPermission.denied){
+          Get.to(()=> const PermissionScreen());
+        }else{
+          Get.offAll(() => MainScreen());
+        }
+      }else{
+        Get.offAll(() => MainScreen());
+      }
     } else{
       Get.snackbar("Error", "No Access",
           snackPosition: SnackPosition.TOP,
