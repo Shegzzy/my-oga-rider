@@ -115,7 +115,9 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
               "Success", "Order Status Updated.",
               snackPosition: SnackPosition.TOP,
               backgroundColor: Colors.white,
-              colorText: Colors.green),
+              colorText: Colors.green,
+              // maxWidth: 200
+          ),
       ).catchError((error, stackTrace) {
         Get.snackbar("Error", "Something went wrong. Try again.",
             snackPosition: SnackPosition.BOTTOM,
@@ -745,11 +747,11 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                   Int1 == 1 ?
                                   Expanded(
                                     child: OutlinedButton(
-                                        onPressed: Int7 ==1 ? null:() async {
+                                        onPressed: Int7 == 1 ? null:() async {
                                           await completeOrder();
                                           requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                           // Navigator.of(context).pop();
-                                          Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
+                                          Get.to(() => RatingScreen(userID: widget.bookingData!.customer_id!));
                                         },
                                         style: Theme.of(context).elevatedButtonTheme.style,
                                         child: isLoading ? const Center(child: CircularProgressIndicator()) : Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())

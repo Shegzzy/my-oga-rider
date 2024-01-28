@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -36,13 +38,18 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   ProfileController controller = Get.put(ProfileController());
   final _userRepo = Get.put(UserRepository());
   final GetXSwitchState getXSwitchState = Get.find();
+  BookingModel? bookingModel;
+
 
   BookerModel? _bookerModel;
-  FirestoreService firestoreService = FirestoreService();
+  FirestoreService fireStoreService = Get.find();
+  late StreamSubscription<BookingModel> _bookingStatusSubscription;
+
 
   @override
   void initState() {
     super.initState();
+    _startListeningToBookingStatusChanges();
     _userRepo.getUserDetailsWithPhone(bookingData.customer_phone!).then((value) {
       setState(() {
         _bookerModel = value;
@@ -52,7 +59,17 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
   @override
   void dispose() {
+    _bookingStatusSubscription.cancel();
     super.dispose();
+  }
+
+  void _startListeningToBookingStatusChanges() {
+    print('started');
+    _bookingStatusSubscription = fireStoreService.getBookingDataByNum(bookingData.bookingNumber!).listen((event) {
+      setState(() {
+        bookingModel = event;
+      });
+    });
   }
 
   Future<void>showDriverDialog(BuildContext context) async {
@@ -344,7 +361,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ),
                     const SizedBox(width: 10,),
                     Flexible(
-                      child: Text("Status: ${bookingData.status}",
+                      child: Text("Status: ${bookingModel?.status}",
                         style: theme.textTheme.titleLarge,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,),

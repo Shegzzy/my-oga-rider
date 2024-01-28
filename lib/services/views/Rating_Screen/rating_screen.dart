@@ -39,11 +39,14 @@ class _RatingScreenState extends State<RatingScreen> {
     };
 
     try{
-      await _db.collection('Users').doc(customer).collection('Ratings').add(data).whenComplete(() => Get.snackbar(
-          "Success", "Rating Submitted.",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.white,
-          colorText: Colors.green),
+      await _db.collection('Users').doc(customer).collection('Ratings').add(data).whenComplete(() {
+        Get.snackbar(
+            "Success", "Rating Submitted.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.white,
+            colorText: Colors.green);
+        Navigator.pop(context);
+        }
       ).catchError((error, stackTrace) {
         Get.snackbar("Error", "Something went wrong. Try again.",
             snackPosition: SnackPosition.BOTTOM,

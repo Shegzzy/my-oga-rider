@@ -42,7 +42,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   late GoogleMapController newGoogleMapController;
   final GetXSwitchState getXSwitchState = Get.find();
 
-  late var timer;
+  late Timer timer;
   late Timer statusCheckTimer;
 
   BookingModel? currentRequest;
@@ -403,7 +403,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
     if (isDetached) {
       getController.switchDataController.write('isSwitched', false);
-      timer.stop;
+      timer.cancel();
     }
   }
 
