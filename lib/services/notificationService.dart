@@ -132,7 +132,11 @@ class NotificationService {
       Navigator.push(context, MaterialPageRoute(builder: (context) => NewBookingScreen(
         cId: message.data['userId'], bNum: message.data['bookingNumber'],
       )));
-    } else {
+    } else if(message.data['type'] == 'BOOKING_CANCELED'){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => NewBookingScreen(
+        cId: message.data['userId'], bNum: message.data['bookingNumber'],
+      )));
+    } else{
       return;
     }
   }

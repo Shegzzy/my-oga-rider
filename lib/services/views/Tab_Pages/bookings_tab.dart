@@ -29,6 +29,10 @@ class _BookingTabPageState extends State<BookingTabPage> {
     userFuture = _getBookings();
   }
 
+  void reloadScreen() {
+    userFuture = _getBookings();
+  }
+
   Future<List<BookingModel>?> _getBookings() async {
     return await controller.getAllUserBookings();
   }
@@ -56,8 +60,12 @@ class _BookingTabPageState extends State<BookingTabPage> {
                   itemCount: snapshot.data!.length,
                   itemBuilder: (c, index){
                     return  GestureDetector(
-                      onTap: (){
-                        Get.to(BookingDetailsScreen(bookingData: snapshot.data![index],));
+                      onTap: () async {
+                        final result = await Get.to(()=> BookingDetailsScreen(bookingData: snapshot.data![index],));
+                        if(result == true){
+                          reloadScreen();
+                          setState(() {});
+                        }
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(right: 10.0, top: 5.0),

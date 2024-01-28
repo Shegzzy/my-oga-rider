@@ -46,14 +46,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   void getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.remove('token');
+    String? savedToken = prefs.getString("token");
     await NotificationService().getDeviceToken().then((token) {
       if (kDebugMode) {
         print(" YOUR TOKEN IS: $token");
+        print(" YOUR SAVED TOKEN IS: $savedToken");
       }
       setState(() {
         _token = token;
       });
-      if(_token != prefs.getString("token")){
+      if(_token != savedToken){
         updateToken();
       }
     }
@@ -63,6 +66,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void updateToken () async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _userID = prefs.getString("UserID");
+    print('User ID: $_userID');
     await _db.collection("Drivers").doc(_userID).update({
       "Token": _token
     });

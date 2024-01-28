@@ -409,10 +409,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    super.dispose();
     timer.cancel();
     statusCheckTimer.cancel();
     WidgetsBinding.instance.addObserver(this);
+    super.dispose();
   }
 
   void _startRefreshTimer() {
