@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:location/location.dart' as loc;
 import 'package:location/location.dart';
+import 'package:my_oga_rider/global/global.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math' show cos, sqrt, asin;
 
@@ -91,7 +93,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   ),
                   onPressed: () async {
                     await launchUrl(Uri.parse(
-                      'google.navigation:q=${widget.lat},${widget.lng}&key=AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM'
+                      'google.navigation:q=${widget.lat},${widget.lng}&key=${dotenv.env['mapKey']}'
                     ));
                   },
                 ),
@@ -157,7 +159,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   getDirections(LatLng dst) async {
     List<LatLng> polylineCoordinates = [];
     List<dynamic> points = [];
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates('AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM',
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(dotenv.env['mapKey']!,
       PointLatLng(curLocation.latitude, curLocation.longitude),
       PointLatLng(dst.latitude, dst.longitude),
       travelMode: TravelMode.driving

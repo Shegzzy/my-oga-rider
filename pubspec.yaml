@@ -48,6 +48,7 @@ dependencies:
   app_settings: ^4.2.0
   firebase_messaging: 14.3.0
   intl: ^0.17.0
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +89,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - .env
     #- assets/icons/
     #- images/a_dot_burr.jpeg
     #- images/a_dot_ham.jpeg
