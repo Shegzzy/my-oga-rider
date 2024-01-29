@@ -12,14 +12,27 @@ class OTPController extends GetxController {
   final _authController = Get.put(AuthenticationRepository());
   final _auth = FirebaseAuth.instance;
 
-  void verifyOTP(String otp) async {
-    var isVerified = await _authController.verifyOTP(otp);
-    if(isVerified == true){
-      await _auth.signOut();
-      Get.offAll(() => const CarRegistrationWidget());
-    } else {
-      Get.offAll(const OTPScreen());
-    }
+  bool _otpLoading = false;
+  bool get otpLoading => _otpLoading;
+
+  Future<void> verifyOTP(String otp) async {
+   try{
+     _otpLoading = true;
+     update();
+
+     var isVerified = await _authController.verifyOTP(otp);
+     if(isVerified == true){
+       await _auth.signOut();
+       Get.offAll(() => const CarRegistrationWidget());
+     } else {
+       Get.offAll(const OTPScreen());
+     }
+   }catch(e){
+     print('Error $e');
+   }finally{
+     _otpLoading = false;
+     update();
+   }
   }
 
   void verifyLoginOTP(String otp) async {

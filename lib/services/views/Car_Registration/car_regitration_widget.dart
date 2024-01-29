@@ -204,7 +204,6 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
       'Vehicle Number': vehicleNumberController.text.trim(),
       'Vehicle Color': vehicleColor == "Others" ? vehicleColorController : vehicleColor,
       'Company': selectedCompany,
-      'timeStamp': Timestamp.now(),
     };
 
     await _controller.uploadCarEntry(carData);

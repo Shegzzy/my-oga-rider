@@ -144,6 +144,11 @@ class _BookingTabPageState extends State<BookingTabPage> {
                   },
                 );
               }
+              else if(!snapshot.hasData){
+                return const Center(child: Text('You haven\'t taken any bookings yet', style: TextStyle(
+                  color: Colors.white
+                ),),);
+              }
               else if (snapshot.hasError) {
                 return Center(
                   child: Text(snapshot.error.toString()),

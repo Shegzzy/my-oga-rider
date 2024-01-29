@@ -56,7 +56,7 @@ class _VehicleModelYearState extends State<VehicleModelYear> {
             childCount: years.length,
 
             itemBuilder: (BuildContext context, int index) {
-              return Center(child: Text(years[index].toString(), style: Theme.of(context).textTheme.headline4,));
+              return Center(child: Text(years[index].toString(), style: Theme.of(context).textTheme.headlineMedium,));
             },
             itemExtent: 100,
             onSelectedItemChanged: (value) {

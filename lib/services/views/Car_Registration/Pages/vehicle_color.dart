@@ -35,7 +35,7 @@ class _VehicleColorState extends State<VehicleColor> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       // height: 50,
       decoration: BoxDecoration(
-          color: Colors.white,
+          // color: Colors.white,
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -100,12 +100,13 @@ class _VehicleColorState extends State<VehicleColor> {
             color: const Color(0xffA7A7A7)),
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          filled: true,
           hintStyle:  GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w400,
               color: const Color(0xff7D7D7D).withOpacity(0.5)),
           hintText: title,
-          border: InputBorder.none,
+          // border: InputBorder.none,
         ),
       ),
     );
@@ -118,7 +119,7 @@ class _VehicleColorState extends State<VehicleColor> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
 
-        Text('What color of vehicle is it ?',style: Theme.of(context).textTheme.headline5,),
+        Text('What color of vehicle is it ?',style: Theme.of(context).textTheme.headlineSmall,),
 
         const SizedBox(height: 30,),
 

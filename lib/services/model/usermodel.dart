@@ -28,8 +28,9 @@ class UserModel {
   final String? currentLong;
   final String? currentAddress;
   final String? dateCreated;
+  final Timestamp? timeStamp;
 
-  const UserModel({
+  const UserModel( {
     this.id,
     this.fullname,
     this.email,
@@ -54,6 +55,7 @@ class UserModel {
     this.currentLat,
     this.currentLong,
     this.currentAddress,
+    this.timeStamp,
     this.dateCreated,
   });
 

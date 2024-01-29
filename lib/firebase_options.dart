@@ -24,7 +24,10 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -49,24 +52,15 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAwph5iP61uHokKAovxY2PT3TuvMjJkFzE',
-    appId: '1:762957034592:android:56d23cf4edd710dab23f05',
-    messagingSenderId: '762957034592',
-    projectId: 'myoga-80daa',
-    databaseURL: 'https://myoga-80daa-default-rtdb.firebaseio.com',
-    storageBucket: 'myoga-80daa.appspot.com',
-  );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBzJOb2aev5lTCh2UZt_EgmDD70zuOY0Xw',
-    appId: '1:762957034592:ios:f8329ee2e613a585b23f05',
+    appId: '1:762957034592:ios:f8ddb0d81e351c7ab23f05',
     messagingSenderId: '762957034592',
     projectId: 'myoga-80daa',
     databaseURL: 'https://myoga-80daa-default-rtdb.firebaseio.com',
     storageBucket: 'myoga-80daa.appspot.com',
-    androidClientId: '762957034592-562st3drt7gj6lv4lc6dtatpqlqc2isn.apps.googleusercontent.com',
-    iosClientId: '762957034592-dr650cbiniu96n78akujhi93o0fm9jkb.apps.googleusercontent.com',
-    iosBundleId: 'com.example.myOgaRider',
+    androidClientId: '762957034592-1v8m1vg0519pcee2dvpl1d0c4trainnq.apps.googleusercontent.com',
+    iosClientId: '762957034592-r3f02bg8gt8085t2u38sftp0qbj8d06v.apps.googleusercontent.com',
+    iosBundleId: 'com.myoga.myoga-rider',
   );
 }

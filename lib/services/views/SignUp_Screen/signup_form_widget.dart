@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -59,6 +60,7 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
       isVerified: '0',
       isOnline: '0',
       dateCreated: DateTime.now().toString(),
+      timeStamp: Timestamp.now(),
     );
 
     try{

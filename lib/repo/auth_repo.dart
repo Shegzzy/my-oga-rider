@@ -175,6 +175,7 @@ class AuthenticationRepository extends GetxController {
     prefs.remove("password");
     prefs.remove("Phone");
     prefs.remove('pendingBookings');
+    prefs.remove('token');
     // prefs.remove('acceptedBookings');
     Get.offAll(() => const WelcomeScreen());
   }

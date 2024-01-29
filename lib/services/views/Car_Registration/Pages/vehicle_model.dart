@@ -39,13 +39,14 @@ class _VehicleModelState extends State<VehicleModel> {
             fontWeight: FontWeight.w600,
             color: const Color(0xffA7A7A7)),
         decoration: InputDecoration(
+          filled: true,
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
           hintStyle:  GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w400,
               color: const Color(0xff7D7D7D).withOpacity(0.5)),
           hintText: title,
-          border: InputBorder.none,
+          // border: InputBorder.none,
         ),
       ),
     );

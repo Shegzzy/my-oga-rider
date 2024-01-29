@@ -42,12 +42,13 @@ class _VehicleNumberState extends State<VehicleNumber> {
             color: Color(0xffA7A7A7)),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 10),
+          filled: true,
           hintStyle:  GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w400,
               color: Color(0xff7D7D7D).withOpacity(0.5)),
           hintText: title,
-          border: InputBorder.none,
+          // border: InputBorder.none,
         ),
       ),
     );
