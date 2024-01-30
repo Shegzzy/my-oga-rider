@@ -121,152 +121,156 @@ class _PendingBookingsState extends State<PendingBookings> {
           title: const Text('Pending Requests'),
           centerTitle: true,
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: ListView.builder(
-            itemCount: requestController.requestHistory.length,
-            itemBuilder: (context, index) {
-              return Card(
-                elevation: 5,
-                child: ListTile(
-                  dense: true,
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Pickup Address: ${requestController
-                          .requestHistory[index].pickup_address!}',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .labelLarge,),
-                      const SizedBox(height: 10,),
-                      Text('DropOff Address: ${requestController
-                          .requestHistory[index].dropOff_address!}',
+        body: GetBuilder<FirestoreService>(
+            builder: (requestController){
+              return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            child: ListView.builder(
+              itemCount: requestController.requestHistory.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  elevation: 5,
+                  child: ListTile(
+                    dense: true,
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Pickup Address: ${requestController
+                            .requestHistory[index].pickup_address!}',
                           style: Theme
                               .of(context)
                               .textTheme
-                              .labelLarge),
-
-                    ],
-                  ),
-                  subtitle: Column(
-                      children: [
+                              .labelLarge,),
                         const SizedBox(height: 10,),
-                        Column(
-                          children: [
-                            Text('Delivery Mode: ${requestController
-                                .requestHistory[index].deliveryMode!}',
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .labelMedium),
-                            const SizedBox(height: 5),
-                            Text('Ride Type: ${requestController
-                                .requestHistory[index].rideType!}',
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .labelMedium),
-                            const SizedBox(height: 5),
-                            Text('Distance: ${requestController
-                                .requestHistory[index].distance!}',
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .labelMedium),
-                            const SizedBox(height: 5),
-                            Text('Cost: ${MyOgaFormatter.currencyFormatter(
-                                double.parse(
-                                    requestController.requestHistory[index]
-                                        .amount!))}', style: Theme
+                        Text('DropOff Address: ${requestController
+                            .requestHistory[index].dropOff_address!}',
+                            style: Theme
                                 .of(context)
                                 .textTheme
-                                .labelMedium),
-                          ],
-                        ),
-                        const SizedBox(height: 10,),
-                        InkWell(
-                          onTap: requestController.acceptedBookingList
-                              .length < 3 ? () async {
-                            final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
-                            if(snapshot.docs.isNotEmpty){
-                              if(requestController.requestHistory.contains(requestController.requestHistory[index])){
-                                if (requestController.acceptedBookingList.any((
-                                    element) =>
-                                element.deliveryMode == 'Express')) {
-                                  if (requestController.requestHistory[index]
-                                      .deliveryMode == 'Express') {
-                                    Get.snackbar(
-                                        "Error",
-                                        "You can only take one express booking",
-                                        snackPosition: SnackPosition.TOP,
-                                        backgroundColor: Colors.white,
-                                        colorText: Colors.red);
+                                .labelLarge),
+
+                      ],
+                    ),
+                    subtitle: Column(
+                        children: [
+                          const SizedBox(height: 10,),
+                          Column(
+                            children: [
+                              Text('Delivery Mode: ${requestController
+                                  .requestHistory[index].deliveryMode!}',
+                                  style: Theme
+                                      .of(context)
+                                      .textTheme
+                                      .labelMedium),
+                              const SizedBox(height: 5),
+                              Text('Ride Type: ${requestController
+                                  .requestHistory[index].rideType!}',
+                                  style: Theme
+                                      .of(context)
+                                      .textTheme
+                                      .labelMedium),
+                              const SizedBox(height: 5),
+                              Text('Distance: ${requestController
+                                  .requestHistory[index].distance!}',
+                                  style: Theme
+                                      .of(context)
+                                      .textTheme
+                                      .labelMedium),
+                              const SizedBox(height: 5),
+                              Text('Cost: ${MyOgaFormatter.currencyFormatter(
+                                  double.parse(
+                                      requestController.requestHistory[index]
+                                          .amount!))}', style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .labelMedium),
+                            ],
+                          ),
+                          const SizedBox(height: 10,),
+                          InkWell(
+                            onTap: requestController.acceptedBookingList
+                                .length < 3 ? () async {
+                              final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
+                              if(snapshot.docs.isNotEmpty){
+                                if(requestController.requestHistory.contains(requestController.requestHistory[index])){
+                                  if (requestController.acceptedBookingList.any((
+                                      element) =>
+                                  element.deliveryMode == 'Express')) {
+                                    if (requestController.requestHistory[index]
+                                        .deliveryMode == 'Express') {
+                                      Get.snackbar(
+                                          "Error",
+                                          "You can only take one express booking",
+                                          snackPosition: SnackPosition.TOP,
+                                          backgroundColor: Colors.white,
+                                          colorText: Colors.red);
+                                    } else {
+                                      await requestController.updateDetail(
+                                          requestController.requestHistory[index]
+                                              .bookingNumber);
+                                      if (mounted) {
+                                        showAcceptModalBottomSheet(context,
+                                            requestController
+                                                .requestHistory[index]);
+                                      }
+                                      requestController.removePendingBookings(
+                                          requestController.requestHistory[index]
+                                              .bookingNumber!);
+                                    }
                                   } else {
                                     await requestController.updateDetail(
                                         requestController.requestHistory[index]
                                             .bookingNumber);
                                     if (mounted) {
                                       showAcceptModalBottomSheet(context,
-                                          requestController
-                                              .requestHistory[index]);
+                                          requestController.requestHistory[index]);
                                     }
                                     requestController.removePendingBookings(
                                         requestController.requestHistory[index]
                                             .bookingNumber!);
                                   }
-                                } else {
-                                  await requestController.updateDetail(
-                                      requestController.requestHistory[index]
-                                          .bookingNumber);
-                                  if (mounted) {
-                                    showAcceptModalBottomSheet(context,
-                                        requestController.requestHistory[index]);
-                                  }
-                                  requestController.removePendingBookings(
-                                      requestController.requestHistory[index]
-                                          .bookingNumber!);
+                                }else{
+                                  Get.snackbar("Error", "This booking is no longer available", colorText: Colors.redAccent, backgroundColor: Colors.white);
                                 }
                               }else{
-                                Get.snackbar("Error", "This booking is no longer available", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                                Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
                               }
-                            }else{
-                              Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
-                            }
 
-                          } : () {
-                            Get.snackbar(
-                              "Error",
-                              "You cannot accept more than 3 bookings",
-                              snackPosition: SnackPosition.TOP,
-                              backgroundColor: Colors.white,
-                              colorText: Colors.red,
-                            );
-                          },
-                          child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  color: PButtonColor
-                              ),
-                              child: Text('Accept'.toUpperCase(),
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12
-                                  ))),
-                        )
-                      ]
+                            } : () {
+                              Get.snackbar(
+                                "Error",
+                                "You cannot accept more than 3 bookings",
+                                snackPosition: SnackPosition.TOP,
+                                backgroundColor: Colors.white,
+                                colorText: Colors.red,
+                              );
+                            },
+                            child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4),
+                                    color: PButtonColor
+                                ),
+                                child: Text('Accept'.toUpperCase(),
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12
+                                    ))),
+                          )
+                        ]
+                    ),
+                    // Add more details as needed
+                    // Add a button to accept the request
+                    // onPressed: () => acceptRequest(pendingBookings[index]),
                   ),
-                  // Add more details as needed
-                  // Add a button to accept the request
-                  // onPressed: () => acceptRequest(pendingBookings[index]),
-                ),
-              );
-            },
-          ),
-        )
+                );
+              },
+            ),
+          );
+            }
+          )
     );
   }
 }
