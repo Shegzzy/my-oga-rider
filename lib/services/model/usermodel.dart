@@ -85,6 +85,7 @@ class UserModel {
       "Driver Longitude": currentLong,
       "Driver Address": currentAddress,
       "Date Created": dateCreated,
+      "timeStamp": timeStamp
     };
   }
 
