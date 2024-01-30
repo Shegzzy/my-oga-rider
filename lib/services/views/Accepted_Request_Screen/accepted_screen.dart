@@ -35,6 +35,8 @@ class _AcceptScreenState extends State<AcceptScreen> {
   final _userRepo = Get.put(UserRepository());
 
   BookerModel? _bookerModel;
+  final _db = FirebaseFirestore.instance;
+
 
   @override
   void initState() {
@@ -154,7 +156,17 @@ class _AcceptScreenState extends State<AcceptScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: widget.btnClicked,
+                        onPressed: () async{
+                          final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: bookingData?.bookingNumber).get();
+                          if(snapshot.docs.isNotEmpty){
+                            widget.btnClicked;
+                          } else{
+                            Get.snackbar("Error", "This booking has been cancelled", colorText: Colors.redAccent,backgroundColor: Colors.white);
+                            if(mounted){
+                              Navigator.pop(context);
+                            }
+                          }
+                        },
                         style: Theme.of(context).elevatedButtonTheme.style,
                         child: Text(moStartService.toUpperCase()),
                       ),

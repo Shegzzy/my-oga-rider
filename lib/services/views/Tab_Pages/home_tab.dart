@@ -13,6 +13,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/services/views/Pending_Bookings/pending_bookings.dart';
 import 'package:my_oga_rider/widgets/custom_btn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -444,12 +445,14 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
           setState(() {
             requestController.requestHistory.remove(booking);
             requestController.savePendingBookings();
+            requestController.loadPendingBookings();
           });
         }
       } else if(querySnapshot.docs.isEmpty){
         setState(() {
           requestController.requestHistory.remove(booking);
           requestController.savePendingBookings();
+          requestController.loadPendingBookings();
         });
       }
     }
@@ -631,15 +634,27 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
-                          if (requestController.acceptedBookingList.any((
-                              element) => element.deliveryMode == 'Express')) {
-                            if (incomingRequest.deliveryMode == 'Express') {
-                              Get.snackbar(
-                                  "Error",
-                                  "You can only take one express booking",
-                                  snackPosition: SnackPosition.TOP,
-                                  backgroundColor: Colors.white,
-                                  colorText: Colors.red);
+                          final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: incomingRequest.bookingNumber).get();
+                          if(snapshot.docs.isNotEmpty){
+                            if (requestController.acceptedBookingList.any((
+                                element) => element.deliveryMode == 'Express')) {
+                              if (incomingRequest.deliveryMode == 'Express') {
+                                Get.snackbar(
+                                    "Error",
+                                    "You can only take one express booking",
+                                    snackPosition: SnackPosition.TOP,
+                                    backgroundColor: Colors.white,
+                                    colorText: Colors.red);
+                              } else {
+                                await requestController.updateDetail(
+                                    incomingRequest.bookingNumber);
+                                if (mounted) {
+                                  showAcceptModalBottomSheet(
+                                      context, incomingRequest);
+                                }
+                                requestController.removePendingBookings(
+                                    incomingRequest.bookingNumber!);
+                              }
                             } else {
                               await requestController.updateDetail(
                                   incomingRequest.bookingNumber);
@@ -650,15 +665,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                               requestController.removePendingBookings(
                                   incomingRequest.bookingNumber!);
                             }
-                          } else {
-                            await requestController.updateDetail(
-                                incomingRequest.bookingNumber);
-                            if (mounted) {
-                              showAcceptModalBottomSheet(
-                                  context, incomingRequest);
+                          }else{
+                            Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                            if(mounted){
+                              Navigator.pop(context);
                             }
-                            requestController.removePendingBookings(
-                                incomingRequest.bookingNumber!);
                           }
                         },
                         style: Theme
@@ -834,8 +845,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                 right: 312,
                 top: 55,
                 child: IconButton(color: PButtonColor, onPressed: () {
-                  Get.to(_buildPendingBookings(context));
-                }, icon: Icon(Icons.notifications,),)
+                  Get.to(() => const PendingBookings());
+                }, icon: const Icon(Icons.notifications, size: 25,),)
             ),
 
           Positioned(
@@ -862,7 +873,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   Widget _buildPendingBookings(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Pending Requests'),
+          title: const Text('Pending Requests'),
           centerTitle: true,
         ),
         body: Padding(
@@ -932,41 +943,50 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                         InkWell(
                           onTap: requestController.acceptedBookingList
                               .length < 3 ? () async {
-                            if (requestController.acceptedBookingList.any((
-                                element) =>
-                            element.deliveryMode == 'Express')) {
-                              if (requestController.requestHistory[index]
-                                  .deliveryMode == 'Express') {
-                                Get.snackbar(
-                                    "Error",
-                                    "You can only take one express booking",
-                                    snackPosition: SnackPosition.TOP,
-                                    backgroundColor: Colors.white,
-                                    colorText: Colors.red);
-                              } else {
-                                await requestController.updateDetail(
-                                    requestController.requestHistory[index]
-                                        .bookingNumber);
-                                if (mounted) {
-                                  showAcceptModalBottomSheet(context,
-                                      requestController
-                                          .requestHistory[index]);
+                            final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
+                            if(snapshot.docs.isNotEmpty){
+                              if(requestController.requestHistory.contains(requestController.requestHistory[index])){
+                                if (requestController.acceptedBookingList.any((
+                                    element) =>
+                                element.deliveryMode == 'Express')) {
+                                  if (requestController.requestHistory[index]
+                                      .deliveryMode == 'Express') {
+                                    Get.snackbar(
+                                        "Error",
+                                        "You can only take one express booking",
+                                        snackPosition: SnackPosition.TOP,
+                                        backgroundColor: Colors.white,
+                                        colorText: Colors.red);
+                                  } else {
+                                    await requestController.updateDetail(
+                                        requestController.requestHistory[index]
+                                            .bookingNumber);
+                                    if (mounted) {
+                                      showAcceptModalBottomSheet(context,
+                                          requestController
+                                              .requestHistory[index]);
+                                    }
+                                    requestController.removePendingBookings(
+                                        requestController.requestHistory[index]
+                                            .bookingNumber!);
+                                  }
+                                } else {
+                                  await requestController.updateDetail(
+                                      requestController.requestHistory[index]
+                                          .bookingNumber);
+                                  if (mounted) {
+                                    showAcceptModalBottomSheet(context,
+                                        requestController.requestHistory[index]);
+                                  }
+                                  requestController.removePendingBookings(
+                                      requestController.requestHistory[index]
+                                          .bookingNumber!);
                                 }
-                                requestController.removePendingBookings(
-                                    requestController.requestHistory[index]
-                                        .bookingNumber!);
+                              }else{
+                                Get.snackbar("Error", "This booking is no longer available", colorText: Colors.redAccent, backgroundColor: Colors.white);
                               }
-                            } else {
-                              await requestController.updateDetail(
-                                  requestController.requestHistory[index]
-                                      .bookingNumber);
-                              if (mounted) {
-                                showAcceptModalBottomSheet(context,
-                                    requestController.requestHistory[index]);
-                              }
-                              requestController.removePendingBookings(
-                                  requestController.requestHistory[index]
-                                      .bookingNumber!);
+                            }else{
+                              Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
                             }
 
                           } : () {

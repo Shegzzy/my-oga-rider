@@ -762,21 +762,30 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                         onPressed: () async{
                                           SharedPreferences prefs = await SharedPreferences.getInstance();
                                           final userID = prefs.getString("UserID")!;
-                                          final order = OrderStatusModel(
-                                              customerID: widget.bookingData?.customer_id,
-                                              driverID: userID,
-                                              bookingNumber: widget.bookingData?.bookingNumber,
-                                              orderAssign: "1",
-                                              outForPick: "0",
-                                              arrivePick: "0",
-                                              percelPicked: "0",
-                                              wayToDrop: "0",
-                                              arriveDrop: "0",
-                                              completed: "0",
-                                              dateCreated: DateTime.now().toString(),
-                                              timeStamp: Timestamp.now()
-                                          );
-                                          requestController.storeOrderStatus(order);
+                                          final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: widget.bookingData?.bookingNumber).get();
+                                          if(snapshot.docs.isNotEmpty){
+                                            final order = OrderStatusModel(
+                                                customerID: widget.bookingData?.customer_id,
+                                                driverID: userID,
+                                                bookingNumber: widget.bookingData?.bookingNumber,
+                                                orderAssign: "1",
+                                                outForPick: "0",
+                                                arrivePick: "0",
+                                                percelPicked: "0",
+                                                wayToDrop: "0",
+                                                arriveDrop: "0",
+                                                completed: "0",
+                                                dateCreated: DateTime.now().toString(),
+                                                timeStamp: Timestamp.now()
+                                            );
+                                            requestController.storeOrderStatus(order);
+                                          }else{
+                                            Get.snackbar("Error", "This booking has been cancelled", colorText: Colors.redAccent,backgroundColor: Colors.white);
+                                            if(mounted){
+                                              Navigator.pop(context);
+                                            }
+                                          }
+
                                         },
                                         style: Theme.of(context).elevatedButtonTheme.style,
                                         child: Text("Start Service".toUpperCase())
