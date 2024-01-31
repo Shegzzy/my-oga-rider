@@ -340,7 +340,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                 });
 
                 // Check if the distance between rider and pickup is below a threshold
-                const double distanceThreshold = 25.0;
+                const double distanceThreshold = 15.0;
 
                 final double riderLat = currentPosition.latitude;
                 final double riderLng = currentPosition.longitude;
@@ -351,6 +351,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
                 final double distance = calculateDistance(
                     riderLat, riderLng, pickupLat, pickupLng);
+                print(distance);
                 // String directionUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=${currentPosition.latitude},${currentPosition.longitude}&destination=${latestRequest.pickUp_latitude},${latestRequest.pickUp_longitude}&key=AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM";
                 // http.Response response = await http.get(Uri.parse(directionUrl));
                 // if (response.statusCode == 200) {
@@ -635,16 +636,28 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                       child: ElevatedButton(
                         onPressed: () async {
                           final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: incomingRequest.bookingNumber).get();
+                          final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                           if(snapshot.docs.isNotEmpty){
-                            if (requestController.acceptedBookingList.any((
-                                element) => element.deliveryMode == 'Express')) {
-                              if (incomingRequest.deliveryMode == 'Express') {
-                                Get.snackbar(
-                                    "Error",
-                                    "You can only take one express booking",
-                                    snackPosition: SnackPosition.TOP,
-                                    backgroundColor: Colors.white,
-                                    colorText: Colors.red);
+                            if( bookingData.status == 'pending'){
+                              if (requestController.acceptedBookingList.any((
+                                  element) => element.deliveryMode == 'Express')) {
+                                if (incomingRequest.deliveryMode == 'Express') {
+                                  Get.snackbar(
+                                      "Error",
+                                      "You can only take one express booking",
+                                      snackPosition: SnackPosition.TOP,
+                                      backgroundColor: Colors.white,
+                                      colorText: Colors.red);
+                                } else {
+                                  await requestController.updateDetail(
+                                      incomingRequest.bookingNumber);
+                                  if (mounted) {
+                                    showAcceptModalBottomSheet(
+                                        context, incomingRequest);
+                                  }
+                                  requestController.removePendingBookings(
+                                      incomingRequest.bookingNumber!);
+                                }
                               } else {
                                 await requestController.updateDetail(
                                     incomingRequest.bookingNumber);
@@ -655,16 +668,13 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                                 requestController.removePendingBookings(
                                     incomingRequest.bookingNumber!);
                               }
-                            } else {
-                              await requestController.updateDetail(
-                                  incomingRequest.bookingNumber);
-                              if (mounted) {
-                                showAcceptModalBottomSheet(
-                                    context, incomingRequest);
+                            }else{
+                              Get.snackbar("Error", "Booking have been accepted by another rider", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                              if(mounted){
+                                Navigator.pop(context);
                               }
-                              requestController.removePendingBookings(
-                                  incomingRequest.bookingNumber!);
                             }
+
                           }else{
                             Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
                             if(mounted){

@@ -191,8 +191,9 @@ class _PendingBookingsState extends State<PendingBookings> {
                             onTap: requestController.acceptedBookingList
                                 .length < 3 ? () async {
                               final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
+                              final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                               if(snapshot.docs.isNotEmpty){
-                                if(requestController.requestHistory.contains(requestController.requestHistory[index])){
+                                if(bookingData.status == 'pending'){
                                   if (requestController.acceptedBookingList.any((
                                       element) =>
                                   element.deliveryMode == 'Express')) {
@@ -230,10 +231,15 @@ class _PendingBookingsState extends State<PendingBookings> {
                                             .bookingNumber!);
                                   }
                                 }else{
-                                  Get.snackbar("Error", "This booking is no longer available", colorText: Colors.redAccent, backgroundColor: Colors.white);
-                                }
+                                  Get.snackbar("Error", "Booking have been accepted by another rider", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                                  if(mounted){
+                                    Navigator.pop(context);
+                                  }                                }
                               }else{
                                 Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                                if(mounted){
+                                  Navigator.pop(context);
+                                }
                               }
 
                             } : () {

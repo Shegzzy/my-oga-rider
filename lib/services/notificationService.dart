@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_oga_rider/services/views/Booking_Details/newBooking.dart';
+import 'package:my_oga_rider/services/views/Pending_Bookings/pending_bookings.dart';
 import 'package:my_oga_rider/services/views/Tab_Pages/bookings_tab.dart';
 import 'package:my_oga_rider/services/views/Tab_Pages/home_tab.dart';
 
@@ -131,7 +132,7 @@ class NotificationService {
 
   void handleMessage(BuildContext context, RemoteMessage message){
     if(message.data['type'] == 'RIDE_REQUEST'){
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeTabPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const PendingBookings()));
     } else if(message.data['type'] == 'BOOKING_CANCELED'){
       Navigator.push(context, MaterialPageRoute(builder: (context) => const BookingTabPage()));
     } else{
