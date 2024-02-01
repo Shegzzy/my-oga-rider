@@ -721,34 +721,40 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                     SharedPreferences prefs = await SharedPreferences
                         .getInstance();
                     final userID = prefs.getString("UserID")!;
-                    final order = OrderStatusModel(
-                      customerID: newRequest.customer_id,
-                      driverID: userID,
-                      bookingNumber: newRequest.bookingNumber,
-                      orderAssign: "1",
-                      outForPick: "0",
-                      arrivePick: "0",
-                      percelPicked: "0",
-                      wayToDrop: "0",
-                      arriveDrop: "0",
-                      completed: "0",
-                      dateCreated: DateTime.now().toString(),
-                      timeStamp: Timestamp.now(),
-                    );
+                    final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: newRequest.bookingNumber).get();
+                    if(snapshot.docs.isNotEmpty){
+                      final order = OrderStatusModel(
+                        customerID: newRequest.customer_id,
+                        driverID: userID,
+                        bookingNumber: newRequest.bookingNumber,
+                        orderAssign: "1",
+                        outForPick: "0",
+                        arrivePick: "0",
+                        percelPicked: "0",
+                        wayToDrop: "0",
+                        arriveDrop: "0",
+                        completed: "0",
+                        dateCreated: DateTime.now().toString(),
+                        timeStamp: Timestamp.now(),
+                      );
 
-                    ///Start Circular Progress Bar
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                    );
-                    await requestController.storeOrderStatus(order);
+                      ///Start Circular Progress Bar
+                      showDialog(context: context, builder: (context) {
+                        return const Center(
+                            child: CircularProgressIndicator());
+                      });
+                      await requestController.storeOrderStatus(order);
 
-                    /// Stop Progress Bar
-                    Navigator.of(context).pop();
-                    showStatusModalBottomSheet(context, newRequest);
+                      /// Stop Progress Bar
+                      Navigator.of(context).pop();
+                      showStatusModalBottomSheet(context, newRequest);
+                    } else{
+                      Get.snackbar("Error", "This booking has been cancelled", colorText: Colors.redAccent,backgroundColor: Colors.white);
+                      if(mounted){
+                        Navigator.pop(context);
+                      }
+                    }
+
                   },
                     bookingData: newRequest,
                   ),

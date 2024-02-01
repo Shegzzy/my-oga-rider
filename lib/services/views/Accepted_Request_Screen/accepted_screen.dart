@@ -156,17 +156,7 @@ class _AcceptScreenState extends State<AcceptScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () async{
-                          final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: bookingData?.bookingNumber).get();
-                          if(snapshot.docs.isNotEmpty){
-                            widget.btnClicked;
-                          } else{
-                            Get.snackbar("Error", "This booking has been cancelled", colorText: Colors.redAccent,backgroundColor: Colors.white);
-                            if(mounted){
-                              Navigator.pop(context);
-                            }
-                          }
-                        },
+                        onPressed: widget.btnClicked,
                         style: Theme.of(context).elevatedButtonTheme.style,
                         child: Text(moStartService.toUpperCase()),
                       ),
