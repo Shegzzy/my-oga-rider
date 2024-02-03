@@ -8,6 +8,7 @@ import '../../controller/getx_switch_state.dart';
 import '../../controller/profile_controller.dart';
 import '../../model/booking_model.dart';
 import '../Booking_Details/booking_details_screen.dart';
+import '../Rating_Screen/rating_screen.dart';
 
 
 class BookingTabPage extends StatefulWidget {
@@ -86,10 +87,36 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                       style: Theme.of(context).textTheme.headlineMedium,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis),
-                                  Flexible(child: Text(snapshot.data![index].status!,
-                                      style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis)),
+                                  if(snapshot.data![index].status! == 'active')...[
+                                    Flexible(child:
+                                    Text(snapshot.data![index].status!,
+                                        style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis))
+                                  ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '0' || snapshot.data![index].rateUser == null)...[
+                                      Flexible(child: TextButton(
+                                        child: const Text(
+                                          "Rate User",
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) => RatingScreen(
+                                                    userID: snapshot.data![index].customer_id!,
+                                                    bookingID: snapshot.data![index].bookingNumber!,
+                                                  )));
+                                        },
+                                      ))
+                                    ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '1' || snapshot.data![index].rateUser != null)...[
+                                    Flexible(child:
+                                    Text(snapshot.data![index].status!,
+                                        style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis))
+                                  ],
                                 ],
                               ),
                               const SizedBox(height: 10,),

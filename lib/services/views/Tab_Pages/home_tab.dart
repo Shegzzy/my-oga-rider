@@ -2,14 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:get_storage/get_storage.dart';
+import 'package:image/image.dart' as IMG;
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -56,6 +58,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   final userController = Get.put(SignUpController());
   FirestoreService requestController = Get.find();
   List<Placemark>? placeMarks;
+  Marker? myPosition;
+  bool markerLoading = false;
 
   Future<void> locatePosition() async {
     ///Asking Users Permission
@@ -95,10 +99,30 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         currentPosition.latitude, currentPosition.longitude);
     Placemark pMark = placeMarks![0];
 
+    print(placeMarks);
+
     String driverLocation = '${pMark.subThoroughfare} ${pMark
         .thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark
         .subAdministrativeArea}, ${pMark.administrativeArea} ${pMark
         .postalCode}, ${pMark.country}';
+
+
+    String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
+    Uint8List bytes = (await NetworkAssetBundle(Uri.parse(imgurl))
+        .load(imgurl))
+        .buffer
+        .asUint8List();
+
+    Uint8List? smallImg = resizeImage(bytes, 80, 80);
+
+    setState(() {
+      myPosition = Marker(
+        markerId: const MarkerId('source'),
+        draggable: true,
+        position: LatLng(currentPosition.latitude, currentPosition.longitude),
+        icon: BitmapDescriptor.fromBytes(smallImg!),
+      );
+    });
 
     Map<String, dynamic> locationData = {
       'Driver Latitude': currentPosition.latitude.toString(),
@@ -311,7 +335,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addObserver(this);
     requestController.loadAcceptedBookings();
     requestController.loadPendingBookings();
@@ -789,6 +812,15 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     );
   }
 
+  Uint8List? resizeImage(Uint8List data, width, height) {
+    Uint8List? resizedData = data;
+    IMG.Image? img = IMG.decodeImage(data);
+    IMG.Image resized = IMG.copyResize(img!, width: width, height: height);
+    resizedData = Uint8List.fromList(IMG.encodePng(resized));
+    return resizedData;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery
@@ -806,11 +838,12 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
             zoomControlsEnabled: true,
             zoomGesturesEnabled: true,
             // minMaxZoomPreference: MinMaxZoomPreference.unbounded,
-            onMapCreated: (GoogleMapController controller) {
+            onMapCreated: (GoogleMapController controller) async {
               _controllerGoogleMap.complete(controller);
               newGoogleMapController = controller;
               locatePosition();
             },
+            markers: {myPosition ?? const Marker(markerId: MarkerId('default'))},
           ),
           Positioned(
             right: 100,
@@ -857,6 +890,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                 ),
             ),
           ),
+
           Positioned(
                 right: 312,
                 top: 55,
@@ -883,161 +917,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
           )
         ],
       ),
-    );
-  }
-
-  Widget _buildPendingBookings(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Pending Requests'),
-          centerTitle: true,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: ListView.builder(
-            itemCount: requestController.requestHistory.length,
-            itemBuilder: (context, index) {
-              return Card(
-                elevation: 5,
-                child: ListTile(
-                  dense: true,
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Pickup Address: ${requestController
-                          .requestHistory[index].pickup_address!}',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .labelLarge,),
-                      const SizedBox(height: 10,),
-                      Text('DropOff Address: ${requestController
-                          .requestHistory[index].dropOff_address!}',
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .labelLarge),
-
-                    ],
-                  ),
-                  subtitle: Column(
-                      children: [
-                        const SizedBox(height: 10,),
-                        Column(
-                          children: [
-                            Text('Delivery Mode: ${requestController
-                                .requestHistory[index].deliveryMode!}',
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .labelMedium),
-                            const SizedBox(height: 5),
-                            Text('Ride Type: ${requestController
-                                .requestHistory[index].rideType!}',
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .labelMedium),
-                            const SizedBox(height: 5),
-                            Text('Distance: ${requestController
-                                .requestHistory[index].distance!}',
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .labelMedium),
-                            const SizedBox(height: 5),
-                            Text('Cost: ${MyOgaFormatter.currencyFormatter(
-                                double.parse(
-                                    requestController.requestHistory[index]
-                                        .amount!))}', style: Theme
-                                .of(context)
-                                .textTheme
-                                .labelMedium),
-                          ],
-                        ),
-                        const SizedBox(height: 10,),
-                        InkWell(
-                          onTap: requestController.acceptedBookingList
-                              .length < 3 ? () async {
-                            final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
-                            if(snapshot.docs.isNotEmpty){
-                              if(requestController.requestHistory.contains(requestController.requestHistory[index])){
-                                if (requestController.acceptedBookingList.any((
-                                    element) =>
-                                element.deliveryMode == 'Express')) {
-                                  if (requestController.requestHistory[index]
-                                      .deliveryMode == 'Express') {
-                                    Get.snackbar(
-                                        "Error",
-                                        "You can only take one express booking",
-                                        snackPosition: SnackPosition.TOP,
-                                        backgroundColor: Colors.white,
-                                        colorText: Colors.red);
-                                  } else {
-                                    await requestController.updateDetail(
-                                        requestController.requestHistory[index]
-                                            .bookingNumber);
-                                    if (mounted) {
-                                      showAcceptModalBottomSheet(context,
-                                          requestController
-                                              .requestHistory[index]);
-                                    }
-                                    requestController.removePendingBookings(
-                                        requestController.requestHistory[index]
-                                            .bookingNumber!);
-                                  }
-                                } else {
-                                  await requestController.updateDetail(
-                                      requestController.requestHistory[index]
-                                          .bookingNumber);
-                                  if (mounted) {
-                                    showAcceptModalBottomSheet(context,
-                                        requestController.requestHistory[index]);
-                                  }
-                                  requestController.removePendingBookings(
-                                      requestController.requestHistory[index]
-                                          .bookingNumber!);
-                                }
-                              }else{
-                                Get.snackbar("Error", "This booking is no longer available", colorText: Colors.redAccent, backgroundColor: Colors.white);
-                              }
-                            }else{
-                              Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
-                            }
-
-                          } : () {
-                            Get.snackbar(
-                              "Error",
-                              "You cannot accept more than 3 bookings",
-                              snackPosition: SnackPosition.TOP,
-                              backgroundColor: Colors.white,
-                              colorText: Colors.red,
-                            );
-                          },
-                          child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  color: PButtonColor
-                              ),
-                              child: Text('Accept'.toUpperCase(),
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12
-                                  ))),
-                        )
-                      ]
-                  ),
-                  // Add more details as needed
-                  // Add a button to accept the request
-                  // onPressed: () => acceptRequest(pendingBookings[index]),
-                ),
-              );
-            },
-          ),
-        )
     );
   }
 }

@@ -35,6 +35,12 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
   UserModel? _userModel;
   FirestoreService requestController = FirestoreService();
   bool isLoading = false;
+  bool int1Loading = false;
+  bool int2Loading = false;
+  bool int3Loading = false;
+  bool int4Loading = false;
+  bool int5Loading = false;
+  bool int6Loading = false;
 
 
   @override
@@ -437,34 +443,47 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                               if(Int1 == 0)...[
                                 Expanded(
                                   child: OutlinedButton(
-                                    onPressed: () async {
+                                    onPressed: int1Loading ? null : () async {
                                       ///Start Circular Progress Bar
-                                      showDialog(
-                                          context: context,
-                                          builder: (context){
-                                            return const Center(child: CircularProgressIndicator());
-                                          }
-                                      );
-                                      await _db.collection("Order_Status").doc(_orderStats?.id).update({
-                                        "Order Assigned": "1",
-                                      }).whenComplete(() =>
-                                          Get.snackbar(
-                                              "Success", "Order Status Updated.",
-                                              snackPosition: SnackPosition.TOP,
+                                      // showDialog(
+                                      //     context: context,
+                                      //     builder: (context){
+                                      //       return const Center(child: CircularProgressIndicator());
+                                      //     }
+                                      // );
+                                      //
+                                      try{
+                                        setState(() {
+                                          int1Loading = true;
+                                        });
+
+                                        await _db.collection("Order_Status").doc(_orderStats?.id).update({
+                                          "Order Assigned": "1",
+                                        }).whenComplete(() =>
+                                            Get.snackbar(
+                                                "Success", "Order Status Updated.",
+                                                snackPosition: SnackPosition.TOP,
+                                                backgroundColor: Colors.white,
+                                                colorText: Colors.green),
+                                        ).catchError((error, stackTrace) {
+                                          Get.snackbar("Error", "Something went wrong. Try again.",
+                                              snackPosition: SnackPosition.BOTTOM,
                                               backgroundColor: Colors.white,
-                                              colorText: Colors.green),
-                                      ).catchError((error, stackTrace) {
-                                        Get.snackbar("Error", "Something went wrong. Try again.",
-                                            snackPosition: SnackPosition.BOTTOM,
-                                            backgroundColor: Colors.white,
-                                            colorText: Colors.red);
-                                      });
-                                      /// Stop Progress Bar
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.of(context).pop();
+                                              colorText: Colors.red);
+                                        });
+
+                                      }catch(e){
+                                        print('Int1 Error $e');
+                                      }finally{
+                                        setState(() {
+                                          int1Loading = false;
+                                        });
+                                      }
+
                                     },
                                     style: Theme.of(context).elevatedButtonTheme.style,
-                                    child: Text("Order Assigned".toUpperCase()),
+                                    child: int1Loading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator())
+                                        : Text("Order Assigned".toUpperCase()),
                                   ),
                                 ),
                               ] else if(Int1 == 1 && Int2 == 0)...[
@@ -641,7 +660,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                           onPressed: Int7 == 1 ? null:() async {
                                             await completeOrder();
                                             requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
-                                            Get.to(RatingScreen(userID: widget.bookingData!.customer_id!));
+                                            Get.to(RatingScreen(userID: widget.bookingData!.customer_id!, bookingID: widget.bookingData!.bookingNumber!,));
                                           },
                                           style: Theme.of(context).elevatedButtonTheme.style,
                                           child: isLoading ? const Center(child: CircularProgressIndicator()) : Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
@@ -751,7 +770,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                           await completeOrder();
                                           requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                           // Navigator.of(context).pop();
-                                          Get.to(() => RatingScreen(userID: widget.bookingData!.customer_id!));
+                                          Get.to(() => RatingScreen(userID: widget.bookingData!.customer_id!, bookingID: widget.bookingData!.bookingNumber!));
                                         },
                                         style: Theme.of(context).elevatedButtonTheme.style,
                                         child: isLoading ? const Center(child: CircularProgressIndicator()) : Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())

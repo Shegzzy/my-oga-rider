@@ -26,6 +26,7 @@ class BookingModel {
   final String? bookingNumber;
   final String? deliveryMode;
   final String? rideType;
+  final String? rateUser;
   final String? packageType;
 
   const BookingModel({
@@ -49,6 +50,7 @@ class BookingModel {
     this.bookingNumber,
     this.deliveryMode,
     this.rideType,
+    this.rateUser,
     this.packageType,
   });
 
@@ -74,6 +76,7 @@ class BookingModel {
       "Booking Number": bookingNumber,
       "Delivery Mode": deliveryMode,
       "Ride Type": rideType,
+      "Rate User": rateUser,
       "Package Type": packageType,
     };
   }
@@ -103,6 +106,7 @@ class BookingModel {
       bookingNumber = data["Booking Number"],
       deliveryMode = data["Delivery Mode"],
       rideType = data["Ride Type"],
+      rateUser = data["Rate User"],
       packageType = data["Package Type"];
 
 }

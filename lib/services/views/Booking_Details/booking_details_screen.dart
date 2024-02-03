@@ -19,6 +19,7 @@ import '../../model/booking_model.dart';
 import '../../model/usermodel.dart';
 import '../Navigtion_Screen/navigation_screen.dart';
 import '../Order_Status/order_status.dart';
+import '../Rating_Screen/rating_screen.dart';
 
 
 
@@ -360,12 +361,39 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       ),
                     ),
                     const SizedBox(width: 10,),
-                    Flexible(
-                      child: Text("Status: ${bookingModel?.status}",
-                        style: theme.textTheme.titleLarge,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,),
-                    ),
+                    if(bookingModel?.status == 'active')...[
+                      Flexible(
+                        child: Text("Status: ${bookingModel?.status}",
+                          style: theme.textTheme.titleLarge,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,),
+                      ),
+                    ]else if(bookingModel?.status == 'completed' && bookingModel?.rateUser == '0' || bookingModel?.rateUser == null)...[
+                      Flexible(child: TextButton(
+                        child: const Text(
+                          "Rate User",
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RatingScreen(
+                                    userID: bookingData.customer_id!,
+                                    bookingID: bookingData.bookingNumber!,
+                                  )));
+                        },
+                      ))
+                    ]else if(bookingModel?.status == 'completed' && bookingModel?.rateUser == '1' || bookingModel?.rateUser != null)...[
+                      Flexible(
+                        child: Text("Status: ${bookingModel?.status}",
+                          style: theme.textTheme.titleLarge,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,),
+                      ),
+                    ],
+
                   ],
                 ),
                 const SizedBox(height: 20),

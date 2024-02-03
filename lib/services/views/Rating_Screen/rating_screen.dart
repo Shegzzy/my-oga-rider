@@ -10,7 +10,8 @@ import '../../model/usermodel.dart';
 
 class RatingScreen extends StatefulWidget {
   final String userID;
-  const RatingScreen({Key? key, required this.userID}) : super(key: key);
+  final String bookingID;
+  const RatingScreen({Key? key, required this.userID, required this.bookingID}) : super(key: key);
 
   @override
   State<RatingScreen> createState() => _RatingScreenState();
@@ -23,6 +24,7 @@ class _RatingScreenState extends State<RatingScreen> {
   UserModel? userModel;
   final _db = FirebaseFirestore.instance;
   final controller = Get.put(UserRepository());
+  bool ratingUser = false;
 
 
   void saveRating() async {
@@ -36,9 +38,26 @@ class _RatingScreenState extends State<RatingScreen> {
       "rating": ratingValue,
       "dateCreated": DateTime.now().toString(),
       "timeStamp": Timestamp.now(),
+      "bookingNumber": widget.bookingID,
+    };
+
+    final ratingData = {
+      "Rate User": "1"
     };
 
     try{
+      setState(() {
+        ratingUser = true;
+      });
+      
+      QuerySnapshot querySnapshot = await _db.collection('Bookings').where('Booking Number', isEqualTo: widget.bookingID).get();
+      if(querySnapshot.docs.isNotEmpty){
+        DocumentReference bookingDocRef = querySnapshot.docs.first.reference;
+        await bookingDocRef.update(ratingData);
+      }else{
+        return;
+      }
+
       await _db.collection('Users').doc(customer).collection('Ratings').add(data).whenComplete(() {
         Get.snackbar(
             "Success", "Rating Submitted.",
@@ -59,12 +78,15 @@ class _RatingScreenState extends State<RatingScreen> {
         backgroundColor: Colors.white,
         colorText: Colors.red,
       );
+    }finally{
+      setState(() {
+        ratingUser = false;
+      });
     }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     customer = widget.userID;
     getDriverDetails();
@@ -138,7 +160,7 @@ class _RatingScreenState extends State<RatingScreen> {
                         .of(context)
                         .elevatedButtonTheme
                         .style,
-                    child: Text("Tap on Amount of Star".toUpperCase()),
+                    child: Text("Rate User".toUpperCase()),
                   )
                       : OutlinedButton(
                     onPressed: (){
@@ -148,7 +170,7 @@ class _RatingScreenState extends State<RatingScreen> {
                         .of(context)
                         .elevatedButtonTheme
                         .style,
-                    child: Text("Submit Rating".toUpperCase()),
+                    child: ratingUser ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator()) : Text("Submit Rating".toUpperCase()),
                   ),
                 ),
                 const SizedBox(

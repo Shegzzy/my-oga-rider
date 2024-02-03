@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -11,6 +13,8 @@ import 'package:location/location.dart';
 import 'package:my_oga_rider/global/global.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math' show cos, sqrt, asin;
+import 'package:image/image.dart' as IMG;
+
 
 class NavigationScreen extends StatefulWidget {
   final double lat;
@@ -26,10 +30,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Map<PolylineId,Polyline> polylines={};
   PolylinePoints polylinePoints = PolylinePoints();
   Location location = Location();
-  Marker? sourcePosition, destinationPosition;
+  Marker? sourcePosition, destinationPosition, bikePosition;
   loc.LocationData? _currentPosition;
   LatLng curLocation = LatLng(9.2612746, 7.3903539);
   StreamSubscription<loc.LocationData>? locationSubscription;
+  Set<Marker> markersSet = {};
+
 
   @override
   void initState() {
@@ -47,34 +53,33 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Map"),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+      ),
       body: sourcePosition == null
             ? Center(child: CircularProgressIndicator(),)
             : Stack(
         children: [
           GoogleMap(
             zoomControlsEnabled: false,
+            mapType: MapType.normal,
             polylines: Set<Polyline>.of(polylines.values),
             initialCameraPosition: CameraPosition(
               target: curLocation,
               zoom: 12,
             ),
-            markers: {sourcePosition!, destinationPosition!},
+            markers: {sourcePosition!, destinationPosition!, bikePosition ?? const Marker(markerId: MarkerId('default'))},
             onTap: (latlng){
               print(latlng);
             },
             onMapCreated: (GoogleMapController controller){
-              _controller.complete(controller);
+              setState(() {
+                _controller.complete(controller);
+              });
             },
-          ),
-          Positioned(
-            top: 40,
-            left: 15,
-            child: GestureDetector(
-              onTap: (){
-                Get.back();
-              },
-              child: Icon(Icons.arrow_back_ios_new_outlined),
-            ),
+            indoorViewEnabled: true,
           ),
           Positioned(
             bottom: 10,
@@ -112,6 +117,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
     location.changeSettings(accuracy: loc.LocationAccuracy.high);
     _serviceEnabled = await location.serviceEnabled();
 
+    String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
+    Uint8List bytes = (await NetworkAssetBundle(Uri.parse(imgurl))
+        .load(imgurl))
+        .buffer
+        .asUint8List();
+
+    Uint8List? myPosition = resizeImage(bytes, 80, 80);
+
     if(!_serviceEnabled){
       _serviceEnabled = await location.requestService();
       if(!_serviceEnabled){
@@ -140,15 +153,17 @@ class _NavigationScreenState extends State<NavigationScreen> {
           controller?.showMarkerInfoWindow(MarkerId(sourcePosition!.markerId.value));
           setState(() {
             curLocation = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-            sourcePosition = Marker(
-              markerId: MarkerId(currentLocation.toString()),
-              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+
+            bikePosition = Marker(
+              markerId: const MarkerId('bikeID'),
+              icon: BitmapDescriptor.fromBytes(myPosition!),
               position: LatLng(currentLocation.latitude!, currentLocation.longitude!),
               infoWindow: InfoWindow(
-                title: double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))
-                    .toString()
+                  title: double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))
+                      .toString()
               ),
             );
+
           });
           getDirections(LatLng(widget.lat, widget.lng));
         }
@@ -179,7 +194,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     PolylineId id = PolylineId('poly');
     Polyline polyline = Polyline(
       polylineId: id,
-      color: Colors.red,
+      color: Colors.blue,
       points: polylineCoordinates,
       width: 3,
     );
@@ -200,17 +215,35 @@ class _NavigationScreenState extends State<NavigationScreen> {
     return calculateDistance(curLocation.latitude, curLocation.longitude, dstPosition.latitude, dstPosition.longitude);
   }
 
-  addMarker(){
+  Uint8List? resizeImage(Uint8List data, width, height) {
+    Uint8List? resizedData = data;
+    IMG.Image? img = IMG.decodeImage(data);
+    IMG.Image resized = IMG.copyResize(img!, width: width, height: height);
+    resizedData = Uint8List.fromList(IMG.encodePng(resized));
+    return resizedData;
+  }
+
+  addMarker() async {
+    String imgurl = "https://cdn-icons-png.freepik.com/256/7193/7193391.png?ga=GA1.1.691408758.1706907328&semt=ais";
+
+    Uint8List bytes = (await NetworkAssetBundle(Uri.parse(imgurl))
+        .load(imgurl))
+        .buffer
+        .asUint8List();
+
+    Uint8List? smallImg = resizeImage(bytes, 80, 80);
+
     setState(() {
       sourcePosition = Marker(
-        markerId: MarkerId('source'),
+        markerId: const MarkerId('source'),
         position: curLocation,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       );
       destinationPosition = Marker(
-        markerId: MarkerId('destination'),
+        markerId: const MarkerId('destination'),
         position: LatLng(widget.lat, widget.lng),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+        draggable: true,
+        icon: BitmapDescriptor.fromBytes(smallImg!)
       );
     });
   }
