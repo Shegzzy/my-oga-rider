@@ -60,6 +60,12 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   List<Placemark>? placeMarks;
   Marker? myPosition;
   bool markerLoading = false;
+  int counter = 0;
+  double rate = 0;
+  double total = 0;
+  double average = 0;
+  List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
+  bool loadingCustomer = false;
 
   Future<void> locatePosition() async {
     ///Asking Users Permission
@@ -336,15 +342,43 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     requestController.loadAcceptedBookings();
     requestController.loadPendingBookings();
-    statusCheckTimer =
-        Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
+    statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (Timer timer) async {
           print(requestController.requestHistory.length);
           // print(requestController.acceptedBookingList.length);
           await checkAndUpdateBookingStatus();
           await checkAndUpdateAcceptedBooking();
 
         });
-    timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+    _startRefreshTimer();
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // TODO: implement didChangeAppLifecycleState
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) return;
+
+    final isDetached = state == AppLifecycleState.detached;
+
+    if (isDetached) {
+      getController.switchDataController.write('isSwitched', false);
+      timer.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    statusCheckTimer.cancel();
+    WidgetsBinding.instance.addObserver(this);
+    super.dispose();
+  }
+
+  void _startRefreshTimer() {
+    timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       if (requestController.acceptedBookingList.length < 3) {
         // for(int i = 0; i < requestController.acceptedBookingList.length; i++){
         //   print(requestController.acceptedBookingList[i].deliveryMode);
@@ -413,41 +447,34 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     });
   }
 
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // TODO: implement didChangeAppLifecycleState
-    super.didChangeAppLifecycleState(state);
-
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) return;
-
-    final isDetached = state == AppLifecycleState.detached;
-
-    if (isDetached) {
-      getController.switchDataController.write('isSwitched', false);
-      timer.cancel();
-    }
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    statusCheckTimer.cancel();
-    WidgetsBinding.instance.addObserver(this);
-    super.dispose();
-  }
-
-  void _startRefreshTimer() {
-    timer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      setState(() {
-        showBookingNotification(context, currentRequest!);
-      });
-    });
-  }
-
   void _stopRefreshTimer() {
     timer.cancel();
+  }
+
+  // Getting customer ratings
+  Future<void> getRatingCount(String? customerID) async{
+
+    try{
+      setState(() {
+        loadingCustomer = true;
+      });
+      await _db.collection("Users").doc(customerID).collection("Ratings").get().then((value) {
+        for (var element in value.docs) {
+          rate = element.data()["rating"];
+          setState(() {
+            total = total + rate;
+            counter = counter+1;
+          });
+        }
+      });
+      average = total/counter;
+    }catch (e){
+      print('Error getting user ratings $e');
+    }finally{
+      setState(() {
+        loadingCustomer = false;
+      });
+    }
   }
 
   // Method to check if pending booking have been accepted
@@ -505,180 +532,180 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   Future<void> showBookingNotification(BuildContext context,
       BookingModel incomingRequest) async {
     var isDark = getXSwitchState.isDarkMode;
+    getRatingCount(incomingRequest.customer_id!);
     return await showDialog(context: context, builder: (context) {
       return StatefulBuilder(builder: (context, setState) {
         return AlertDialog(
-          content: Container(
-            width: double.infinity,
-            height: 425,
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black12.withOpacity(0.01) : Colors.white,
-              borderRadius: BorderRadius.circular(1.0),
-            ),
-            child: Column(
-              children: [
-                Text("New Booking Request", style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyLarge,),
-                const SizedBox(height: 20,),
-                Row(
-                  children: [
-                    const Icon(LineAwesomeIcons.street_view),
-                    const SizedBox(
-                      width: 10.0,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text("Pickup",
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .titleLarge,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(1.0),
-                        child: Text(incomingRequest.pickup_address ?? "",
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodyLarge,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20,),
-                Row(
-                  children: [
-                    const Icon(LineAwesomeIcons.map_marker),
-                    const SizedBox(
-                      width: 10.0,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text("Drop-Off",
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .titleLarge,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(1.0),
-                        child: Text(incomingRequest.dropOff_address ?? "",
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .bodyLarge,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30,),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text('Distance: ${incomingRequest.distance ?? ""}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyMedium,),
-                    const SizedBox(width: 20,),
-                    Text('Cost: ${MyOgaFormatter.currencyFormatter(
-                        double.parse(incomingRequest.amount ?? ""))}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyMedium,),
-                  ],
-                ),
-                const SizedBox(height: 20,),
-                Text("Payment Method:", style: Theme
-                    .of(context)
-                    .textTheme
-                    .titleLarge,),
-                const SizedBox(height: 5,),
-                Text(incomingRequest.payment_method ?? "", style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyLarge,),
-
-                const SizedBox(height: 10,),
-                Text("Delivery Mode:", style: Theme
-                    .of(context)
-                    .textTheme
-                    .titleLarge,),
-                const SizedBox(height: 5,),
-                Text(incomingRequest.deliveryMode ?? "", style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyLarge,),
-
-                const SizedBox(height: 10,),
-                Text("Ride Type:", style: Theme
-                    .of(context)
-                    .textTheme
-                    .titleLarge,),
-                const SizedBox(height: 5,),
-                Text(incomingRequest.rideType ?? "", style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyLarge,),
-
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("New Booking Request", style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,),
+              const SizedBox(height: 20,),
+              Row(
+                children: [
+                  const Icon(LineAwesomeIcons.street_view),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Text("Pickup",
                         style: Theme
                             .of(context)
-                            .outlinedButtonTheme
-                            .style,
-                        child: Text("Cancel".toUpperCase()),
+                            .textTheme
+                            .titleLarge,
                       ),
                     ),
-                    const SizedBox(width: 10.0,),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: incomingRequest.bookingNumber).get();
-                          final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
-                          if(snapshot.docs.isNotEmpty){
-                            if( bookingData.status == 'pending'){
-                              if (requestController.acceptedBookingList.any((
-                                  element) => element.deliveryMode == 'Express')) {
-                                if (incomingRequest.deliveryMode == 'Express') {
-                                  Get.snackbar(
-                                      "Error",
-                                      "You can only take one express booking",
-                                      snackPosition: SnackPosition.TOP,
-                                      backgroundColor: Colors.white,
-                                      colorText: Colors.red);
-                                } else {
-                                  await requestController.updateDetail(
-                                      incomingRequest.bookingNumber);
-                                  if (mounted) {
-                                    showAcceptModalBottomSheet(
-                                        context, incomingRequest);
-                                  }
-                                  requestController.removePendingBookings(
-                                      incomingRequest.bookingNumber!);
-                                }
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Text(incomingRequest.pickup_address ?? "",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodyLarge,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20,),
+              Row(
+                children: [
+                  const Icon(LineAwesomeIcons.map_marker),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Text("Drop-Off",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .titleLarge,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Text(incomingRequest.dropOff_address ?? "",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .bodyLarge,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30,),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('Distance: ${incomingRequest.distance ?? ""}',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyMedium,),
+                  const SizedBox(width: 20,),
+                  Text('Cost: ${MyOgaFormatter.currencyFormatter(
+                      double.parse(incomingRequest.amount ?? ""))}',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyMedium,),
+                ],
+              ),
+              const SizedBox(height: 20,),
+              Text("Payment Method:", style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleLarge,),
+              const SizedBox(height: 5,),
+              Text(incomingRequest.payment_method ?? "", style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,),
+
+              const SizedBox(height: 10,),
+              Text("Delivery Mode:", style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleLarge,),
+              const SizedBox(height: 5,),
+              Text(incomingRequest.deliveryMode ?? "", style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,),
+
+              const SizedBox(height: 10,),
+              Text("Ride Type:", style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleLarge,),
+              const SizedBox(height: 5,),
+              Text(incomingRequest.rideType ?? "", style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyLarge,),
+
+              const SizedBox(height: 10),
+              loadingCustomer ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(),) :
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("User Ratings: ${average.toStringAsFixed(1)}", style: Theme
+                      .of(context)
+                      .textTheme.titleSmall,),
+                  Icon(
+                    Icons.star,
+                    size: 16,
+                    color: average < 3.5 ? Colors.redAccent : Colors.green,
+                  )
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: Theme
+                          .of(context)
+                          .outlinedButtonTheme
+                          .style,
+                      child: Text("Cancel".toUpperCase()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0,),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: incomingRequest.bookingNumber).get();
+                        final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
+                        if(snapshot.docs.isNotEmpty){
+                          if( bookingData.status == 'pending'){
+                            if (requestController.acceptedBookingList.any((
+                                element) => element.deliveryMode == 'Express')) {
+                              if (incomingRequest.deliveryMode == 'Express') {
+                                Get.snackbar(
+                                    "Error",
+                                    "You can only take one express booking",
+                                    snackPosition: SnackPosition.TOP,
+                                    backgroundColor: Colors.white,
+                                    colorText: Colors.red);
                               } else {
                                 await requestController.updateDetail(
                                     incomingRequest.bookingNumber);
@@ -689,31 +716,40 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                                 requestController.removePendingBookings(
                                     incomingRequest.bookingNumber!);
                               }
-                            }else{
-                              Get.snackbar("Error", "Booking have been accepted by another rider", colorText: Colors.redAccent, backgroundColor: Colors.white);
-                              if(mounted){
-                                Navigator.pop(context);
+                            } else {
+                              await requestController.updateDetail(
+                                  incomingRequest.bookingNumber);
+                              if (mounted) {
+                                showAcceptModalBottomSheet(
+                                    context, incomingRequest);
                               }
+                              requestController.removePendingBookings(
+                                  incomingRequest.bookingNumber!);
                             }
-
                           }else{
-                            Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                            Get.snackbar("Error", "Booking have been accepted by another rider", colorText: Colors.redAccent, backgroundColor: Colors.white);
                             if(mounted){
                               Navigator.pop(context);
                             }
                           }
-                        },
-                        style: Theme
-                            .of(context)
-                            .elevatedButtonTheme
-                            .style,
-                        child: Text("Accept".toUpperCase()),
-                      ),
+
+                        }else{
+                          Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                          if(mounted){
+                            Navigator.pop(context);
+                          }
+                        }
+                      },
+                      style: Theme
+                          .of(context)
+                          .elevatedButtonTheme
+                          .style,
+                      child: Text("Accept".toUpperCase()),
                     ),
-                  ],
-                )
-              ],
-            ),
+                  ),
+                ],
+              )
+            ],
           ),
         );
       });

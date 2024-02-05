@@ -68,7 +68,7 @@ class ProfileInformation extends StatelessWidget {
                                               return const Center(child: CircularProgressIndicator());
                                             },
                                             errorBuilder: (context, object, stack){
-                                              return const Icon(Icons.person_2_rounded, color: Colors.red,);
+                                              return const Icon(Icons.person_2_rounded, color: Colors.grey, size: 28,);
                                             },
                                           ),
                                         ),

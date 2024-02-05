@@ -88,7 +88,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
   }
 
   void getUserDetails(){
-    _userRepo.getUserDetailsWithPhone(widget.bookingData!.customer_phone!).then((value) {
+    _userRepo.getUserDetailsWithID(widget.bookingData!.customer_id!).then((value) {
       if(mounted) {
         setState(() {
           _bookerModel = value;

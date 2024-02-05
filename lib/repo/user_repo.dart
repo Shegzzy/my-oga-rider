@@ -140,7 +140,7 @@ class UserRepository extends GetxController {
       });
 
 
-  ///Fetch  User Details using stream
+  ///Fetch User Details using stream
   Stream<UserModel> getDriverData(){
     final email = FirebaseAuth.instance.currentUser!.email;
     return _db.collection("Drivers")
@@ -158,7 +158,7 @@ class UserRepository extends GetxController {
     return userData;
   }
 
-  Future<BookerModel> getRiderDetailsWithID(String customerID) async {
+  Future<BookerModel> getUserDetailsWithID(String customerID) async {
     final snapshot = await _db.collection("Users").doc(customerID).get();
     if (snapshot.exists) {
       final userData = BookerModel.fromSnapshot(snapshot);

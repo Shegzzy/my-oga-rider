@@ -98,7 +98,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         loadingCustomer = true;
       });
 
-      await _userRepo.getRiderDetailsWithID(bookingData.customer_id!).then((value) {
+      await _userRepo.getUserDetailsWithID(bookingData.customer_id!).then((value) {
         setState(() {
           _bookerModel = value;
         });

@@ -36,17 +36,55 @@ class _AcceptScreenState extends State<AcceptScreen> {
 
   BookerModel? _bookerModel;
   final _db = FirebaseFirestore.instance;
+  int counter = 0;
+  double rate = 0;
+  double _total = 0;
+  double _average = 0;
+  List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
+  bool loadingCustomer = false;
+
 
 
   @override
   void initState() {
-    // TODO: implement initState
+    getCustomerDetails();
     super.initState();
-    _userRepo.getUserDetailsWithPhone(bookingData!.customer_id!).then((value) {
+
+  }
+
+  Future<void> getCustomerDetails() async{
+    try{
       setState(() {
-        _bookerModel = value;
+        loadingCustomer = true;
       });
+
+      _userRepo.getUserDetailsWithID(bookingData!.customer_id!).then((value) {
+        setState(() {
+          _bookerModel = value;
+        });
+      });
+      await getRatingCount();
+
+    }catch(e){
+      print('Error $e');
+    }finally{
+      setState(() {
+        loadingCustomer = false;
+      });
+    }
+  }
+
+  Future<void> getRatingCount() async{
+    await _db.collection("Users").doc(bookingData!.customer_id!).collection("Ratings").get().then((value) {
+      for (var element in value.docs) {
+        rate = element.data()["rating"];
+        setState(() {
+          _total = _total + rate;
+          counter = counter+1;
+        });
+      }
     });
+    _average = _total/counter;
   }
   
   @override
@@ -68,7 +106,9 @@ class _AcceptScreenState extends State<AcceptScreen> {
               ),
             ),
           ),
-          Padding(
+          loadingCustomer ?
+              const Center(child: SizedBox(width: 30, height: 30, child: CircularProgressIndicator(),)) :
+              Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +133,7 @@ class _AcceptScreenState extends State<AcceptScreen> {
                                     return const Center(child: CircularProgressIndicator());
                                   },
                                   errorBuilder: (context, object, stack){
-                                    return const Icon(Icons.error_outline, color: Colors.red,);
+                                    return const Icon(Icons.person_2_rounded, color: Colors.grey,);
                                   },
                                 )
                       ),
@@ -106,6 +146,18 @@ class _AcceptScreenState extends State<AcceptScreen> {
                         Text(bookingData!.customer_phone??"", style: theme.textTheme.titleSmall,),
                         const SizedBox(height: 5,),
                         Text("Booking Number: ${bookingData!.bookingNumber}", style: theme.textTheme.titleSmall,),
+                        const SizedBox(height: 5,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Ratings: ${_average.toStringAsFixed(1)}", style: theme.textTheme.titleSmall,),
+                            Icon(
+                              Icons.star,
+                              size: 16,
+                              color: _average < 3.5 ? Colors.redAccent : Colors.green,
+                            )
+                          ],
+                        ),
                       ],
                     ),
 

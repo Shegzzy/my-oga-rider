@@ -31,7 +31,7 @@ class _RatingTabPageState extends State<RatingTabPage> {
   final _db = FirebaseFirestore.instance;
   final GetXSwitchState getXSwitchState = Get.find();
 
-  void getCount()async{
+  void getCount() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userID = prefs.getString("UserID")!;
     await _db.collection("Drivers").doc(userID).collection("Ratings").get().then((value) {
@@ -55,6 +55,11 @@ class _RatingTabPageState extends State<RatingTabPage> {
   void initState() {
     getCount();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
