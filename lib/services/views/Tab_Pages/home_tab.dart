@@ -99,8 +99,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         currentPosition.latitude, currentPosition.longitude);
     Placemark pMark = placeMarks![0];
 
-    print(placeMarks);
-
     String driverLocation = '${pMark.subThoroughfare} ${pMark
         .thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark
         .subAdministrativeArea}, ${pMark.administrativeArea} ${pMark

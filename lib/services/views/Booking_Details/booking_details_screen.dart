@@ -303,7 +303,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       child: TextButton(
                         child: const Text("View on Map",
                           maxLines: 2,
-                          overflow: TextOverflow.ellipsis,),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: PButtonColor
+                          ),
+                        ),
                         onPressed: () {
                           Get.to(() => NavigationScreen(double.parse(bookingData.pickUp_latitude!), double.parse(bookingData.pickUp_longitude!)));
                         },),
@@ -334,7 +338,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       child: TextButton(
                         child: const Text("View on Map",
                           maxLines: 2,
-                          overflow: TextOverflow.ellipsis,),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: PButtonColor
+                          ),
+                        ),
                         onPressed: () {
                           Get.to(() => NavigationScreen(double.parse(bookingData.dropOff_latitude!), double.parse(bookingData.dropOff_longitude!)));
                         },),
@@ -374,6 +382,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                           "Rate User",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: PButtonColor
+                          ),
                         ),
                         onPressed: () {
                           Navigator.push(
@@ -414,7 +425,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       child: TextButton(
                         child: const Text("View Customer Details",
                           maxLines: 2,
-                          overflow: TextOverflow.ellipsis,),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: PButtonColor
+                          ),
+                        ),
                         onPressed: () {
                           setState(() {
                             showDriverDialog(context);

@@ -692,8 +692,44 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                       ),
                                     ),
                                   ],
-                                ]else ...[
-                                  Center(child: Text('Please Complete Express Booking \n before proceeding to DropOff', style: Theme.of(context).textTheme.titleSmall,))
+                                ]else if(widget.bookingData?.deliveryMode == 'Normal')...[
+                                  Int3 == 1 ?
+                                  Center(child: Text('Please Complete Express Booking \n before proceeding to DropOff', style: Theme.of(context).textTheme.titleSmall,)):
+                                  Expanded(
+                                    child: OutlinedButton(
+                                        onPressed: () async{
+                                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                                          final userID = prefs.getString("UserID")!;
+                                          final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: widget.bookingData?.bookingNumber).get();
+                                          if(snapshot.docs.isNotEmpty){
+                                            final order = OrderStatusModel(
+                                                customerID: widget.bookingData?.customer_id,
+                                                driverID: userID,
+                                                bookingNumber: widget.bookingData?.bookingNumber,
+                                                orderAssign: "1",
+                                                outForPick: "0",
+                                                arrivePick: "0",
+                                                percelPicked: "0",
+                                                wayToDrop: "0",
+                                                arriveDrop: "0",
+                                                completed: "0",
+                                                dateCreated: DateTime.now().toString(),
+                                                timeStamp: Timestamp.now()
+                                            );
+                                            requestController.storeOrderStatus(order);
+                                          }else{
+                                            Get.snackbar("Error", "This booking has been cancelled", colorText: Colors.redAccent,backgroundColor: Colors.white);
+                                            if(mounted){
+                                              Navigator.pop(context);
+                                            }
+                                          }
+
+                                        },
+                                        style: Theme.of(context).elevatedButtonTheme.style,
+                                        child: Text("Start Service".toUpperCase())
+                                    ),
+                                  ),
+
                                 ]
                               ] else ...[
                                 if(Int4 == 1 && Int5 == 0)...[

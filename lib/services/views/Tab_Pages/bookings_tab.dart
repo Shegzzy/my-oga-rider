@@ -99,6 +99,9 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                           "Rate User",
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              color: PButtonColor
+                                          ),
                                         ),
                                         onPressed: () {
                                           Navigator.push(
