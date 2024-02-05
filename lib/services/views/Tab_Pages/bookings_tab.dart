@@ -30,7 +30,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
     userFuture = _getBookings();
   }
 
-  void reloadScreen() {
+  Future<void> reloadScreen() async{
     userFuture = _getBookings();
   }
 
@@ -47,154 +47,160 @@ class _BookingTabPageState extends State<BookingTabPage> {
         centerTitle: true,
 
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        ///Future Builder
-        child: FutureBuilder<List<BookingModel>?>(
-          future: userFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                //Controllers
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (c, index){
-                    return  GestureDetector(
-                      onTap: () async {
-                        final result = await Get.to(()=> BookingDetailsScreen(bookingData: snapshot.data![index],));
-                        if(result == true){
-                          reloadScreen();
-                          setState(() {});
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10.0, top: 5.0),
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: isDark ? Colors.black.withOpacity(0.1) : moPrimaryColor),
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(snapshot.data![index].bookingNumber!,
-                                      style: Theme.of(context).textTheme.headlineMedium,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis),
-                                  if(snapshot.data![index].status! == 'active')...[
-                                    Flexible(child:
-                                    Text(snapshot.data![index].status!,
-                                        style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await reloadScreen();
+          setState(() {});
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ///Future Builder
+          child: FutureBuilder<List<BookingModel>?>(
+            future: userFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData) {
+                  //Controllers
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (c, index){
+                      return  GestureDetector(
+                        onTap: () async {
+                          final result = await Get.to(()=> BookingDetailsScreen(bookingData: snapshot.data![index],));
+                          if(result == true){
+                            reloadScreen();
+                            setState(() {});
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10.0, top: 5.0),
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                color: isDark ? Colors.black.withOpacity(0.1) : moPrimaryColor),
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(snapshot.data![index].bookingNumber!,
+                                        style: Theme.of(context).textTheme.headlineMedium,
                                         maxLines: 2,
-                                        overflow: TextOverflow.ellipsis))
-                                  ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '0' || snapshot.data![index].rateUser == null)...[
-                                      Flexible(child: TextButton(
-                                        child: const Text(
-                                          "Rate User",
+                                        overflow: TextOverflow.ellipsis),
+                                    if(snapshot.data![index].status! == 'active')...[
+                                      Flexible(child:
+                                      Text(snapshot.data![index].status!,
+                                          style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
                                           maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              color: PButtonColor
+                                          overflow: TextOverflow.ellipsis))
+                                    ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '0' || snapshot.data![index].rateUser == null)...[
+                                        Flexible(child: TextButton(
+                                          child: const Text(
+                                            "Rate User",
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                color: PButtonColor
+                                            ),
                                           ),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => RatingScreen(
-                                                    userID: snapshot.data![index].customer_id!,
-                                                    bookingID: snapshot.data![index].bookingNumber!,
-                                                  )));
-                                        },
-                                      ))
-                                    ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '1' || snapshot.data![index].rateUser != null)...[
-                                    Flexible(child:
-                                    Text(snapshot.data![index].status!,
-                                        style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis))
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) => RatingScreen(
+                                                      userID: snapshot.data![index].customer_id!,
+                                                      bookingID: snapshot.data![index].bookingNumber!,
+                                                    )));
+                                          },
+                                        ))
+                                      ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '1' || snapshot.data![index].rateUser != null)...[
+                                      Flexible(child:
+                                      Text(snapshot.data![index].status!,
+                                          style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis))
+                                    ],
                                   ],
-                                ],
-                              ),
-                              const SizedBox(height: 10,),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(shape: const CircleBorder(), minimumSize: const Size(30, 30)),
-                                    onPressed: () {},
-                                    child: const Icon(Icons.location_pin, size: 20,),
-                                  ),
-                                  const SizedBox(width: 10.0),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(snapshot.data![index].pickup_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
-                                          const SizedBox(height: 10,),
-                                          Text(snapshot.data![index].dropOff_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
-                                        ],
-                                      ),
+                                ),
+                                const SizedBox(height: 10,),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(shape: const CircleBorder(), minimumSize: const Size(30, 30)),
+                                      onPressed: () {},
+                                      child: const Icon(Icons.location_pin, size: 20,),
                                     ),
-                                  )
-                                ],
-                              ),
-                              const SizedBox(height: 10,),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(child: Text(snapshot.data![index].deliveryMode ?? "",
-                                      style: Theme.of(context).textTheme.titleLarge,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis)),
+                                    const SizedBox(width: 10.0),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(snapshot.data![index].pickup_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                                            const SizedBox(height: 10,),
+                                            Text(snapshot.data![index].dropOff_address ?? "", style: Theme.of(context).textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis,),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(height: 10,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(child: Text(snapshot.data![index].deliveryMode ?? "",
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis)),
 
-                                  Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
-                                      style: Theme.of(context).textTheme.titleLarge,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis)),
+                                    Flexible(child: Text(MyOgaFormatter.currencyFormatter(double.parse(snapshot.data![index].amount ?? "")),
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis)),
 
-                                  Flexible(child: Text(snapshot.data![index].distance ?? "",
-                                      style: Theme.of(context).textTheme.titleLarge,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis)),
-                                ],
-                              ),
-                            ],
+                                    Flexible(child: Text(snapshot.data![index].distance ?? "",
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis)),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              }
-              else if(!snapshot.hasData){
-                return const Center(child: Text('You haven\'t taken any bookings yet', style: TextStyle(
-                  color: Colors.white
-                ),),);
-              }
-              else if (snapshot.hasError) {
-                return Center(
-                  child: Text(snapshot.error.toString()),
-                );
+                      );
+                    },
+                  );
+                }
+                else if(!snapshot.hasData){
+                  return const Center(child: Text('You haven\'t taken any bookings yet', style: TextStyle(
+                    color: Colors.white
+                  ),),);
+                }
+                else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(snapshot.error.toString()),
+                  );
+                }
+                else {
+                  return const Center(
+                    child: Text("Something went wrong"),
+                  );
+                }
               }
               else {
                 return const Center(
-                  child: Text("Something went wrong"),
-                );
+                    child: CircularProgressIndicator());
               }
-            }
-            else {
-              return const Center(
-                  child: CircularProgressIndicator());
-            }
-          },
+            },
+          ),
         ),
       ),
 

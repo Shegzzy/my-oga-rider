@@ -42,7 +42,7 @@ class _AcceptScreenState extends State<AcceptScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _userRepo.getUserDetailsWithPhone(bookingData!.customer_phone!).then((value) {
+    _userRepo.getUserDetailsWithPhone(bookingData!.customer_id!).then((value) {
       setState(() {
         _bookerModel = value;
       });

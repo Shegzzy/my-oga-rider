@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -45,17 +46,21 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   BookerModel? _bookerModel;
   FirestoreService fireStoreService = Get.find();
   late StreamSubscription<BookingModel> _bookingStatusSubscription;
+  int counter = 0;
+  double rate = 0;
+  double _total = 0;
+  double _average = 0;
+  List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
+  final _db = FirebaseFirestore.instance;
+  bool loadingCustomer = false;
 
 
   @override
   void initState() {
     super.initState();
+    getCustomerDetails();
     _startListeningToBookingStatusChanges();
-    _userRepo.getUserDetailsWithPhone(bookingData.customer_phone!).then((value) {
-      setState(() {
-        _bookerModel = value;
-      });
-    });
+
   }
 
   @override
@@ -73,101 +78,143 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     });
   }
 
+  Future<void> getRatingCount() async{
+    await _db.collection("Users").doc(bookingData.customer_id).collection("Ratings").get().then((value) {
+      for (var element in value.docs) {
+        rate = element.data()["rating"];
+        setState(() {
+          _total = _total + rate;
+          counter = counter+1;
+        });
+      }
+    });
+    _average = _total/counter;
+    print(_average);
+  }
+
+  Future<void> getCustomerDetails() async{
+    try{
+      setState(() {
+        loadingCustomer = true;
+      });
+
+      await _userRepo.getRiderDetailsWithID(bookingData.customer_id!).then((value) {
+        setState(() {
+          _bookerModel = value;
+        });
+      });
+      await getRatingCount();
+
+    }catch(e){
+      print('Error $e');
+    }finally{
+      setState(() {
+        loadingCustomer = false;
+      });
+    }
+  }
+
   Future<void>showDriverDialog(BuildContext context) async {
     return await showDialog(context: context, builder: (context){
       var isDark = getXSwitchState.isDarkMode;
       return StatefulBuilder(builder: (context, setState){
         return AlertDialog(
-          content: Container(
-            width: double.infinity,
-            height: 400,
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black12.withOpacity(0.01) : Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Customer", style: Theme.of(context).textTheme.bodyLarge,),
-                const SizedBox(height: 20,),
-                SizedBox(
-                  width: 120.0,
-                  height: 120.0,
-                  child: ClipRRect(
-                      borderRadius:
-                      BorderRadius.circular(100),
-                      child: _bookerModel!.profilePic == null
-                          ? const Icon(LineAwesomeIcons.user_circle, size: 35,)
-                          : Image(
-                        image: NetworkImage(_bookerModel!.profilePic!),
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context,
-                            child, loadingProgress) {
-                          if (loadingProgress == null)
-                            return child;
-                          return const Center(
-                              child:
-                              CircularProgressIndicator());
-                        },
-                        errorBuilder:
-                            (context, object, stack) {
-                          return const Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                          );
-                        },
-                      )),
-                ),
-                const SizedBox(width: 2,),
-                Text(_bookerModel?.fullname ?? " ",
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 5,),
-                Text(_bookerModel?.phoneNo ?? " ",
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 5,),
-                const Icon(LineAwesomeIcons.phone, color: moAccentColor, size: 30,),
-                const SizedBox(height: 35,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: Theme.of(context).outlinedButtonTheme.style,
-                        child: Text("Cancel".toUpperCase()),
-                      ),
+          content: loadingCustomer ? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(),)
+              : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Customer", style: Theme.of(context).textTheme.bodyLarge,),
+              const SizedBox(height: 20,),
+              SizedBox(
+                width: 120.0,
+                height: 120.0,
+                child: ClipRRect(
+                    borderRadius:
+                    BorderRadius.circular(100),
+                    child: _bookerModel!.profilePic == null
+                        ? const Icon(LineAwesomeIcons.user_circle, size: 35,)
+                        : Image(
+                      image: NetworkImage(_bookerModel!.profilePic!),
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context,
+                          child, loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return const Center(
+                            child:
+                            CircularProgressIndicator());
+                      },
+                      errorBuilder:
+                          (context, object, stack) {
+                        return const Icon(
+                          Icons.person_2_rounded,
+                          color: Colors.blueGrey,
+                        );
+                      },
+                    )),
+              ),
+              const SizedBox(width: 2,),
+              Text(_bookerModel?.fullname ?? " ",
+                style: Theme.of(context).textTheme.headlineMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 5,),
+              Text(_bookerModel?.phoneNo ?? " ",
+                style: Theme.of(context).textTheme.headlineMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 5,),
+              const Icon(LineAwesomeIcons.phone, color: moAccentColor, size: 30,),
+              const SizedBox(height: 35,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Ratings: ${_average.toStringAsFixed(1)}"),
+                  Icon(
+                    Icons.star,
+                    size: 16,
+                    color: _average < 3.5 ? Colors.redAccent : Colors.green,
+                  )
+                ],
+              ),
+              const SizedBox(height: 35,),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: Theme.of(context).outlinedButtonTheme.style,
+                      child: Text("Cancel".toUpperCase()),
                     ),
-                    const SizedBox(width: 10.0,),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final Uri url = Uri(
-                            scheme: 'tel',
-                            path: _bookerModel!.phoneNo,
-                          );
-                          if(await canLaunchUrl(url)){
-                          await launchUrl(url);
-                          } else {
-                          Get.snackbar("Notice!", "Not Supported yet", snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.redAccent.withOpacity(0.1),
-                          colorText: Colors.red);
-                          }
-                        },
-                        style: Theme.of(context).elevatedButtonTheme.style,
-                        child: Text("Call".toUpperCase()),
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  const SizedBox(width: 10.0,),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final Uri url = Uri(
+                          scheme: 'tel',
+                          path: _bookerModel!.phoneNo,
+                        );
+                        if(await canLaunchUrl(url)){
+                        await launchUrl(url);
+                        } else {
+                        Get.snackbar("Notice!", "Not Supported yet", snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.redAccent.withOpacity(0.1),
+                        colorText: Colors.red);
+                        }
+                      },
+                      style: Theme.of(context).elevatedButtonTheme.style,
+                      child: Text("Call".toUpperCase()),
+                    ),
+                  )
+                ],
+              ),
+            ],
           ),
         );
       });
@@ -430,7 +477,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                               color: PButtonColor
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           setState(() {
                             showDriverDialog(context);
                           });

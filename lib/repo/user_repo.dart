@@ -158,7 +158,17 @@ class UserRepository extends GetxController {
     return userData;
   }
 
-  ///Fetch  User Details
+  Future<BookerModel> getRiderDetailsWithID(String customerID) async {
+    final snapshot = await _db.collection("Users").doc(customerID).get();
+    if (snapshot.exists) {
+      final userData = BookerModel.fromSnapshot(snapshot);
+      return userData;
+    } else {
+      throw Exception("User details not found for ID: $customerID");
+    }
+  }
+
+  ///Fetch  Driver Details
   Future<UserModel> getUserDetailsWithEmail(String email) async {
     final snapshot = await _db.collection("Drivers").where("Email", isEqualTo: email).get();
     final userData = snapshot.docs.map((e) => UserModel.fromSnapshot(e)).first;
