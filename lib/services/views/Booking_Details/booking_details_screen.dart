@@ -348,11 +348,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ),
                     Flexible(
                       child: TextButton(
-                        child: const Text("View on Map",
+                        child: Text("View on Map",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              color: PButtonColor
+                              color: isDark ? Colors.amberAccent : PButtonColor
                           ),
                         ),
                         onPressed: () {
@@ -383,11 +383,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ),
                     Flexible(
                       child: TextButton(
-                        child: const Text("View on Map",
+                        child: Text("View on Map",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: PButtonColor
+                              color: isDark ? Colors.amberAccent : PButtonColor
                           ),
                         ),
                         onPressed: () {
@@ -425,12 +425,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       ),
                     ]else if(bookingModel?.status == 'completed' && bookingModel?.rateUser == '0' || bookingModel?.rateUser == null)...[
                       Flexible(child: TextButton(
-                        child: const Text(
+                        child: Text(
                           "Rate User",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              color: PButtonColor
+                              color: isDark ? Colors.amberAccent : PButtonColor
                           ),
                         ),
                         onPressed: () {
@@ -470,11 +470,11 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     const SizedBox(width: 10,),
                     Flexible(
                       child: TextButton(
-                        child: const Text("View Customer Details",
+                        child: Text("View Customer Details",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              color: PButtonColor
+                              color: isDark ? Colors.amberAccent : PButtonColor
                           ),
                         ),
                         onPressed: () async {
