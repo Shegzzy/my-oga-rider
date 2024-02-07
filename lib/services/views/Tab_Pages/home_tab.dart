@@ -395,7 +395,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                 });
 
                 // Check if the distance between rider and pickup is below a threshold
-                const double distanceThreshold = 15.0;
+                const double distanceThreshold = 8.0;
 
                 final double riderLat = currentPosition.latitude;
                 final double riderLng = currentPosition.longitude;
