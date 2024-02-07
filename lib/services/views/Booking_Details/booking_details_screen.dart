@@ -246,7 +246,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    var isDark = getXSwitchState.isDarkMode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

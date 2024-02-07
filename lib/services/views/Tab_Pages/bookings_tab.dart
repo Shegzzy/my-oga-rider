@@ -98,14 +98,14 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                           style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis))
-                                    ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '0' || snapshot.data![index].rateUser == null)...[
+                                    ]else if(snapshot.data![index].status == 'completed' && (snapshot.data![index].rateUser == '0' || snapshot.data![index].rateUser == null))...[
                                         Flexible(child: TextButton(
-                                          child: const Text(
+                                          child: Text(
                                             "Rate User",
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                                color: PButtonColor
+                                                color: isDark ? Colors.amberAccent : PButtonColor
                                             ),
                                           ),
                                           onPressed: () {
@@ -118,7 +118,7 @@ class _BookingTabPageState extends State<BookingTabPage> {
                                                     )));
                                           },
                                         ))
-                                      ]else if(snapshot.data![index].status == 'completed' && snapshot.data![index].rateUser == '1' || snapshot.data![index].rateUser != null)...[
+                                      ]else if(snapshot.data![index].status == 'completed' && (snapshot.data![index].rateUser == '1' || snapshot.data![index].rateUser != null))...[
                                       Flexible(child:
                                       Text(snapshot.data![index].status!,
                                           style: TextStyle(color: isDark ? snapshot.data![index].status == "completed" ? Colors.blue : Colors.yellowAccent.shade400  : snapshot.data![index].status == "completed" ? Colors.green : Colors.blueAccent ),

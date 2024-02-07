@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 import '../constant/colors.dart';
+import '../services/controller/getx_switch_state.dart';
 
 class ProfileMenuWidget extends StatelessWidget {
-  const ProfileMenuWidget({
+  ProfileMenuWidget({
     Key? key,
     required this.title,
     required this.icon,
@@ -18,11 +20,13 @@ class ProfileMenuWidget extends StatelessWidget {
   final VoidCallback onPress;
   final bool endIcon;
   final Color? textColor;
+  final GetXSwitchState getXSwitchState = Get.find();
+
 
   @override
   Widget build(BuildContext context) {
 
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    var isDark = getXSwitchState.isDarkMode;
     var iconColor = isDark? moPrimaryColor : moAccentColor;
 
     return ListTile(
@@ -36,7 +40,7 @@ class ProfileMenuWidget extends StatelessWidget {
         ),
         child: Icon(icon, color: iconColor),
       ),
-      title: Text(title, style: Theme.of(context).textTheme.bodyText1?.apply(color: textColor)),
+      title: Text(title, style: Theme.of(context).textTheme.bodyLarge?.apply(color: textColor)),
       trailing: endIcon? Container(
           width: 30.0,
           height: 30.0,

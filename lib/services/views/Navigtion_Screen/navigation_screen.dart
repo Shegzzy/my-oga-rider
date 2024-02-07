@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -65,6 +65,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
           GoogleMap(
             zoomControlsEnabled: false,
             mapType: MapType.normal,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
             polylines: Set<Polyline>.of(polylines.values),
             initialCameraPosition: CameraPosition(
               target: curLocation,
@@ -82,7 +84,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             indoorViewEnabled: true,
           ),
           Positioned(
-            bottom: 10,
+            bottom: 70,
             right: 10,
             child: Container(
               width: 50,
@@ -97,9 +99,19 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     color: Colors.white,
                   ),
                   onPressed: () async {
-                    await launchUrl(Uri.parse(
-                      'google.navigation:q=${widget.lat},${widget.lng}&key=${dotenv.env['mapKey']}'
-                    ));
+                    String googleMapsAndroidURL = 'google.navigation:q=${widget.lat},${widget.lng}&mode=d'; // mode=d for driving
+
+                    String googleMapsIosURL = 'comgooglemaps://?daddr=${widget.lat},${widget.lng}&directionsmode=driving'; // directionsmode=driving for driving
+
+                    String googleMapsWebURL = 'https://www.google.com/maps/dir/?api=1&destination=${widget.lat},${widget.lng}&travelmode=driving'; // travelmode=driving for driving
+
+                    if (Platform.isAndroid && await canLaunchUrl(Uri.parse(googleMapsAndroidURL))) {
+                      await launchUrl(Uri.parse(googleMapsAndroidURL));
+                    } else if (Platform.isIOS && await canLaunchUrl(Uri.parse(googleMapsIosURL))) {
+                      await launchUrl(Uri.parse(googleMapsIosURL));
+                    } else {
+                      await launchUrl(Uri.parse(googleMapsWebURL), mode: LaunchMode.externalApplication);
+                    }
                   },
                 ),
               ),
@@ -143,31 +155,28 @@ class _NavigationScreenState extends State<NavigationScreen> {
       _currentPosition = await location.getLocation();
       curLocation = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
 
-      locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
-        controller?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng(currentLocation.latitude!, currentLocation.longitude!),
-          zoom: 16,
-        )));
+      controller?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!),
+        zoom: 16,
+      )));
+      if(mounted){
+        controller?.showMarkerInfoWindow(MarkerId(sourcePosition!.markerId.value));
+        setState(() {
+          curLocation = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
 
-        if(mounted){
-          controller?.showMarkerInfoWindow(MarkerId(sourcePosition!.markerId.value));
-          setState(() {
-            curLocation = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+          bikePosition = Marker(
+            markerId: const MarkerId('bikeID'),
+            icon: BitmapDescriptor.fromBytes(myPosition!),
+            position: LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!),
+            infoWindow: InfoWindow(
+                title: double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))
+                    .toString()
+            ),
+          );
 
-            bikePosition = Marker(
-              markerId: const MarkerId('bikeID'),
-              icon: BitmapDescriptor.fromBytes(myPosition!),
-              position: LatLng(currentLocation.latitude!, currentLocation.longitude!),
-              infoWindow: InfoWindow(
-                  title: double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))
-                      .toString()
-              ),
-            );
-
-          });
-          getDirections(LatLng(widget.lat, widget.lng));
-        }
-      });
+        });
+      }
+      getDirections(LatLng(widget.lat, widget.lng));
     }
   }
 
