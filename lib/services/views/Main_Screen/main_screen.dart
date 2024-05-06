@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constant/colors.dart';
 import '../../../constant/text_strings.dart';
+import '../../../repo/user_repo.dart';
+import '../../model/usermodel.dart';
 import '../../notificationService.dart';
+import '../Car_Registration/verification_pending.dart';
 import '../Tab_Pages/bookings_tab.dart';
 import '../Tab_Pages/earnings_tab.dart';
 import '../Tab_Pages/home_tab.dart';
@@ -26,6 +32,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   final _db = FirebaseFirestore.instance;
   int selectedIndex = 0;
   String? _token, _userID;
+  late StreamSubscription<UserModel> _riderModelStatusSubscription;
+  UserModel? _userModel;
+  final _userRepo = Get.put(UserRepository());
 
   onItemCliked(int index){
     setState(() {
@@ -41,7 +50,30 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     NotificationService().firebaseInit(context);
     NotificationService().setUpInteractMessage(context);
     getToken();
+    getDriver();
     _tabController = TabController(length: 4, vsync: this);
+  }
+
+  void getDriver(){
+    String? riderID = FirebaseAuth.instance.currentUser?.uid;
+    _riderModelStatusSubscription = _userRepo.getRiderById(riderID ?? "").listen((event) {
+      if(mounted) {
+        setState(() {
+          _userModel = event;
+        });
+      } else {
+        return;
+      }
+
+
+      if (_userModel?.isVerified == "Hold"){
+        print(_userModel?.isVerified);
+        Get.offAll(() => const VerificaitonPendingScreen());
+      }
+
+    });
+
+    // print(_userModel?.vehicleNumber);
   }
 
   void getToken() async {

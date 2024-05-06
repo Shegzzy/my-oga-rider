@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:my_oga_rider/repo/user_repo.dart';
 import 'package:my_oga_rider/services/AppServices/app_provider.dart';
 import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
 import 'package:my_oga_rider/services/controller/request_controller.dart';
@@ -99,6 +101,8 @@ _init() async {
     Get.to(() => const WelcomeScreen());
   }
 }
+
+
 
 
 class MyApp extends StatelessWidget {

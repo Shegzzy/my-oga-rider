@@ -45,8 +45,8 @@ class _VerificaitonPendingScreenState extends State<VerificaitonPendingScreen> {
         children: [
           const SizedBox(height: 50.0,),
           Image(image: const AssetImage(moSplashImage), height: size.height * 0.1,),
-          Text("Vehicle Registration", style: Theme.of(context).textTheme.headline1,),
-          Text("process status", style: Theme.of(context).textTheme.bodyText1,),
+          Text("Vehicle Registration", style: Theme.of(context).textTheme.displayLarge,),
+          Text("process status", style: Theme.of(context).textTheme.bodyLarge,),
 
           const SizedBox(height: 20,),
 

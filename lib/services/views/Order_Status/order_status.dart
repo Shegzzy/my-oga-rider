@@ -157,6 +157,8 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
         company: _userModel?.userCompany.toString(),
         amount: widget.bookingData!.amount.toString(),
         customer: widget.bookingData!.customer_id.toString(),
+        // correction to be made
+        // dateCreated: widget.bookingData!.created_at,
         dateCreated: DateTime.now().toString(),
         timeStamp: Timestamp.now(),
       );

@@ -139,8 +139,15 @@ class UserRepository extends GetxController {
         return UserModel.fromSnapshot(doc);
       });
 
+  Stream<UserModel> getRiderById(String id) {
+    return _db.collection("Drivers").doc(id).snapshots().map((snapshot) {
+      return UserModel.fromSnapshot(snapshot);
+    });
+  }
 
-  ///Fetch User Details using stream
+
+
+  ///Fetch Driver Details using stream
   Stream<UserModel> getDriverData(){
     final email = FirebaseAuth.instance.currentUser!.email;
     return _db.collection("Drivers")

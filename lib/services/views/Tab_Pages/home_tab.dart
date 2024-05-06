@@ -343,7 +343,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     requestController.loadAcceptedBookings();
     requestController.loadPendingBookings();
     statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (Timer timer) async {
-          print(requestController.requestHistory.length);
+          // print(requestController.requestHistory.length);
           // print(requestController.acceptedBookingList.length);
           await checkAndUpdateBookingStatus();
           await checkAndUpdateAcceptedBooking();
@@ -406,7 +406,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
                 final double distance = calculateDistance(
                     riderLat, riderLng, pickupLat, pickupLng);
-                print(distance);
+                // print(distance);
                 // String directionUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=${currentPosition.latitude},${currentPosition.longitude}&destination=${latestRequest.pickUp_latitude},${latestRequest.pickUp_longitude}&key=AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM";
                 // http.Response response = await http.get(Uri.parse(directionUrl));
                 // if (response.statusCode == 200) {
