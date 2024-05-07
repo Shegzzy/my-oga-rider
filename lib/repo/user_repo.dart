@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +26,8 @@ class UserRepository extends GetxController {
   final _db = FirebaseFirestore.instance;
   User? userId = FirebaseAuth.instance.currentUser;
 
+  UserModel? _userModel;
+  UserModel? get userModel => _userModel;
 
   ///Stores users info in FireStore
   createUser(UserModel user) async {
@@ -133,11 +137,30 @@ class UserRepository extends GetxController {
     return modeData;
   }
 
+  bool _profileLoading = false;
+  bool get profileLoading => _profileLoading;
+
   /// Getting Driver Details 2
-  Future<UserModel> getUserById(String id) =>
-      _db.collection("Drivers").doc(id).get().then((doc) {
-        return UserModel.fromSnapshot(doc);
-      });
+  Future<UserModel?> getUserById(String id) async {
+    try {
+      _profileLoading = true;
+      update();
+
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+      await _db.collection("Drivers").doc(id).get();
+      _userModel = UserModel.fromSnapshot(snapshot);
+      return _userModel;
+    } catch (error) {
+      print(error);
+      // You might want to throw an error here to handle it outside this method
+      throw error;
+    } finally {
+      _profileLoading = false;
+      update();
+    }
+  }
+
+
 
   Stream<UserModel> getRiderById(String id) {
     return _db.collection("Drivers").doc(id).snapshots().map((snapshot) {

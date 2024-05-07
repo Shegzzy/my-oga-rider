@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constant/colors.dart';
 import '../../../constant/text_strings.dart';
+import '../../../repo/auth_repo.dart';
 import '../../../repo/user_repo.dart';
 import '../../model/usermodel.dart';
 import '../../notificationService.dart';
@@ -35,6 +36,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   late StreamSubscription<UserModel> _riderModelStatusSubscription;
   UserModel? _userModel;
   final _userRepo = Get.put(UserRepository());
+  final auth = FirebaseAuth.instance;
 
   onItemCliked(int index){
     setState(() {
@@ -54,9 +56,42 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     _tabController = TabController(length: 4, vsync: this);
   }
 
-  void getDriver(){
-    String? riderID = FirebaseAuth.instance.currentUser?.uid;
-    _riderModelStatusSubscription = _userRepo.getRiderById(riderID ?? "").listen((event) {
+  Future<void> _riderOnHold() async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async{
+            return false;
+          },
+          child: AlertDialog(
+            title: const Text("Account on Hold"),
+            content: const Text(
+                "MyOga Rider, your account is currently on hold. Please contact your dispatch company for further instructions"
+                    ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await Get.put(AuthenticationRepository().logout());
+                  // Get.offAll(() => MainScreen());
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> getDriver() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.remove('token');
+    String? savedToken = prefs.getString("token");
+    String? riderID = auth.currentUser?.uid;
+    _riderModelStatusSubscription = _userRepo.getRiderById(riderID ?? "").listen((event) async {
       if(mounted) {
         setState(() {
           _userModel = event;
@@ -65,11 +100,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return;
       }
 
-
       if (_userModel?.isVerified == "Hold"){
         print(_userModel?.isVerified);
-        Get.offAll(() => const VerificaitonPendingScreen());
+        _riderOnHold();
       }
+      // else if(_userModel?.token != savedToken){
+      //   await Get.put(AuthenticationRepository().logout());
+      //   Get.snackbar("Error", "Your account was logged in on another device",
+      //       snackPosition: SnackPosition.TOP,
+      //       backgroundColor: Colors.white,
+      //       colorText: Colors.red);
+      // }
 
     });
 
@@ -81,10 +122,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     // prefs.remove('token');
     String? savedToken = prefs.getString("token");
     await NotificationService().getDeviceToken().then((token) {
-      if (kDebugMode) {
-        print(" YOUR TOKEN IS: $token");
-        print(" YOUR SAVED TOKEN IS: $savedToken");
-      }
+      // if (kDebugMode) {
+      //   print(" YOUR TOKEN IS: $token");
+      //   print(" YOUR SAVED TOKEN IS: $savedToken");
+      // }
       setState(() {
         _token = token;
       });

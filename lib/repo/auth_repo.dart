@@ -11,6 +11,7 @@ import 'package:my_oga_rider/services/views/Permission_info_screen/permission_al
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/views/welcome_screen/welcome_screen.dart';
 import '../services/model/usermodel.dart';
+import '../services/notificationService.dart';
 import '../services/views/Car_Registration/verification_pending.dart';
 import '../services/views/Login_Screen/login_screen.dart';
 import '../services/views/Main_Screen/main_screen.dart';
@@ -118,6 +119,13 @@ class AuthenticationRepository extends GetxController {
       final firebaseUser = await _auth.signInWithEmailAndPassword(email: email, password: password);
       if(firebaseUser.user != null){
         SharedPreferences prefs = await SharedPreferences.getInstance();
+        // await NotificationService().getDeviceToken().then((token) async {
+        //   // print(token);
+        //   await _db.collection("Drivers").doc(firebaseUser.user?.uid).update({
+        //     "Token": token
+        //   });
+        //   prefs.setString("token", token);
+        // });
         prefs.setString("UserID", firebaseUser.user!.uid);
         prefs.setString("UserEmail", firebaseUser.user!.email!);
         checkVerification();
@@ -212,14 +220,14 @@ class AuthenticationRepository extends GetxController {
 
       var myInt = int.tryParse(docId!);
 
-      if (myInt == 0) {
+      if (docId == "0") {
         await _auth.signOut();
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove("UserID");
         prefs.remove("UserEmail");
         Get.offAll(() => const VerificaitonPendingScreen());
       }
-      else if (myInt == 1) {
+      else if (docId == "1") {
         final user = _auth.currentUser!;
         if (user.emailVerified) {
           _checkUserType();
@@ -227,6 +235,12 @@ class AuthenticationRepository extends GetxController {
           user.sendEmailVerification();
           _checkUserType();
         }
+      } else if (docId == "Hold"){
+        await logout();
+        Get.snackbar("Error", "Your account is currently on hold, please contact your dispatch company",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.white,
+            colorText: Colors.red);
       }
       else {
         Get.snackbar("Error", "Couldn't Verify your account, contact support!",

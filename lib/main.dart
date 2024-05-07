@@ -11,6 +11,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:my_oga_rider/repo/auth_repo.dart';
 import 'package:my_oga_rider/repo/user_repo.dart';
 import 'package:my_oga_rider/services/AppServices/app_provider.dart';
 import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
@@ -71,7 +72,7 @@ _checkUserType() async {
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.white,
           colorText: Colors.red);
-      await FirebaseAuth.instance.signOut();
+      await Get.put(AuthenticationRepository().logout());
       Get.offAll(() => const WelcomeScreen());
     }
   } else {
@@ -85,7 +86,7 @@ _checkUserType() async {
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.white,
           colorText: Colors.red);
-      await FirebaseAuth.instance.signOut();
+      await Get.put(AuthenticationRepository().logout());
       Get.offAll(() => const WelcomeScreen());
     }
   }
