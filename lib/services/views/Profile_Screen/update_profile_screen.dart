@@ -1,14 +1,19 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:date_format/date_format.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:my_oga_rider/repo/user_repo.dart';
 import 'package:my_oga_rider/utils/formatter/formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
 
 import '../../../constant/colors.dart';
 import '../../../constant/text_strings.dart';
@@ -29,6 +34,7 @@ class UpdateProfileScreen extends StatefulWidget {
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   late String newDate;
   String? dOB;
+  String? imageSource;
   final _db = FirebaseFirestore.instance;
   ProfileController controller = Get.put(ProfileController());
   UserRepository userRepositoryController = Get.put(UserRepository());
@@ -48,7 +54,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     }
   }
 
-  Future<void> _getUser() async {
+  Future<UserModel?> _getUser() async {
     return await controller.getUserById();
   }
 
@@ -77,6 +83,100 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         text: userRepositoryController.userModel?.profilePic);
   }
 
+  final picker = ImagePicker();
+
+  XFile? _image;
+
+  XFile? get image => _image;
+
+  Future pickGalleryImage(BuildContext context) async {
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery, imageQuality: 100);
+
+    if (pickedFile != null) {
+      _image = XFile(pickedFile.path);
+      setState(() {
+        imageSource = _image?.path;
+      });
+      // print("Image source ${picController.text}" );
+    }
+  }
+
+  Future pickCameraImage(BuildContext context) async {
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.camera, imageQuality: 100);
+
+    if (pickedFile != null) {
+      _image = XFile(pickedFile.path);
+      setState(() {
+        imageSource = _image?.path;
+      });
+    }
+  }
+
+  void pickImage(context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SizedBox(
+              height: 120.0,
+              child: Column(
+                children: [
+                  ListTile(
+                    onTap: () {
+                      pickCameraImage(context);
+                      Navigator.pop(context);
+                    },
+                    leading: const Icon(
+                      LineAwesomeIcons.camera, color: PButtonColor,),
+                    title: const Text("Camera"),
+                  ),
+                  ListTile(
+                    onTap: () {
+                      pickGalleryImage(context);
+                      Navigator.pop(context);
+                    },
+                    leading: const Icon(
+                      LineAwesomeIcons.image, color: PButtonColor,),
+                    title: const Text("Gallery"),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+
+  Future<void> uploadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userID = prefs.getString("UserID")!;
+
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+        .ref('/profilepic${userID}');
+
+    firebase_storage.UploadTask uploadTask = ref.putFile(
+        File(image!.path).absolute);
+    await Future.value(uploadTask);
+
+    final newUrl = await ref.getDownloadURL();
+    _db.collection("Drivers").doc(userID).update({"Profile Photo": newUrl}).then((value){
+      Get.snackbar("Success", "Profile Photo Updated",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.green
+      );
+      _image = null;
+    }).onError((error, stackTrace) {
+      Get.snackbar("Error", error.toString(),
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red.withOpacity(0.1),
+          colorText: Colors.red
+      );
+      });
+    }
+
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery
@@ -96,7 +196,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
           centerTitle: true,
         ),
         body: GetBuilder<UserRepository>(builder: (userRepo) {
-          return userRepo.profileLoading ? const Center(child: CircularProgressIndicator()) : SingleChildScrollView(
+          return userRepo.profileLoading ?
+          const Center(child: CircularProgressIndicator()) :
+          SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(30.0),
 
@@ -110,7 +212,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         SizedBox(
                           width: 120.0,
                           height: 120.0,
-                          child: ClipRRect(
+                          child: imageSource == null ? ClipRRect(
                             borderRadius: BorderRadius.circular(
                                 100),
                             child: picController.text.isEmpty
@@ -135,11 +237,16 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                   color: Colors.blueGrey,);
                               },
                             ),
+                          )
+                              :ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                100),
+                            child: Image.file(File(imageSource!))
                           ),
                         ),
                         GestureDetector(
                           onTap: () {
-                            // provider.pickImage(context);
+                            pickImage(context);
                           },
                           child: Container(
                               width: 35.0,
@@ -240,28 +347,21 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                     child: CircularProgressIndicator())
                                     : ElevatedButton(
                                   onPressed: isUploading.value
-                                      ? null
-                                      : () async {
-                                    SharedPreferences prefs = await SharedPreferences
-                                        .getInstance();
-                                    final String? iD = prefs.getString(
-                                        "UserID");
+                                      ? null : () async {
+                                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    final String? iD = prefs.getString("UserID");
                                     isUploading(true);
-                                    await _db.collection("Drivers")
-                                        .doc(iD)
-                                        .update({
-                                      "FullName": fullNameController.text
-                                          .trim(),
+                                    if(imageSource != null) {
+                                      await uploadImage();
+                                    }
+                                    await _db.collection("Drivers").doc(iD).update({
+                                      "FullName": fullNameController.text.trim(),
                                       "Email": emailController.text.trim(),
                                       "Phone": phoneController.text.trim(),
                                       "Address": addressController.text.trim(),
-                                      "Profile Photo": picController.text
-                                          .trim(),
                                       "Gender": genderController.text.trim(),
-                                      "Date of Birth": dobController.text
-                                          .trim(),
-                                    })
-                                        .whenComplete(() =>
+                                      "Date of Birth": dobController.text.trim(),
+                                    }).whenComplete(() =>
                                         Get.snackbar(
                                             "Success",
                                             "Your account have been updated.",

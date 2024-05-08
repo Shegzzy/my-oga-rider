@@ -371,10 +371,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    timer.cancel();
     statusCheckTimer.cancel();
     WidgetsBinding.instance.addObserver(this);
     super.dispose();
+    timer.cancel();
   }
 
   void _startRefreshTimer() {
@@ -529,8 +529,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   }
 
 
-  Future<void> showBookingNotification(BuildContext context,
-      BookingModel incomingRequest) async {
+  Future<void> showBookingNotification(BuildContext context, BookingModel incomingRequest) async {
     var isDark = getXSwitchState.isDarkMode;
     getRatingCount(incomingRequest.customer_id!);
     return await showDialog(context: context, builder: (context) {
@@ -756,8 +755,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     });
   }
 
-  void showAcceptModalBottomSheet(BuildContext context,
-      BookingModel newRequest) {
+  void showAcceptModalBottomSheet(BuildContext context, BookingModel newRequest) {
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -820,8 +818,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     );
   }
 
-  void showStatusModalBottomSheet(BuildContext context,
-      BookingModel inRequest) {
+  void showStatusModalBottomSheet(BuildContext context, BookingModel inRequest) {
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -873,8 +870,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
             zoomGesturesEnabled: true,
             // minMaxZoomPreference: MinMaxZoomPreference.unbounded,
             onMapCreated: (GoogleMapController controller) async {
-              _controllerGoogleMap.complete(controller);
               newGoogleMapController = controller;
+              _controllerGoogleMap.complete(controller);
               locatePosition();
             },
             markers: {myPosition ?? const Marker(markerId: MarkerId('default'))},

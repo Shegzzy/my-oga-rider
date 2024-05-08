@@ -75,7 +75,7 @@ class ProfileController extends GetxController {
     return await _userRepo.getUserBookingDetails();
   }
 
-  getUserById() async {
+  Future<UserModel?> getUserById() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? iD = prefs.getString("UserID");
     return await _userRepo.getUserById(iD!);

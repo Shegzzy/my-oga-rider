@@ -152,7 +152,6 @@ class UserRepository extends GetxController {
       return _userModel;
     } catch (error) {
       print(error);
-      // You might want to throw an error here to handle it outside this method
       throw error;
     } finally {
       _profileLoading = false;
@@ -160,6 +159,10 @@ class UserRepository extends GetxController {
     }
   }
 
+  // void testLoading() {
+  //   _profileLoading = true;
+  //   update();
+  // }
 
 
   Stream<UserModel> getRiderById(String id) {
