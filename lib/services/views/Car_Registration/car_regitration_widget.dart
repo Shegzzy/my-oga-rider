@@ -58,8 +58,8 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
         children: [
           const SizedBox(height: 50.0,),
           Image(image: const AssetImage(moSplashImage), height: size.height * 0.1,),
-          Text("Vehicle Registration", style: Theme.of(context).textTheme.headline1,),
-          Text("Complete the process details", style: Theme.of(context).textTheme.bodyText1,),
+          Text("Vehicle Registration", style: Theme.of(context).textTheme.displayLarge,),
+          Text("Complete the process details", style: Theme.of(context).textTheme.bodyLarge,),
           const SizedBox(height: 40.0,),
           Expanded(
             child: Padding(
@@ -127,7 +127,8 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
                   alignment: Alignment.bottomLeft,
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: FloatingActionButton(onPressed: (){
+                    child: FloatingActionButton(
+                      onPressed: (){
                       _pageController.animateToPage(currentPage-1, duration: const Duration(milliseconds: 500), curve: Curves.easeIn,);
                     }, backgroundColor: PButtonColor,
                       child: const Icon(Icons.arrow_back_ios, color: Colors.white,),),
@@ -136,19 +137,24 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
                   alignment: Alignment.bottomRight,
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: Obx(()=> isUploading.value? const Center(child: CircularProgressIndicator()): FloatingActionButton(onPressed: (){
-
-                      if(currentPage<8) {
-                        _pageController.animateToPage(currentPage + 1,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeIn,);
-                      }
-                      else if(document.isEmpty) {
-                        Get.snackbar('Notice', 'Upload your documents');
-                      } else {
-                        uploadDriverCarEntry();
-                      }
-                    }, backgroundColor: PButtonColor,
+                    child: Obx(()=> isUploading.value? const Center(child: CircularProgressIndicator())
+                        : FloatingActionButton(
+                      onPressed: () {
+                        if (currentPage < 8) {
+                          if (validateCurrentPage()) {
+                            _pageController.animateToPage(currentPage + 1,
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeIn);
+                          } else {
+                            Get.snackbar('Notice', 'Please fill in all required fields.');
+                          }
+                        } else if (document.isEmpty) {
+                          Get.snackbar('Notice', 'Upload your documents');
+                        } else {
+                          uploadDriverCarEntry();
+                        }
+                      },
+                      backgroundColor: PButtonColor,
                       child: const Icon(Icons.arrow_forward_ios, color: Colors.white,),),
                   ))
               ),
@@ -157,6 +163,30 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
         ],
       ),
     );
+  }
+
+  bool validateCurrentPage() {
+    switch (currentPage) {
+      case 0:
+        return selectedLocation.isNotEmpty;
+      case 1:
+        return selectedVehicle.isNotEmpty;
+      case 2:
+        return vehicleMakeController.text.trim().isNotEmpty;
+      case 3:
+        return vehicleModelController.text.trim().isNotEmpty;
+      case 4:
+        return selectModelYear.isNotEmpty;
+      case 5:
+        return vehicleNumberController.text.trim().isNotEmpty;
+      case 6:
+        return vehicleColor.isNotEmpty &&
+            (vehicleColor != "Others" || vehicleColorController.text.isNotEmpty);
+      case 7:
+        return selectedCompany.isNotEmpty;
+      default:
+        return true;
+    }
   }
 
   Future<String>uploadFile(File file) async {

@@ -26,7 +26,6 @@ class _SelectCompanyState extends State<SelectCompany> {
 
  @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     companyFuture = _getCompanies();
   }
@@ -37,7 +36,7 @@ class _SelectCompanyState extends State<SelectCompany> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("Select your registered company?", style: Theme.of(context).textTheme.headline5,),
+        Text("Select your registered company", style: Theme.of(context).textTheme.headlineSmall,),
         const SizedBox(height: 10.0,),
 
         Flexible(
