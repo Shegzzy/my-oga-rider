@@ -40,8 +40,7 @@ class HomeTabPage extends StatefulWidget {
 
 class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
-  final Completer<GoogleMapController> _controllerGoogleMap = Completer<
-      GoogleMapController>();
+  final Completer<GoogleMapController> _controllerGoogleMap = Completer();
   late GoogleMapController newGoogleMapController;
   final GetXSwitchState getXSwitchState = Get.find();
 
@@ -66,6 +65,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   double average = 0;
   List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
   bool loadingCustomer = false;
+
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
 
   Future<void> locatePosition() async {
     ///Asking Users Permission
@@ -109,6 +113,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         .thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark
         .subAdministrativeArea}, ${pMark.administrativeArea} ${pMark
         .postalCode}, ${pMark.country}';
+
+    print(driverLocation);
 
 
     String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
