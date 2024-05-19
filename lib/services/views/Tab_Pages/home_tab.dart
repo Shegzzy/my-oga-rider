@@ -10,7 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
-import 'package:image/image.dart' as IMG;
+import 'package:image/image.dart' as img;
+import 'package:http/http.dart' as http;
+
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
@@ -65,11 +67,35 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   double average = 0;
   List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
   bool loadingCustomer = false;
+  BitmapDescriptor? markerIcon;
+
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
+
+  Future<void> _loadMarkerIcon() async {
+    String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
+    Uint8List? smallImg = await loadAndResizeImage(imgurl, 80, 80);
+    if (smallImg != null) {
+      setState(() {
+        markerIcon = BitmapDescriptor.fromBytes(smallImg);
+      });
+    }
+  }
+
+  Future<Uint8List?> loadAndResizeImage(String url, int width, int height) async {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      img.Image? image = img.decodeImage(response.bodyBytes);
+      if (image != null) {
+        img.Image resizedImage = img.copyResize(image, width: width, height: height);
+        return Uint8List.fromList(img.encodePng(resizedImage));
+      }
+    }
+    return null;
+  }
 
   Future<void> locatePosition() async {
     ///Asking Users Permission
@@ -106,34 +132,23 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         CameraUpdate.newCameraPosition(cameraPosition));
 
     placeMarks = await placemarkFromCoordinates(
-        currentPosition.latitude, currentPosition.longitude);
+        currentPosition!.latitude, currentPosition!.longitude);
     Placemark pMark = placeMarks![0];
 
-    String driverLocation = '${pMark.subThoroughfare} ${pMark
-        .thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark
-        .subAdministrativeArea}, ${pMark.administrativeArea} ${pMark
-        .postalCode}, ${pMark.country}';
+    String driverLocation = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
 
     print(driverLocation);
-
-
-    String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
-    Uint8List bytes = (await NetworkAssetBundle(Uri.parse(imgurl))
-        .load(imgurl))
-        .buffer
-        .asUint8List();
-
-    Uint8List? smallImg = resizeImage(bytes, 80, 80);
 
     setState(() {
       myPosition = Marker(
         markerId: const MarkerId('source'),
         draggable: true,
-        position: LatLng(currentPosition.latitude, currentPosition.longitude),
-        icon: BitmapDescriptor.fromBytes(smallImg!),
+        position: LatLng(currentPosition!.latitude, currentPosition!.longitude),
+        icon: markerIcon!,
       );
     });
 
+    // Update location in Firestore
     Map<String, dynamic> locationData = {
       'Driver Latitude': currentPosition.latitude.toString(),
       'Driver Longitude': currentPosition.longitude.toString(),
@@ -146,10 +161,129 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         locationData, SetOptions(merge: true));
   }
 
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
+  void _startLocationUpdates() {
+    Geolocator.getPositionStream(
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10))
+        .listen((Position position) async {
+      setState(() {
+        currentPosition = position;
+        myPosition = Marker(
+          markerId: const MarkerId('source'),
+          draggable: true,
+          position: LatLng(position.latitude, position.longitude),
+          icon: markerIcon!,
+        );
+      });
+
+      // Update camera position for real-time tracking
+      newGoogleMapController.animateCamera(
+        CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
+      );
+
+      // Update Firestore with the new position
+      await _updatePosition(position);
+    });
+  }
+
+  Future<void> _updatePosition(Position position) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userID = prefs.getString("UserID")!;
+
+    // Obtain the new location data
+    String driverLocation = await _getDriverLocation(position);
+
+    Map<String, dynamic> locationData = {
+      'Driver Latitude': position.latitude.toString(),
+      'Driver Longitude': position.longitude.toString(),
+      'Driver Address': driverLocation,
+    };
+
+    // Update Firestore
+    await FirebaseFirestore.instance.collection('Drivers').doc(userID).set(
+        locationData, SetOptions(merge: true));
+  }
+
+  Future<String> _getDriverLocation(Position position) async {
+    List<Placemark> placeMarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark pMark = placeMarks[0];
+
+    return '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
+  }
+
+  // Future<void> locatePosition() async {
+  //   ///Asking Users Permission
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+  //
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     return Future.error('Location services are disabled');
+  //   }
+  //
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       return Future.error('Location permissions are denied');
+  //     }
+  //   }
+  //
+  //   if (permission == LocationPermission.deniedForever) {
+  //     return Future.error(
+  //         'Location permissions are permanently denied, we cannot request permissions.');
+  //   }
+  //
+  //   Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high);
+  //   currentPosition = position;
+  //
+  //   LatLng latLngPosition = LatLng(position.latitude, position.longitude);
+  //
+  //   CameraPosition cameraPosition = CameraPosition(
+  //       target: latLngPosition, zoom: 14);
+  //   newGoogleMapController.animateCamera(
+  //       CameraUpdate.newCameraPosition(cameraPosition));
+  //
+  //   placeMarks = await placemarkFromCoordinates(
+  //       currentPosition.latitude, currentPosition.longitude);
+  //   Placemark pMark = placeMarks![0];
+  //
+  //   String driverLocation = '${pMark.subThoroughfare} ${pMark
+  //       .thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark
+  //       .subAdministrativeArea}, ${pMark.administrativeArea} ${pMark
+  //       .postalCode}, ${pMark.country}';
+  //
+  //   print(driverLocation);
+  //
+  //
+  //   String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
+  //   Uint8List bytes = (await NetworkAssetBundle(Uri.parse(imgurl))
+  //       .load(imgurl))
+  //       .buffer
+  //       .asUint8List();
+  //
+  //   Uint8List? smallImg = resizeImage(bytes, 80, 80);
+  //
+  //   setState(() {
+  //     myPosition = Marker(
+  //       markerId: const MarkerId('source'),
+  //       draggable: true,
+  //       position: LatLng(currentPosition.latitude, currentPosition.longitude),
+  //       icon: BitmapDescriptor.fromBytes(smallImg!),
+  //     );
+  //   });
+  //
+  //   Map<String, dynamic> locationData = {
+  //     'Driver Latitude': currentPosition.latitude.toString(),
+  //     'Driver Longitude': currentPosition.longitude.toString(),
+  //     'Driver Address': driverLocation,
+  //   };
+  //
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final userID = prefs.getString("UserID")!;
+  //   await FirebaseFirestore.instance.collection('Drivers').doc(userID).set(
+  //       locationData, SetOptions(merge: true));
+  // }
 
   blackThemeGoogleMap() {
     newGoogleMapController.setMapStyle('''
@@ -346,6 +480,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _loadMarkerIcon();
+    _startLocationUpdates();
     requestController.loadAcceptedBookings();
     requestController.loadPendingBookings();
     statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (Timer timer) async {
@@ -849,14 +985,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     );
   }
 
-  Uint8List? resizeImage(Uint8List data, width, height) {
-    Uint8List? resizedData = data;
-    IMG.Image? img = IMG.decodeImage(data);
-    IMG.Image resized = IMG.copyResize(img!, width: width, height: height);
-    resizedData = Uint8List.fromList(IMG.encodePng(resized));
-    return resizedData;
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -874,13 +1002,12 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
             initialCameraPosition: _kGooglePlex,
             zoomControlsEnabled: true,
             zoomGesturesEnabled: true,
-            // minMaxZoomPreference: MinMaxZoomPreference.unbounded,
             onMapCreated: (GoogleMapController controller) async {
               newGoogleMapController = controller;
               _controllerGoogleMap.complete(controller);
-              locatePosition();
+              await locatePosition();
             },
-            markers: {myPosition ?? const Marker(markerId: MarkerId('default'))},
+            markers: myPosition != null ? {myPosition!} : {},
           ),
           Positioned(
             right: 100,
