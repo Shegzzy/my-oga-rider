@@ -132,23 +132,23 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         CameraUpdate.newCameraPosition(cameraPosition));
 
     placeMarks = await placemarkFromCoordinates(
-        currentPosition!.latitude, currentPosition!.longitude);
+        currentPosition.latitude, currentPosition.longitude);
     Placemark pMark = placeMarks![0];
 
     String driverLocation = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
-
-    print(driverLocation);
 
     setState(() {
       myPosition = Marker(
         markerId: const MarkerId('source'),
         draggable: true,
-        position: LatLng(currentPosition!.latitude, currentPosition!.longitude),
+        position: LatLng(currentPosition.latitude, currentPosition.longitude),
         icon: markerIcon!,
       );
     });
 
-    // Update location in Firestore
+    _startRefreshTimer();
+
+    // Update location in FireStore
     Map<String, dynamic> locationData = {
       'Driver Latitude': currentPosition.latitude.toString(),
       'Driver Longitude': currentPosition.longitude.toString(),
@@ -454,7 +454,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   // Function to calculate distance between two points using Haversine formula
   double calculateDistance(double startLat, double startLng, double endLat,
       double endLng) {
-    const R = 6371.0; // Earth radius in kilometers
+    const R = 6371.0;
 
     final double dLat = _toRadians(endLat - startLat);
     final double dLng = _toRadians(endLng - startLng);
@@ -491,13 +491,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
           await checkAndUpdateAcceptedBooking();
 
         });
-    _startRefreshTimer();
   }
 
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // TODO: implement didChangeAppLifecycleState
     super.didChangeAppLifecycleState(state);
 
     if (state == AppLifecycleState.paused ||
@@ -521,6 +519,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   void _startRefreshTimer() {
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+
       if (requestController.acceptedBookingList.length < 3) {
         // for(int i = 0; i < requestController.acceptedBookingList.length; i++){
         //   print(requestController.acceptedBookingList[i].deliveryMode);
