@@ -68,14 +68,15 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
   bool loadingCustomer = false;
   BitmapDescriptor? markerIcon;
-  Set<Heatmap>
-
+  Set<Circle> _circles = {};
+  StreamSubscription<DocumentSnapshot>? _subscription;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
+  // loading marker
   Future<void> _loadMarkerIcon() async {
     String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
     Uint8List? smallImg = await loadAndResizeImage(imgurl, 80, 80);
@@ -86,6 +87,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     }
   }
 
+  // resizing marker
   Future<Uint8List?> loadAndResizeImage(String url, int width, int height) async {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
@@ -98,6 +100,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     return null;
   }
 
+  // getting current location
   Future<void> locatePosition() async {
     ///Asking Users Permission
     bool serviceEnabled;
@@ -148,6 +151,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     });
 
     _startRefreshTimer();
+    // _fetchHeatmapData();
 
     // Update location in FireStore
     Map<String, dynamic> locationData = {
@@ -162,9 +166,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         locationData, SetOptions(merge: true));
   }
 
+  // listening to current location
   void _startLocationUpdates() {
     Geolocator.getPositionStream(
-        locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10))
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10))
         .listen((Position position) async {
       setState(() {
         currentPosition = position;
@@ -186,6 +191,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     });
   }
 
+  // updating current location
   Future<void> _updatePosition(Position position) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userID = prefs.getString("UserID")!;
@@ -204,11 +210,60 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
         locationData, SetOptions(merge: true));
   }
 
+  // fetching current location
   Future<String> _getDriverLocation(Position position) async {
     List<Placemark> placeMarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark pMark = placeMarks[0];
 
     return '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
+  }
+
+  // Fetch heatmap data from the Firebase Cloud Function
+  void _fetchHeatmapData() {
+    _subscription = FirebaseFirestore.instance
+        .collection('Heatmaps')
+        .doc('current')
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data();
+        if (data != null && data.containsKey('data')) {
+          List<dynamic> heatmapData = data['data'];
+          _generateHeatmap(heatmapData);
+        }
+      }
+    });
+  }
+
+  // Generate the heatmap from the fetched data
+  void _generateHeatmap(List<dynamic> data) {
+    Set<Circle> circles = {};
+    double maxWeight = data.map((point) => point['weight'].toDouble()).reduce((a, b) => a > b ? a : b);
+    for (var point in data) {
+      double intensity = point['weight'].toDouble();
+      double normalizedIntensity = intensity / maxWeight;
+
+      Color color;
+      if (normalizedIntensity < 0.33) {
+        color = Colors.green;
+      } else if (normalizedIntensity < 0.66) {
+        color = Colors.yellow.withOpacity(0.5);
+      } else {
+        color = Colors.red.withOpacity(0.5);
+      }
+
+      circles.add(Circle(
+        circleId: CircleId('${point['location']['lat']}_${point['location']['lng']}'),
+        center: LatLng(point['location']['lat'], point['location']['lng']),
+        radius: 500 + 1000 * normalizedIntensity, // Base radius + intensity-scaled radius
+        fillColor: color,
+        strokeColor: color.withOpacity(0.1),
+        strokeWidth: 1,
+      ));
+    }
+    setState(() {
+      _circles = circles;
+    });
   }
 
   // Future<void> locatePosition() async {
@@ -492,6 +547,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
           await checkAndUpdateAcceptedBooking();
 
         });
+    _fetchHeatmapData();
   }
 
 
@@ -516,6 +572,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     super.dispose();
     timer.cancel();
+    _subscription?.cancel();
   }
 
   void _startRefreshTimer() {
@@ -1008,6 +1065,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
               await locatePosition();
             },
             markers: myPosition != null ? {myPosition!} : {},
+            circles: _circles,
           ),
           Positioned(
             right: 100,
