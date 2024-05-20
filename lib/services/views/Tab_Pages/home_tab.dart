@@ -68,6 +68,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   List<double> ratings = [0.1, 0.3, 0.5, 0.7, 0.9];
   bool loadingCustomer = false;
   BitmapDescriptor? markerIcon;
+  Set
 
 
   static const CameraPosition _kGooglePlex = CameraPosition(
