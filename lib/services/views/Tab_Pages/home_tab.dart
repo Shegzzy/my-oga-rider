@@ -266,80 +266,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     });
   }
 
-  // Future<void> locatePosition() async {
-  //   ///Asking Users Permission
-  //   bool serviceEnabled;
-  //   LocationPermission permission;
-  //
-  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //   if (!serviceEnabled) {
-  //     return Future.error('Location services are disabled');
-  //   }
-  //
-  //   permission = await Geolocator.checkPermission();
-  //   if (permission == LocationPermission.denied) {
-  //     permission = await Geolocator.requestPermission();
-  //     if (permission == LocationPermission.denied) {
-  //       return Future.error('Location permissions are denied');
-  //     }
-  //   }
-  //
-  //   if (permission == LocationPermission.deniedForever) {
-  //     return Future.error(
-  //         'Location permissions are permanently denied, we cannot request permissions.');
-  //   }
-  //
-  //   Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high);
-  //   currentPosition = position;
-  //
-  //   LatLng latLngPosition = LatLng(position.latitude, position.longitude);
-  //
-  //   CameraPosition cameraPosition = CameraPosition(
-  //       target: latLngPosition, zoom: 14);
-  //   newGoogleMapController.animateCamera(
-  //       CameraUpdate.newCameraPosition(cameraPosition));
-  //
-  //   placeMarks = await placemarkFromCoordinates(
-  //       currentPosition.latitude, currentPosition.longitude);
-  //   Placemark pMark = placeMarks![0];
-  //
-  //   String driverLocation = '${pMark.subThoroughfare} ${pMark
-  //       .thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark
-  //       .subAdministrativeArea}, ${pMark.administrativeArea} ${pMark
-  //       .postalCode}, ${pMark.country}';
-  //
-  //   print(driverLocation);
-  //
-  //
-  //   String imgurl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
-  //   Uint8List bytes = (await NetworkAssetBundle(Uri.parse(imgurl))
-  //       .load(imgurl))
-  //       .buffer
-  //       .asUint8List();
-  //
-  //   Uint8List? smallImg = resizeImage(bytes, 80, 80);
-  //
-  //   setState(() {
-  //     myPosition = Marker(
-  //       markerId: const MarkerId('source'),
-  //       draggable: true,
-  //       position: LatLng(currentPosition.latitude, currentPosition.longitude),
-  //       icon: BitmapDescriptor.fromBytes(smallImg!),
-  //     );
-  //   });
-  //
-  //   Map<String, dynamic> locationData = {
-  //     'Driver Latitude': currentPosition.latitude.toString(),
-  //     'Driver Longitude': currentPosition.longitude.toString(),
-  //     'Driver Address': driverLocation,
-  //   };
-  //
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   final userID = prefs.getString("UserID")!;
-  //   await FirebaseFirestore.instance.collection('Drivers').doc(userID).set(
-  //       locationData, SetOptions(merge: true));
-  // }
 
   blackThemeGoogleMap() {
     newGoogleMapController.setMapStyle('''
@@ -605,19 +531,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
                 final double distance = calculateDistance(
                     riderLat, riderLng, pickupLat, pickupLng);
-                // print(distance);
-                // String directionUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=${currentPosition.latitude},${currentPosition.longitude}&destination=${latestRequest.pickUp_latitude},${latestRequest.pickUp_longitude}&key=AIzaSyBnh_SIURwYz-4HuEtvm-0B3AlWt0FKPbM";
-                // http.Response response = await http.get(Uri.parse(directionUrl));
-                // if (response.statusCode == 200) {
-                //   // Parse the response body into a map
-                //   Map<String, dynamic> responseData = json.decode(response.body);
-                //
-                //   // Access the required distance value
-                //   int distanceValue = responseData['routes'][0]['legs'][0]['distance']['value'];
-                //   print("Distance: $distanceValue meters");
-                // } else {
-                //   print("Failed to fetch directions. Status code: ${response.statusCode}");
-                // }
 
                 // Checking if the booking is not a duplicate, if the booking is within proximity and if enough time has passed since the last notification
                 if (distance <= distanceThreshold &&
@@ -676,7 +589,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     }
   }
 
-  // Method to check if pending booking have been accepted
+  // Method to check if pending booking have been accepted by another rider
   Future<void> checkAndUpdateBookingStatus() async {
     for (var booking in requestController.requestHistory) {
       var querySnapshot = await _db

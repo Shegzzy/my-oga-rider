@@ -14,8 +14,10 @@ class FirestoreService extends GetxController {
   FirebaseFirestore _db = FirebaseFirestore.instance;
   late SharedPreferences prefs;
   BookingModel? bookingModel;
+
   List<BookingModel> _requestHistory = [];
   List<BookingModel> get requestHistory => _requestHistory;
+
   List<BookingModel> _acceptedBookingList = [];
   List<BookingModel> get acceptedBookingList => _acceptedBookingList;
 
@@ -45,21 +47,6 @@ class FirestoreService extends GetxController {
     CollectionReference reference = _db.collection("Bookings");
     return reference.snapshots();
   }
-
-  // Future <void> updateDetail(String? bookingNum) async {
-  //   late String docId;
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   final userID = prefs.getString("UserID")!;
-  //   await _db.collection("Bookings").where("Booking Number", isEqualTo:bookingNum).get().then((value) => value.docs.forEach((element) {docId = element.id;}));
-  //   var updatedBookingSnapshot = await _db.collection("Bookings").doc(docId).get();
-  //
-  //   // Add the updated booking to the acceptedBookingList
-  //   if (updatedBookingSnapshot.exists) {
-  //     BookingModel updatedBooking = BookingModel.fromSnapshot(updatedBookingSnapshot.data()!);
-  //     addAcceptedBooking(updatedBooking);
-  //   }
-  //   return _db.collection("Bookings").doc(docId).update({'Status': 'active', 'Driver ID': userID});
-  // }
 
   Future<void> updateDetail(String? bookingNum) async {
     String docId;
@@ -132,6 +119,16 @@ class FirestoreService extends GetxController {
     _acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
 
     prefs.setStringList('acceptedBookings', serializedList);
+  }
+
+  // New function to add a new accepted booking
+  Future<void> acceptRequest(Map<String, dynamic> request) async {
+    await FirebaseFirestore.instance
+        .collection('riders')
+        .doc(riderId)
+        .collection('accepted_requests')
+        .doc(request['request_id'])
+        .set(request);
   }
 
   // Function to add a new accepted booking
