@@ -101,7 +101,9 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     );
   }
 
+  Future<void> checkBookingBeforeAccepting(String bookingNumber) async{
 
+  }
 
   @override
   Widget build(BuildContext context) {
