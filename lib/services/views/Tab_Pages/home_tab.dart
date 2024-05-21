@@ -73,7 +73,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+    zoom: 15.4746,
   );
 
   // loading marker
@@ -245,17 +245,17 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
       Color color;
       if (normalizedIntensity < 0.33) {
-        color = Colors.green;
+        color = Colors.green.withOpacity(0.5);
       } else if (normalizedIntensity < 0.66) {
         color = Colors.yellow.withOpacity(0.5);
       } else {
-        color = Colors.red.withOpacity(0.5);
+        color = Colors.redAccent.withOpacity(0.5);
       }
 
       circles.add(Circle(
         circleId: CircleId('${point['location']['lat']}_${point['location']['lng']}'),
         center: LatLng(point['location']['lat'], point['location']['lng']),
-        radius: 500 + 1000 * normalizedIntensity, // Base radius + intensity-scaled radius
+        radius: 500 * normalizedIntensity, // Base radius + intensity-scaled radius
         fillColor: color,
         strokeColor: color.withOpacity(0.1),
         strokeWidth: 1,

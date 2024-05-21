@@ -27,6 +27,11 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
   final FirestoreService _requestController = FirestoreService();
   final _db = FirebaseFirestore.instance;
   bool loadingBooking = false;
+  int counter = 0;
+  double rate = 0;
+  double total = 0;
+  double average = 0;
+  bool loadingCustomer = false;
 
 
   @override
@@ -34,6 +39,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     super.initState();
     _requestController.fetchAcceptedRequests();
     fetchNewBookingRequest();
+    getRatingCount();
   }
 
   Future<void> fetchNewBookingRequest() async{
@@ -49,6 +55,31 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     }finally{
       setState(() {
         loadingBooking = false;
+      });
+    }
+  }
+
+  Future<void> getRatingCount() async{
+
+    try{
+      setState(() {
+        loadingCustomer = true;
+      });
+      await _db.collection("Users").doc(widget.cId).collection("Ratings").get().then((value) {
+        for (var element in value.docs) {
+          rate = element.data()["rating"];
+          setState(() {
+            total = total + rate;
+            counter = counter+1;
+          });
+        }
+      });
+      average = total/counter;
+    }catch (e){
+      print('Error getting user ratings $e');
+    }finally{
+      setState(() {
+        loadingCustomer = false;
       });
     }
   }
@@ -204,95 +235,117 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
         backgroundColor: Colors.transparent,
         elevation: 3,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        child: Column(
-          children: [
-            Text("New Booking Request", style: Theme.of(context).textTheme.titleLarge,),
-            const SizedBox(height: 20,),
-            Row(
-              children: [
-                const Icon(LineAwesomeIcons.street_view),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text("Pickup: ${_incomingRequest?.pickup_address??""}",
-                      style: Theme.of(context).textTheme.titleSmall,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          child: Column(
+            children: [
+              Text("New Booking Request", style: Theme.of(context).textTheme.titleLarge,),
+              const SizedBox(height: 20,),
+              Row(
+                children: [
+                  const Icon(LineAwesomeIcons.street_view),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Text("Pickup: ${_incomingRequest?.pickup_address??""}",
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20,),
-            Row(
-              children: [
-                const Icon(LineAwesomeIcons.map_marker),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text("Drop-Off: ${_incomingRequest?.dropOff_address??""}",
-                      style: Theme.of(context).textTheme.titleSmall,
+                ],
+              ),
+              const SizedBox(height: 20,),
+              Row(
+                children: [
+                  const Icon(LineAwesomeIcons.map_marker),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Text("Drop-Off: ${_incomingRequest?.dropOff_address??""}",
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 30,),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text('Distance: ${ _incomingRequest?.distance ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
-                const SizedBox(width: 20,),
-                Text('Cost: ${_incomingRequest?.amount ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
-              ],
-            ),
-            const SizedBox(height: 35,),
-            Text("Payment Method", style: Theme.of(context).textTheme.titleLarge,),
-            const SizedBox(height: 10,),
-            Text(_incomingRequest?.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
-            const SizedBox(height: 35,),
-            //
-            Text("Delivery Mode", style: Theme.of(context).textTheme.titleLarge,),
-            const SizedBox(height: 10,),
-            Text(_incomingRequest?.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
-            const SizedBox(height: 35,),
+                ],
+              ),
+              const SizedBox(height: 30,),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('Distance: ${ _incomingRequest?.distance ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
+                  const SizedBox(width: 20,),
+                  Text('Cost: ${_incomingRequest?.amount ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
+                ],
+              ),
+              const SizedBox(height: 35,),
+              Text("Payment Method", style: Theme.of(context).textTheme.titleLarge,),
+              const SizedBox(height: 10,),
+              Text(_incomingRequest?.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
+              const SizedBox(height: 35,),
+              //
+              Text("Delivery Mode", style: Theme.of(context).textTheme.titleLarge,),
+              const SizedBox(height: 10,),
+              Text(_incomingRequest?.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
+              const SizedBox(height: 35,),
 
-            Text("Ride Type", style: Theme.of(context).textTheme.titleLarge,),
-            const SizedBox(height: 10,),
-            Text(_incomingRequest?.rideType ?? "", style: Theme.of(context).textTheme.bodyLarge,),
-            const SizedBox(height: 35,),
-            Column(
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: Theme.of(context).outlinedButtonTheme.style,
-                  child: Center(child: Text("Cancel".toUpperCase())),
-                ),
-                const SizedBox(
-                  height: 18.0,
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await checkBookingBeforeAccepting(_incomingRequest!);
-                  },
-                  style: Theme.of(context).elevatedButtonTheme.style,
-                  child: Center(child: loadingBooking ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator()) : Text("Accept".toUpperCase())),
-                ),
-              ],
-            )
-          ],
+              Text("Ride Type", style: Theme.of(context).textTheme.titleLarge,),
+              const SizedBox(height: 10,),
+              Text(_incomingRequest?.rideType ?? "", style: Theme.of(context).textTheme.bodyLarge,),
+              const SizedBox(height: 35,),
+
+              Text("User Ratings", style: Theme.of(context).textTheme.titleLarge,),
+              const SizedBox(height: 10,),
+              loadingCustomer ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(),) :
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(average.toStringAsFixed(1), style: Theme
+                      .of(context)
+                      .textTheme.labelMedium,),
+                  Icon(
+                    Icons.star,
+                    size: 14,
+                    color: average < 3.5 ? Colors.redAccent : Colors.green,
+                  )
+                ],
+              ),
+              const SizedBox(height: 35,),
+              Column(
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // Get.off(() => const HomeTabPage());
+                      // getRatingCount();
+                    },
+                    style: Theme.of(context).outlinedButtonTheme.style,
+                    child: Center(child: Text("Cancel".toUpperCase())),
+                  ),
+                  const SizedBox(
+                    height: 18.0,
+                  ),
+                  ElevatedButton(
+                    onPressed: loadingBooking ? null : () async {
+                      await checkBookingBeforeAccepting(_incomingRequest!);
+                    },
+                    style: Theme.of(context).elevatedButtonTheme.style,
+                    child: Center(child: loadingBooking ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator()) : Text("Accept".toUpperCase())),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

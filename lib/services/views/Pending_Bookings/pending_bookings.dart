@@ -26,6 +26,7 @@ class _PendingBookingsState extends State<PendingBookings> {
   double total = 0;
   double average = 0;
   bool accepting = false;
+  bool loadingCustomer = false;
 
   @override
   void initState(){
@@ -122,7 +123,7 @@ class _PendingBookingsState extends State<PendingBookings> {
 
     try{
       setState(() {
-        // loadingCustomer = true;
+        loadingCustomer = true;
       });
       for(var customerID in requestController.requestHistory){
         await _db.collection("Users").doc(customerID.customer_id).collection("Ratings").get().then((value) {
@@ -140,7 +141,7 @@ class _PendingBookingsState extends State<PendingBookings> {
       print('Error getting user ratings $e');
     }finally{
       setState(() {
-        // loadingCustomer = false;
+        loadingCustomer = false;
       });
     }
   }
@@ -216,6 +217,7 @@ class _PendingBookingsState extends State<PendingBookings> {
                                   .of(context)
                                   .textTheme
                                   .labelMedium),
+                              loadingCustomer ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(),) :
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
