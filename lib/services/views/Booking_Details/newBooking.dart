@@ -29,6 +29,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
  @override
   void initState() {
     super.initState();
+    _requestController.fetchAcceptedRequests();
     _requestController.getBookingDataByNum(widget.bNum).listen((event) {
       _incomingRequest = event;
     });
@@ -99,6 +100,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
       ),
     );
   }
+
+
 
   @override
   Widget build(BuildContext context) {

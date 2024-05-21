@@ -464,7 +464,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _loadMarkerIcon();
     _startLocationUpdates();
-    requestController.loadAcceptedBookings();
+    // requestController.loadAcceptedBookings();
     requestController.loadPendingBookings();
     requestController.fetchAcceptedRequests();
     statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (Timer timer) async {
@@ -632,10 +632,10 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
           .get();
 
       if (querySnapshot.docs.isEmpty) {
-        requestController.completedOrDeletedRequest(bookings['request_id']);
-        setState(() {
-          requestController.removeCompletedBooking(bookings['request_id']);
-        });
+        await requestController.completedOrDeletedRequest(bookings['request_id']);
+        // setState(() {
+        //   requestController.removeCompletedBooking(bookings['request_id']);
+        // });
       }
     }
   }
@@ -885,6 +885,14 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                 SingleChildScrollView(
                   controller: scrollController,
                   child: AcceptScreen(btnClicked: () async {
+                    if(mounted) {
+                      ///Start Circular Progress Bar
+                      showDialog(context: context, builder: (context) {
+                        return const Center(
+                            child: CircularProgressIndicator());
+                      });
+                    }
+
                     SharedPreferences prefs = await SharedPreferences
                         .getInstance();
                     final userID = prefs.getString("UserID")!;
@@ -905,16 +913,13 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                         timeStamp: Timestamp.now(),
                       );
 
-                      ///Start Circular Progress Bar
-                      showDialog(context: context, builder: (context) {
-                        return const Center(
-                            child: CircularProgressIndicator());
-                      });
                       await requestController.storeOrderStatus(order);
 
-                      /// Stop Progress Bar
-                      Navigator.of(context).pop();
-                      showStatusModalBottomSheet(context, newRequest);
+                      if(mounted){
+                        /// Stop Progress Bar
+                        Navigator.of(context).pop();
+                        showStatusModalBottomSheet(context, newRequest);
+                      }
                     } else{
                       Get.snackbar("Error", "This booking has been cancelled", colorText: Colors.redAccent,backgroundColor: Colors.white);
                       if(mounted){

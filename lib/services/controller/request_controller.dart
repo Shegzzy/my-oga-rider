@@ -110,28 +110,28 @@ class FirestoreService extends GetxController {
     }
   }
 
-  // Function to load accepted bookings from shared preferences
-  Future<void> loadAcceptedBookings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String>? serializedList = prefs.getStringList('acceptedBookings');
-
-    if (serializedList != null) {
-      _acceptedBookingList = serializedList
-          .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
-          .toList();
-    }
-  }
+  // Function to load accepted bookings from shared preferences(local storage)
+  // Future<void> loadAcceptedBookings() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final List<String>? serializedList = prefs.getStringList('acceptedBookings');
+  //
+  //   if (serializedList != null) {
+  //     _acceptedBookingList = serializedList
+  //         .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
+  //         .toList();
+  //   }
+  // }
 
   // Function to save accepted bookings to shared preferences
-  Future<void> saveAcceptedBookings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> serializedList =
-    _acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
+  // Future<void> saveAcceptedBookings() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final List<String> serializedList =
+  //   _acceptedBookingList.map((booking) => json.encode(booking.toJson())).toList();
+  //
+  //   prefs.setStringList('acceptedBookings', serializedList);
+  // }
 
-    prefs.setStringList('acceptedBookings', serializedList);
-  }
-
-  // New function to add a new accepted booking
+  // New function to add/save a new accepted booking
   Future<void> acceptRequest(Map<String, dynamic> request) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final riderId = prefs.getString("UserID")!;
@@ -179,18 +179,18 @@ class FirestoreService extends GetxController {
 
 
   // Function to add a new accepted booking
-  void addAcceptedBooking(BookingModel newBooking) {
-    _acceptedBookingList.add(newBooking);
-    update();
-    saveAcceptedBookings();
-  }
+  // void addAcceptedBooking(BookingModel newBooking) {
+  //   _acceptedBookingList.add(newBooking);
+  //   update();
+  //   saveAcceptedBookings();
+  // }
 
   // Function to remove a completed booking
-  void removeCompletedBooking(String bookingNumber) {
-    _acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
-    update();
-    saveAcceptedBookings();
-  }
+  // void removeCompletedBooking(String bookingNumber) {
+  //   _acceptedBookingList.removeWhere((booking) => booking.bookingNumber == bookingNumber);
+  //   update();
+  //   saveAcceptedBookings();
+  // }
 
   // Function to load pending bookings from shared preferences
   Future<void> loadPendingBookings() async {

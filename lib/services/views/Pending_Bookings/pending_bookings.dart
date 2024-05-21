@@ -267,9 +267,6 @@ class _PendingBookingsState extends State<PendingBookings> {
                           )
                         ]
                     ),
-                    // Add more details as needed
-                    // Add a button to accept the request
-                    // onPressed: () => acceptRequest(pendingBookings[index]),
                   ),
                 );
               },

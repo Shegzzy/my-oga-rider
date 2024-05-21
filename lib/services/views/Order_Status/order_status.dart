@@ -58,7 +58,8 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
   }
 
   Future<void> loadRequest() async {
-    await requestController.loadAcceptedBookings();
+    await requestController.fetchAcceptedRequests();
+    // await requestController.loadAcceptedBookings();
   }
 
 
@@ -163,6 +164,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
         timeStamp: Timestamp.now(),
       );
       await _userRepo.storeEarning(earn);
+      await requestController.completedOrDeletedRequest(_orderStats!.bookingNumber!);
     }catch (e){
       print('Error $e');
     }finally{
@@ -587,7 +589,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     child: Text("Parcel Picked".toUpperCase()),
                                   ),
                                 ),
-                              ]else if (requestController.acceptedBookingList.any((element) => element.deliveryMode == 'Express' && element.status == 'active')) ...[
+                              ]else if (requestController.acceptedRequests.any((element) => element['type'] == 'Express' && element['status'] == 'active')) ...[
                                 if(widget.bookingData?.deliveryMode == 'Express')...[
                                   if(Int4 == 1 && Int5 == 0)...[
                                     Expanded(
@@ -619,7 +621,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                           Navigator.of(context).pop();
                                         },
                                         style: Theme.of(context).elevatedButtonTheme.style,
-                                        child: Text("On My Way to Dropoff".toUpperCase()),
+                                        child: Text("On My Way to DropOff".toUpperCase()),
                                       ),
                                     ),
                                   ]else if(Int5 == 1 && Int6 == 0)...[
@@ -661,7 +663,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                       child: OutlinedButton(
                                           onPressed: Int7 == 1 ? null:() async {
                                             await completeOrder();
-                                            requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
+                                            // requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                             Get.to(RatingScreen(userID: widget.bookingData!.customer_id!, bookingID: widget.bookingData!.bookingNumber!,));
                                           },
                                           style: Theme.of(context).elevatedButtonTheme.style,
@@ -806,7 +808,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                     child: OutlinedButton(
                                         onPressed: Int7 == 1 ? null:() async {
                                           await completeOrder();
-                                          requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
+                                          // requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
                                           // Navigator.of(context).pop();
                                           Get.to(() => RatingScreen(userID: widget.bookingData!.customer_id!, bookingID: widget.bookingData!.bookingNumber!));
                                         },
