@@ -466,6 +466,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     _startLocationUpdates();
     requestController.loadAcceptedBookings();
     requestController.loadPendingBookings();
+    requestController.fetchAcceptedRequests();
     statusCheckTimer = Timer.periodic(const Duration(seconds: 3), (Timer timer) async {
           // print(requestController.requestHistory.length);
           // print(requestController.acceptedBookingList.length);
@@ -504,7 +505,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   void _startRefreshTimer() {
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
 
-      if (requestController.acceptedBookingList.length < 3) {
+      if (requestController.acceptedRequests.length < 3) {
         // for(int i = 0; i < requestController.acceptedBookingList.length; i++){
         //   print(requestController.acceptedBookingList[i].deliveryMode);
         // }
@@ -622,19 +623,18 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   // Method to check if accepted booking have been canceled by users
   Future<void> checkAndUpdateAcceptedBooking() async {
     // print(requestController.acceptedBookingList.length);
-    for (var bookings in requestController.acceptedBookingList) {
+    for (var bookings in requestController.acceptedRequests) {
       // print(bookings.bookingNumber);
 
       var querySnapshot = await _db
           .collection("Bookings")
-          .where("Booking Number", isEqualTo: bookings.bookingNumber)
+          .where("Booking Number", isEqualTo: bookings['request_id'])
           .get();
-      // print(bookings.bookingNumber);
-      // print(querySnapshot);
 
       if (querySnapshot.docs.isEmpty) {
+        requestController.completedOrDeletedRequest(bookings['request_id']);
         setState(() {
-          requestController.removeCompletedBooking(bookings.bookingNumber!);
+          requestController.removeCompletedBooking(bookings['request_id']);
         });
       }
     }
@@ -808,8 +808,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                         final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                         if(snapshot.docs.isNotEmpty){
                           if( bookingData.status == 'pending'){
-                            if (requestController.acceptedBookingList.any((
-                                element) => element.deliveryMode == 'Express')) {
+                            if (requestController.acceptedRequests.any((
+                                element) => element['type'] == 'Express')) {
                               if (incomingRequest.deliveryMode == 'Express') {
                                 Get.snackbar(
                                     "Error",

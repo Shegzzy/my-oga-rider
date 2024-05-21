@@ -21,6 +21,9 @@ class FirestoreService extends GetxController {
   List<BookingModel> _acceptedBookingList = [];
   List<BookingModel> get acceptedBookingList => _acceptedBookingList;
 
+  var acceptedRequests = <Map<String, dynamic>>[].obs;
+
+
 
   // Get pending bookings
   Stream<List<BookingModel>> getBookingData() {
@@ -69,7 +72,14 @@ class FirestoreService extends GetxController {
       // Add the updated booking to the acceptedBookingList
       if (updatedBookingSnapshot.exists) {
         BookingModel updatedBooking = BookingModel.fromSnapshot(updatedBookingSnapshot.data()!);
-        addAcceptedBooking(updatedBooking);
+        // addAcceptedBooking(updatedBooking);
+
+        Map<String, dynamic> newRequest = {
+          'request_id': updatedBooking.bookingNumber,
+          'type': updatedBooking.deliveryMode,
+          'status': updatedBooking.status,
+        };
+        await acceptRequest(newRequest);
       }
     }
   }
@@ -123,13 +133,50 @@ class FirestoreService extends GetxController {
 
   // New function to add a new accepted booking
   Future<void> acceptRequest(Map<String, dynamic> request) async {
-    await FirebaseFirestore.instance
-        .collection('riders')
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final riderId = prefs.getString("UserID")!;
+    await _db
+        .collection('Drivers')
         .doc(riderId)
-        .collection('accepted_requests')
+        .collection('accepted_bookings')
         .doc(request['request_id'])
         .set(request);
   }
+
+  // function to fetch accepted requests
+  Future<void> fetchAcceptedRequests() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final riderId = prefs.getString("UserID")!;
+
+    FirebaseFirestore.instance
+        .collection('Drivers')
+        .doc(riderId)
+        .collection('accepted_bookings')
+        .snapshots()
+        .listen((snapshot) {
+      acceptedRequests.value = snapshot.docs
+          .map((doc) => {
+        'request_id': doc.id,
+        'type': doc['type'],
+        'status': doc['status'],
+      }).toList();
+      print(acceptedRequests);
+    });
+  }
+
+  // function to delete completed booking or canceled booking
+  Future<void> completedOrDeletedRequest(String requestId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final riderId = prefs.getString("UserID")!;
+
+    await FirebaseFirestore.instance
+        .collection('Drivers')
+        .doc(riderId)
+        .collection('accepted_bookings')
+        .doc(requestId)
+        .delete();
+  }
+
 
   // Function to add a new accepted booking
   void addAcceptedBooking(BookingModel newBooking) {
