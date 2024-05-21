@@ -132,8 +132,9 @@ class NotificationService {
 
   void handleMessage(BuildContext context, RemoteMessage message){
     if(message.data['type'] == 'RIDE_REQUEST'){
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const PendingBookings()));
-    } else if(message.data['type'] == 'BOOKING_CANCELED'){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => NewBookingScreen(
+        cId: message.data['userId'], bNum: message.data['bookingNumber'],
+      )));    } else if(message.data['type'] == 'BOOKING_CANCELED'){
       Navigator.push(context, MaterialPageRoute(builder: (context) => const BookingTabPage()));
     } else{
       return;

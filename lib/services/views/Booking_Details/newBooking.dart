@@ -25,14 +25,32 @@ class NewBookingScreen extends StatefulWidget {
 class _NewBookingScreenState extends State<NewBookingScreen> {
   BookingModel? _incomingRequest;
   final FirestoreService _requestController = FirestoreService();
+  final _db = FirebaseFirestore.instance;
+  bool loadingBooking = false;
 
- @override
+
+  @override
   void initState() {
     super.initState();
     _requestController.fetchAcceptedRequests();
-    _requestController.getBookingDataByNum(widget.bNum).listen((event) {
-      _incomingRequest = event;
-    });
+    fetchNewBookingRequest();
+  }
+
+  Future<void> fetchNewBookingRequest() async{
+    try{
+      setState(() {
+        loadingBooking = true;
+      });
+
+      final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: widget.bNum).get();
+      _incomingRequest = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
+    }catch (e){
+      print('Error fetching the booking $e');
+    }finally{
+      setState(() {
+        loadingBooking = false;
+      });
+    }
   }
 
 
@@ -101,8 +119,74 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     );
   }
 
-  Future<void> checkBookingBeforeAccepting(String bookingNumber) async{
+  Future<void> checkBookingBeforeAccepting(BookingModel newRequest) async{
+    try{
+      setState(() {
+        loadingBooking = true;
+      });
 
+      final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: newRequest.bookingNumber).get();
+      final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
+      if(snapshot.docs.isNotEmpty){
+        if(_requestController.acceptedRequests.length < 3){
+          if( bookingData.status == 'pending'){
+            if (_requestController.acceptedRequests.any((element) => element['type'] == 'Express')) {
+              if (newRequest.deliveryMode == 'Express') {
+                Get.snackbar(
+                    "Error",
+                    "You can only take one express booking",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.white,
+                    colorText: Colors.red);
+              } else {
+                await _requestController.updateDetail(
+                    newRequest.bookingNumber);
+                if (mounted) {
+                  showAcceptModalBottomSheet(
+                      context, newRequest);
+                }
+                _requestController.removePendingBookings(
+                    newRequest.bookingNumber!);
+              }
+            }
+            else {
+              await _requestController.updateDetail(
+                  newRequest.bookingNumber);
+              if (mounted) {
+                showAcceptModalBottomSheet(
+                    context, newRequest);
+              }
+              _requestController.removePendingBookings(
+                  newRequest.bookingNumber!);
+            }
+          }else{
+            Get.snackbar("Error", "Booking have been accepted by another rider", colorText: Colors.redAccent, backgroundColor: Colors.white);
+            if(mounted){
+              Navigator.pop(context);
+            }
+          }
+        }else{
+          Get.snackbar(
+              "Error",
+              "You can only take three bookings at a time",
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.white,
+              colorText: Colors.red);
+        }
+
+      }else{
+        Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+        if(mounted){
+          Navigator.pop(context);
+        }
+      }
+    }catch (e){
+      print('Checking booking error: $e');
+    } finally{
+      setState(() {
+        loadingBooking = false;
+      });
+    }
   }
 
   @override
@@ -120,109 +204,95 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
         backgroundColor: Colors.transparent,
         elevation: 3,
       ),
-      body: SafeArea(
-
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-          child: Column(
-            children: [
-              Text("New Booking Request", style: Theme.of(context).textTheme.titleLarge,),
-              const SizedBox(height: 20,),
-              Row(
-                children: [
-                  const Icon(LineAwesomeIcons.street_view),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        //borderRadius: BorderRadius.circular(1.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text("Pickup: ${_incomingRequest?.pickup_address??""}",
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        child: Column(
+          children: [
+            Text("New Booking Request", style: Theme.of(context).textTheme.titleLarge,),
+            const SizedBox(height: 20,),
+            Row(
+              children: [
+                const Icon(LineAwesomeIcons.street_view),
+                const SizedBox(
+                  width: 10.0,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text("Pickup: ${_incomingRequest?.pickup_address??""}",
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20,),
-              Row(
-                children: [
-                  const Icon(LineAwesomeIcons.map_marker),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        //borderRadius: BorderRadius.circular(1.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text("Drop-Off: ${_incomingRequest?.dropOff_address??""}",
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20,),
+            Row(
+              children: [
+                const Icon(LineAwesomeIcons.map_marker),
+                const SizedBox(
+                  width: 10.0,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text("Drop-Off: ${_incomingRequest?.dropOff_address??""}",
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 30,),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text('Distance: ${ _incomingRequest?.distance}', style: Theme.of(context).textTheme.bodyMedium,),
-                  const SizedBox(width: 20,),
-                  Text('Cost: ${_incomingRequest?.amount ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
-                ],
-              ),
-              const SizedBox(height: 35,),
-              Text("Payment Method", style: Theme.of(context).textTheme.titleLarge,),
-              const SizedBox(height: 10,),
-              Text(_incomingRequest?.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
-              const SizedBox(height: 35,),
-              //
-              Text("Delivery Mode", style: Theme.of(context).textTheme.titleLarge,),
-              const SizedBox(height: 10,),
-              Text(_incomingRequest?.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
-              const SizedBox(height: 35,),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30,),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('Distance: ${ _incomingRequest?.distance ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
+                const SizedBox(width: 20,),
+                Text('Cost: ${_incomingRequest?.amount ?? ""}', style: Theme.of(context).textTheme.bodyMedium,),
+              ],
+            ),
+            const SizedBox(height: 35,),
+            Text("Payment Method", style: Theme.of(context).textTheme.titleLarge,),
+            const SizedBox(height: 10,),
+            Text(_incomingRequest?.payment_method??"", style: Theme.of(context).textTheme.bodyLarge,),
+            const SizedBox(height: 35,),
+            //
+            Text("Delivery Mode", style: Theme.of(context).textTheme.titleLarge,),
+            const SizedBox(height: 10,),
+            Text(_incomingRequest?.deliveryMode??"", style: Theme.of(context).textTheme.bodyLarge,),
+            const SizedBox(height: 35,),
 
-              Text("Ride Type", style: Theme.of(context).textTheme.titleLarge,),
-              const SizedBox(height: 10,),
-              Text(_incomingRequest?.rideType ?? "", style: Theme.of(context).textTheme.bodyLarge,),
-              const SizedBox(height: 35,),
-              Column(
-                children: [
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: Theme.of(context).outlinedButtonTheme.style,
-                    child: Center(child: Text("Cancel".toUpperCase())),
-                  ),
-                  const SizedBox(
-                    height: 18.0,
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _requestController.updateDetail(_incomingRequest?.bookingNumber);
-                      showAcceptModalBottomSheet(context, _incomingRequest!);
-
-                    },
-                    style: Theme.of(context).elevatedButtonTheme.style,
-                    child: Center(child: Text("Accept".toUpperCase())),
-                  ),
-                ],
-              )
-            ],
-          ),
+            Text("Ride Type", style: Theme.of(context).textTheme.titleLarge,),
+            const SizedBox(height: 10,),
+            Text(_incomingRequest?.rideType ?? "", style: Theme.of(context).textTheme.bodyLarge,),
+            const SizedBox(height: 35,),
+            Column(
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: Theme.of(context).outlinedButtonTheme.style,
+                  child: Center(child: Text("Cancel".toUpperCase())),
+                ),
+                const SizedBox(
+                  height: 18.0,
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await checkBookingBeforeAccepting(_incomingRequest!);
+                  },
+                  style: Theme.of(context).elevatedButtonTheme.style,
+                  child: Center(child: loadingBooking ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator()) : Text("Accept".toUpperCase())),
+                ),
+              ],
+            )
+          ],
         ),
       ),
     );

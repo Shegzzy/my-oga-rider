@@ -664,7 +664,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                           onPressed: Int7 == 1 ? null:() async {
                                             await completeOrder();
                                             // requestController.removeCompletedBooking(widget.bookingData!.bookingNumber!);
-                                            Get.to(RatingScreen(userID: widget.bookingData!.customer_id!, bookingID: widget.bookingData!.bookingNumber!,));
+                                            Get.to(() => RatingScreen(userID: widget.bookingData!.customer_id!, bookingID: widget.bookingData!.bookingNumber!,));
                                           },
                                           style: Theme.of(context).elevatedButtonTheme.style,
                                           child: isLoading ? const Center(child: CircularProgressIndicator()) : Text(Int7 == 1 ? "Order Completed".toUpperCase():"Confirm Order Completed".toUpperCase())
