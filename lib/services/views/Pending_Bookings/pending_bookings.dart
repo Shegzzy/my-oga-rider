@@ -21,11 +21,18 @@ class PendingBookings extends StatefulWidget {
 class _PendingBookingsState extends State<PendingBookings> {
   FirestoreService requestController = Get.find();
   final _db = FirebaseFirestore.instance;
+  int counter = 0;
+  double rate = 0;
+  double total = 0;
+  double average = 0;
+  bool accepting = false;
 
   @override
   void initState(){
     super.initState();
+    getRatingCount();
     requestController.loadPendingBookings();
+    requestController.fetchAcceptedRequests();
   }
 
   void showAcceptModalBottomSheet(BuildContext context,
@@ -86,8 +93,7 @@ class _PendingBookingsState extends State<PendingBookings> {
     );
   }
 
-  void showStatusModalBottomSheet(BuildContext context,
-      BookingModel inRequest) {
+  void showStatusModalBottomSheet(BuildContext context, BookingModel inRequest) {
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -112,6 +118,32 @@ class _PendingBookingsState extends State<PendingBookings> {
     );
   }
 
+  Future<void> getRatingCount() async{
+
+    try{
+      setState(() {
+        // loadingCustomer = true;
+      });
+      for(var customerID in requestController.requestHistory){
+        await _db.collection("Users").doc(customerID.customer_id).collection("Ratings").get().then((value) {
+          for (var element in value.docs) {
+            rate = element.data()["rating"];
+            setState(() {
+              total = total + rate;
+              counter = counter+1;
+            });
+          }
+        });
+        average = total/counter;
+      }
+    }catch (e){
+      print('Error getting user ratings $e');
+    }finally{
+      setState(() {
+        // loadingCustomer = false;
+      });
+    }
+  }
 
 
   @override
@@ -184,64 +216,88 @@ class _PendingBookingsState extends State<PendingBookings> {
                                   .of(context)
                                   .textTheme
                                   .labelMedium),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("User Ratings: ${average.toStringAsFixed(1)}", style: Theme
+                                      .of(context)
+                                      .textTheme.labelMedium,),
+                                  Icon(
+                                    Icons.star,
+                                    size: 14,
+                                    color: average < 3.5 ? Colors.redAccent : Colors.green,
+                                  )
+                                ],
+                              ),
                             ],
                           ),
                           const SizedBox(height: 10,),
                           InkWell(
-                            onTap: requestController.acceptedBookingList
+                            onTap: requestController.acceptedRequests
                                 .length < 3 ? () async {
-                              final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
-                              final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
-                              if(snapshot.docs.isNotEmpty){
-                                if(bookingData.status == 'pending'){
-                                  if (requestController.acceptedBookingList.any((
-                                      element) =>
-                                  element.deliveryMode == 'Express')) {
-                                    if (requestController.requestHistory[index]
-                                        .deliveryMode == 'Express') {
-                                      Get.snackbar(
-                                          "Error",
-                                          "You can only take one express booking",
-                                          snackPosition: SnackPosition.TOP,
-                                          backgroundColor: Colors.white,
-                                          colorText: Colors.red);
+                              try{
+                                setState(() {
+                                  accepting = true;
+                                });
+
+                                final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
+                                final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
+                                if(snapshot.docs.isNotEmpty){
+                                  if(bookingData.status == 'pending'){
+                                    if (requestController.acceptedRequests.any((
+                                        element) =>
+                                    element['type'] == 'Express')) {
+                                      if (requestController.requestHistory[index]
+                                          .deliveryMode == 'Express') {
+                                        Get.snackbar(
+                                            "Error",
+                                            "You can only take one express booking",
+                                            snackPosition: SnackPosition.TOP,
+                                            backgroundColor: Colors.white,
+                                            colorText: Colors.red);
+                                      } else {
+                                        await requestController.updateDetail(
+                                            requestController.requestHistory[index]
+                                                .bookingNumber);
+                                        if (mounted) {
+                                          showAcceptModalBottomSheet(context,
+                                              bookingData);
+                                        }
+                                        // requestController.removePendingBookings(
+                                        //     requestController.requestHistory[index]
+                                        //         .bookingNumber!);
+                                      }
                                     } else {
                                       await requestController.updateDetail(
                                           requestController.requestHistory[index]
                                               .bookingNumber);
                                       if (mounted) {
-                                        showAcceptModalBottomSheet(context,
-                                            requestController
-                                                .requestHistory[index]);
+                                        showAcceptModalBottomSheet(context, bookingData);
                                       }
-                                      requestController.removePendingBookings(
-                                          requestController.requestHistory[index]
-                                              .bookingNumber!);
+                                      // requestController.removePendingBookings(
+                                      //     requestController.requestHistory[index]
+                                      //         .bookingNumber!);
                                     }
-                                  } else {
-                                    await requestController.updateDetail(
-                                        requestController.requestHistory[index]
-                                            .bookingNumber);
-                                    if (mounted) {
-                                      showAcceptModalBottomSheet(context,
-                                          requestController.requestHistory[index]);
+                                  }else{
+                                    Get.snackbar("Error", "Booking have been accepted by another rider", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                                    if(mounted){
+                                      Navigator.pop(context);
                                     }
-                                    requestController.removePendingBookings(
-                                        requestController.requestHistory[index]
-                                            .bookingNumber!);
                                   }
                                 }else{
-                                  Get.snackbar("Error", "Booking have been accepted by another rider", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                                  Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
                                   if(mounted){
                                     Navigator.pop(context);
-                                  }                                }
-                              }else{
-                                Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
-                                if(mounted){
-                                  Navigator.pop(context);
+                                  }
                                 }
-                              }
 
+                              }catch (e){
+                                print('Accepting Error: $e');
+                              } finally{
+                                setState(() {
+                                  accepting = false;
+                                });
+                              }
                             } : () {
                               Get.snackbar(
                                 "Error",
@@ -258,7 +314,10 @@ class _PendingBookingsState extends State<PendingBookings> {
                                     borderRadius: BorderRadius.circular(4),
                                     color: PButtonColor
                                 ),
-                                child: Text('Accept'.toUpperCase(),
+                                child: accepting ? const SizedBox(
+                                    width: 15,
+                                    height: 15,
+                                    child: CircularProgressIndicator()) : Text('Accept'.toUpperCase(),
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
