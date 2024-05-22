@@ -34,15 +34,15 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Location location = Location();
   Marker? sourcePosition, destinationPosition, bikePosition;
   loc.LocationData? _currentPosition;
-  late LatLng curLocation;
+  late LatLng curLocation, destinationLocation;
   StreamSubscription<loc.LocationData>? locationSubscription;
   Set<Marker> markersSet = {};
-
 
   @override
   void initState() {
     super.initState();
     curLocation = LatLng(widget.riderLat, widget.riderLng);
+    destinationLocation = LatLng(widget.lat, widget.lng);
     getNavigation();
     addMarker();
   }
@@ -61,9 +61,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
-      body: sourcePosition == null
-            ? const Center(child: CircularProgressIndicator(),)
-            : Stack(
+      body: Stack(
         children: [
           GoogleMap(
             zoomControlsEnabled: false,
@@ -86,6 +84,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             },
             indoorViewEnabled: true,
           ),
+
           Positioned(
             bottom: 70,
             right: 10,
