@@ -19,7 +19,9 @@ import 'package:image/image.dart' as IMG;
 class NavigationScreen extends StatefulWidget {
   final double lat;
   final double lng;
-  NavigationScreen(this.lat, this.lng);
+  final double riderLat;
+  final double riderLng;
+  const NavigationScreen({super.key, required this.lat, required this.lng, required this.riderLat, required this.riderLng});
 
   @override
   State<NavigationScreen> createState() => _NavigationScreenState();
@@ -32,7 +34,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Location location = Location();
   Marker? sourcePosition, destinationPosition, bikePosition;
   loc.LocationData? _currentPosition;
-  LatLng curLocation = LatLng(9.2612746, 7.3903539);
+  late LatLng curLocation;
   StreamSubscription<loc.LocationData>? locationSubscription;
   Set<Marker> markersSet = {};
 
@@ -40,6 +42,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   void initState() {
     super.initState();
+    curLocation = LatLng(widget.riderLat, widget.riderLng);
     getNavigation();
     addMarker();
   }
@@ -59,7 +62,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
         backgroundColor: Colors.transparent,
       ),
       body: sourcePosition == null
-            ? Center(child: CircularProgressIndicator(),)
+            ? const Center(child: CircularProgressIndicator(),)
             : Stack(
         children: [
           GoogleMap(
@@ -89,12 +92,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
             child: Container(
               width: 50,
               height: 50,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle, color: Colors.blue
               ),
               child: Center(
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.navigation_outlined,
                     color: Colors.white,
                   ),

@@ -8,6 +8,7 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:my_oga_rider/services/controller/request_controller.dart';
 import 'package:my_oga_rider/services/views/Tab_Pages/bookings_tab.dart';
 import 'package:my_oga_rider/utils/formatter/formatter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../constant/colors.dart';
@@ -60,7 +61,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     super.initState();
     getCustomerDetails();
     _startListeningToBookingStatusChanges();
-
   }
 
   @override
@@ -76,6 +76,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         bookingModel = event;
       });
     });
+  }
+
+  Future<void> fetchRider() async{
+
+    await controller.getUserById();
+
+    print(_userRepo.userModel?.fullname);
   }
 
   Future<void> getRatingCount() async{
@@ -104,6 +111,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         });
       });
       await getRatingCount();
+      await fetchRider();
 
     }catch(e){
       print('Error $e');
@@ -346,8 +354,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    bookingModel?.status == 'active' ?
                     Flexible(
-                      child: TextButton(
+                      child: loadingCustomer ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(),)
+                          : TextButton(
                         child: Text("View on Map",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -356,9 +366,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                           ),
                         ),
                         onPressed: () {
-                          Get.to(() => NavigationScreen(double.parse(bookingData.pickUp_latitude!), double.parse(bookingData.pickUp_longitude!)));
+                          Get.to(() => NavigationScreen(
+                            lat: double.parse(bookingData.pickUp_latitude!),
+                            lng: double.parse(bookingData.pickUp_longitude!),
+                            riderLat: double.parse(_userRepo.userModel!.currentLat!),
+                            riderLng: double.parse(_userRepo.userModel!.currentLong!),
+                          ));
                         },),
-                    ),
+                    )
+                      :const Text(''),
                   ],
                 ),
                 Text(bookingData.pickup_address??"", style: theme.textTheme.titleLarge,),
@@ -381,8 +397,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    bookingModel?.status == 'active' ?
                     Flexible(
-                      child: TextButton(
+                      child: loadingCustomer ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(),)
+                          : TextButton(
                         child: Text("View on Map",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -391,11 +409,18 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                           ),
                         ),
                         onPressed: () {
-                          Get.to(() => NavigationScreen(double.parse(bookingData.dropOff_latitude!), double.parse(bookingData.dropOff_longitude!)));
+                          Get.to(() => NavigationScreen(
+                            lat: double.parse(bookingData.dropOff_latitude!),
+                            lng: double.parse(bookingData.dropOff_longitude!),
+                            riderLat: double.parse(_userRepo.userModel!.currentLat!),
+                            riderLng: double.parse(_userRepo.userModel!.currentLong!),
+                          ));
                         },),
-                    ),
+                    )
+                      :const Text(''),
                   ],
                 ),
+
                 const SizedBox(height: 5,),
                 Text(bookingData.dropOff_address??"", style: theme.textTheme.titleLarge,),
                 const SizedBox(height: 15),
@@ -406,6 +431,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   indent: 2,
                   endIndent: 2,
                 ),
+
                 const SizedBox(height: 15),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -454,6 +480,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
                   ],
                 ),
+
                 const SizedBox(height: 20),
                 Flexible(child: Text("Additional Details: ${bookingData.additional_details}", style: theme.textTheme.titleLarge, maxLines: 3, overflow: TextOverflow.ellipsis,)),
                 const SizedBox(height: 20),
@@ -467,6 +494,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+
                     const SizedBox(width: 10,),
                     Flexible(
                       child: TextButton(

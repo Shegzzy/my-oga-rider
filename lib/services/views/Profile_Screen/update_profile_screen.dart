@@ -59,7 +59,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   }
 
   late TextEditingController fullNameController;
-  late TextEditingController emailController;
+  // late TextEditingController emailController;
   late TextEditingController phoneController;
   late TextEditingController addressController;
   late TextEditingController genderController;
@@ -69,8 +69,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   controllers() {
     fullNameController = TextEditingController(
         text: userRepositoryController.userModel!.fullname!);
-    emailController =
-        TextEditingController(text: userRepositoryController.userModel!.email!);
+    // emailController =
+    //     TextEditingController(text: userRepositoryController.userModel!.email!);
     phoneController = TextEditingController(
         text: userRepositoryController.userModel!.phoneNo!);
     addressController = TextEditingController(
@@ -273,15 +273,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                   prefixIcon: Icon(
                                       LineAwesomeIcons.user)),
                             ),
-                            const SizedBox(height: 20.0),
-                            TextFormField(
-                              controller: emailController,
-                              decoration: const InputDecoration(
-                                  label: Text(moEmail),
-                                  prefixIcon:
-                                  Icon(
-                                      LineAwesomeIcons.envelope)),
-                            ),
+                            // const SizedBox(height: 20.0),
+                            // TextFormField(
+                            //   controller: emailController,
+                            //   decoration: const InputDecoration(
+                            //       label: Text(moEmail),
+                            //       prefixIcon:
+                            //       Icon(
+                            //           LineAwesomeIcons.envelope)),
+                            // ),
                             const SizedBox(height: 20.0),
                             TextFormField(
                               controller: phoneController,
@@ -356,7 +356,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                     }
                                     await _db.collection("Drivers").doc(iD).update({
                                       "FullName": fullNameController.text.trim(),
-                                      "Email": emailController.text.trim(),
+                                      // "Email": emailController.text.trim(),
                                       "Phone": phoneController.text.trim(),
                                       "Address": addressController.text.trim(),
                                       "Gender": genderController.text.trim(),
