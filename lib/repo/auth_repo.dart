@@ -176,7 +176,6 @@ class AuthenticationRepository extends GetxController {
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await _auth.signOut();
     prefs.remove("UserID");
     prefs.remove("aUserID");
     prefs.remove("UserEmail");
@@ -185,6 +184,7 @@ class AuthenticationRepository extends GetxController {
     prefs.remove('pendingBookings');
     prefs.remove('token');
     // prefs.remove('acceptedBookings');
+    await _auth.signOut();
     Get.offAll(() => const WelcomeScreen());
   }
 

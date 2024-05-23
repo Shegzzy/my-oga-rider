@@ -70,6 +70,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   BitmapDescriptor? markerIcon;
   Set<Circle> _circles = {};
   StreamSubscription<DocumentSnapshot>? _subscription;
+  StreamSubscription<Position>? _positionStreamSubscription;
+
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -131,7 +133,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     LatLng latLngPosition = LatLng(position.latitude, position.longitude);
 
     CameraPosition cameraPosition = CameraPosition(
-        target: latLngPosition, zoom: 14);
+        target: latLngPosition, zoom: 15.4746);
     newGoogleMapController.animateCamera(
         CameraUpdate.newCameraPosition(cameraPosition));
 
@@ -168,27 +170,45 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   // listening to current location
   void _startLocationUpdates() {
-    Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10))
-        .listen((Position position) async {
-      setState(() {
-        currentPosition = position;
-        myPosition = Marker(
-          markerId: const MarkerId('source'),
-          draggable: true,
-          position: LatLng(position.latitude, position.longitude),
-          icon: markerIcon!,
-        );
-      });
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10),
+    ).listen(
+          (Position position) async {
+        if (mounted) {
+          try {
+            if (markerIcon != null) {
+              setState(() {
+                currentPosition = position;
+                myPosition = Marker(
+                  markerId: const MarkerId('source'),
+                  draggable: true,
+                  position: LatLng(position.latitude, position.longitude),
+                  icon: markerIcon!,
+                );
+              });
 
-      // Update camera position for real-time tracking
-      newGoogleMapController.animateCamera(
-        CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
-      );
+              // Update camera position for real-time tracking
+              newGoogleMapController.animateCamera(
+                CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
+              );
 
-      // Update Firestore with the new position
-      await _updatePosition(position);
-    });
+              // Update Firestore with the new position
+              await _updatePosition(position);
+            } else {
+              // Handle the case where markerIcon is not initialized
+              print("Marker icon is not initialized.");
+            }
+          } catch (error) {
+            // Handle any errors that occur during the async operations
+            print("Error occurred during location update: $error");
+          }
+        }
+      },
+      onError: (error) {
+        // Handle stream errors
+        print("Error in position stream: $error");
+      },
+    );
   }
 
   // updating current location
@@ -206,7 +226,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     };
 
     // Update Firestore
-    await FirebaseFirestore.instance.collection('Drivers').doc(userID).set(
+    await _db.collection('Drivers').doc(userID).set(
         locationData, SetOptions(merge: true));
   }
 
@@ -434,8 +454,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   }
 
   // Function to calculate distance between two points using Haversine formula
-  double calculateDistance(double startLat, double startLng, double endLat,
-      double endLng) {
+  double calculateDistance(double startLat, double startLng, double endLat, double endLng) {
     const R = 6371.0;
 
     final double dLat = _toRadians(endLat - startLat);
@@ -495,13 +514,17 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    statusCheckTimer.cancel();
     WidgetsBinding.instance.addObserver(this);
-    super.dispose();
-    timer.cancel();
+    statusCheckTimer.cancel();
+    if(timer.isActive){
+      timer.cancel();
+    }
     _subscription?.cancel();
+    _positionStreamSubscription?.cancel();
+    super.dispose();
   }
 
+  // listening for new booking requests
   void _startRefreshTimer() {
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
 
@@ -545,7 +568,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                     requestController.addPendingBooking(latestRequest);
                   });
 
-                  showBookingNotification(context, latestRequest);
+                  await getRatingCount(latestRequest.customer_id!);
+
+                  if(mounted){
+                    showBookingNotification(context, latestRequest);
+                  }
 
                   // Update the timestamp of the last shown notification
                   lastNotificationTime = DateTime.now();
@@ -643,7 +670,6 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   Future<void> showBookingNotification(BuildContext context, BookingModel incomingRequest) async {
     var isDark = getXSwitchState.isDarkMode;
-    getRatingCount(incomingRequest.customer_id!);
     return await showDialog(context: context, builder: (context) {
       return StatefulBuilder(builder: (context, setState) {
         return AlertDialog(
