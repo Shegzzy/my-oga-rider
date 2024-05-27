@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -251,6 +253,20 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     );
   }
 
+  void _launchNavigation(double lat, lng) async {
+    String googleMapsAndroidURL = 'google.navigation:q=${lat},${lng}&mode=d';
+    String googleMapsIosURL = 'comgooglemaps://?daddr=${lat},${lng}&directionsmode=driving';
+    String googleMapsWebURL = 'https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving';
+
+    if (Platform.isAndroid && await canLaunch(googleMapsAndroidURL)) {
+      await launch(googleMapsAndroidURL);
+    } else if (Platform.isIOS && await canLaunch(googleMapsIosURL)) {
+      await launch(googleMapsIosURL);
+    } else {
+      await launch(googleMapsWebURL, forceSafariVC: false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -415,6 +431,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                             riderLat: double.parse(_userRepo.userModel!.currentLat!),
                             riderLng: double.parse(_userRepo.userModel!.currentLong!),
                           ));
+                          // _launchNavigation(double.parse(bookingData.dropOff_latitude!), double.parse(bookingData.dropOff_longitude!));
                         },),
                     )
                       :const Text(''),

@@ -31,6 +31,8 @@ import '../../model/booking_model.dart';
 import '../../model/order_status_model.dart';
 import '../Accepted_Request_Screen/accepted_screen.dart';
 import '../Order_Status/order_status.dart';
+import 'package:location/location.dart' as loc;
+
 
 
 class HomeTabPage extends StatefulWidget {
@@ -170,10 +172,15 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   // listening to current location
   void _startLocationUpdates() {
+    // loc.Location location = loc.Location();
+    // location.enableBackgroundMode(enable: true);
+    // location.onLocationChanged.listen((event) {
+    //   print(event.longitude);
+    //   print(event.latitude);
+    // });
     _positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10),
-    ).listen(
-          (Position position) async {
+    ).listen((Position position) async {
         if (mounted) {
           try {
             if (markerIcon != null) {
@@ -262,11 +269,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     for (var point in data) {
       double intensity = point['weight'].toDouble();
       double normalizedIntensity = intensity / maxWeight;
-
+      print(intensity);
       Color color;
-      if (normalizedIntensity < 0.33) {
+      if (intensity < 5) {
         color = Colors.green.withOpacity(0.5);
-      } else if (normalizedIntensity < 0.66) {
+      } else if (intensity < 11) {
         color = Colors.yellow.withOpacity(0.5);
       } else {
         color = Colors.redAccent.withOpacity(0.5);
@@ -275,7 +282,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
       circles.add(Circle(
         circleId: CircleId('${point['location']['lat']}_${point['location']['lng']}'),
         center: LatLng(point['location']['lat'], point['location']['lng']),
-        radius: 500 * normalizedIntensity, // Base radius + intensity-scaled radius
+        radius: 5000,
         fillColor: color,
         strokeColor: color.withOpacity(0.1),
         strokeWidth: 1,
@@ -518,6 +525,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     statusCheckTimer.cancel();
     if(timer.isActive){
       timer.cancel();
+    }else{
+      return;
     }
     _subscription?.cancel();
     _positionStreamSubscription?.cancel();
@@ -539,9 +548,11 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
             // Take the latest pending booking request
             for (final latestRequest in bookingList) {
               if (latestRequest != null) {
-                setState(() {
-                  currentRequest = latestRequest;
-                });
+                if(mounted){
+                  setState(() {
+                    currentRequest = latestRequest;
+                  });
+                }
 
                 // Check if the distance between rider and pickup is below a threshold
                 const double distanceThreshold = 8.0;
