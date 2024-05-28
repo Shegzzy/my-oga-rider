@@ -202,7 +202,7 @@ class FirestoreService extends GetxController {
           .map((jsonString) => BookingModel.fromSnapshot(json.decode(jsonString)))
           .toList();
     }
-    print('Pending: ${_requestHistory.length}');
+    // print('Pending: ${_requestHistory.length}');
   }
 
   // Function to save pending bookings to shared preferences

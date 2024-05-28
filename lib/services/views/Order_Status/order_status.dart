@@ -230,7 +230,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                                         (context, object, stack) {
                                       return const Icon(
                                         Icons.person,
-                                        color: Colors.red,
+                                        color: Colors.grey,
                                       );
                                     },
                                   )),
