@@ -526,7 +526,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     statusCheckTimer.cancel();
     if(timer.isActive){
-      timer.cancel();
+      _stopRefreshTimer();
     }else{
       return;
     }
