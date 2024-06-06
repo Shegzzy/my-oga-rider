@@ -5,11 +5,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_map_marker_animation/widgets/animarker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:location/location.dart' as loc;
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:math' show cos, sqrt, asin;
+import 'dart:math' show asin, atan2, cos, pi, sin, sqrt;
 import 'package:image/image.dart' as IMG;
 
 class NavigationScreen extends StatefulWidget {
@@ -40,7 +41,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   late LatLng curLocation;
   late LatLng destinationLocation;
   StreamSubscription<loc.LocationData>? locationSubscription;
-  Uint8List? myPosition;
+  late BitmapDescriptor myPosition, destinationMarker;
   Marker? bikePosition;
   Marker? destinationPosition;
   bool loadingMarker = false;
@@ -76,24 +77,35 @@ class _NavigationScreenState extends State<NavigationScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
         children: [
-          GoogleMap(
-            zoomControlsEnabled: false,
-            mapType: MapType.normal,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            polylines: Set<Polyline>.of(polylines.values),
-            initialCameraPosition: CameraPosition(
-              target: curLocation,
-              zoom: 14.5,
+          Animarker(
+            duration: const Duration(milliseconds: 2000),
+            mapId: _controller.future.then<int>((value) => value.mapId),
+            markers: <Marker>{
+              Marker(
+                markerId: bikePosition!.markerId,
+                position: bikePosition!.position,
+                icon: bikePosition!.icon,
+                rotation: bikePosition!.rotation,
+              ),
+            },
+            child: GoogleMap(
+              zoomControlsEnabled: false,
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              polylines: Set<Polyline>.of(polylines.values),
+              initialCameraPosition: CameraPosition(
+                target: curLocation,
+                zoom: 14.5,
+              ),
+              markers: {
+                if (destinationPosition != null) destinationPosition!,
+              },
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              indoorViewEnabled: true,
             ),
-            markers: {
-              if (bikePosition != null) bikePosition!,
-              if (destinationPosition != null) destinationPosition!,
-            },
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-            },
-            indoorViewEnabled: true,
           ),
           Positioned(
             bottom: 70,
@@ -161,22 +173,23 @@ class _NavigationScreenState extends State<NavigationScreen> {
       final GoogleMapController controller = await _controller.future;
       controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: curLocation,
-        zoom: 16,
+        zoom: 15,
       )));
 
       if (mounted) {
         setState(() {
           bikePosition = Marker(
             markerId: const MarkerId('bikeID'),
-            icon: BitmapDescriptor.fromBytes(myPosition!),
+            icon: myPosition,
             position: curLocation,
+            rotation: 0.0,
             infoWindow: InfoWindow(
               title: double.parse((getDistance(destinationLocation).toStringAsFixed(2))).toString(),
             ),
           );
         });
-      await getDirections(destinationLocation);
-      }else {
+        await getDirections(destinationLocation);
+      } else {
         return;
       }
     }
@@ -232,56 +245,80 @@ class _NavigationScreenState extends State<NavigationScreen> {
     return Uint8List.fromList(IMG.encodePng(resized));
   }
 
+  Future<BitmapDescriptor> getBikeMarker() async {
+    return await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(28, 28)), // Adjust size as needed
+      'assets/markers/motorbike.png',
+    );
+  }
+
+  Future<BitmapDescriptor> getDestinationMarker() async {
+    return await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(28, 28)), // Adjust size as needed
+      'assets/markers/user.png',
+    );
+  }
+
   Future<void> addMarker() async {
     setState(() {
       loadingMarker = true;
     });
 
-    try{
-      String imgurl = "https://cdn-icons-png.freepik.com/256/7193/7193391.png?ga=GA1.1.691408758.1706907328&semt=ais";
-      String bikeImgUrl = "https://cdn-icons-png.freepik.com/256/5458/5458280.png?ga=GA1.1.691408758.1706907328&semt=ais";
-
-      Uint8List bytes = (await NetworkAssetBundle(Uri.parse(imgurl)).load(imgurl)).buffer.asUint8List();
-      Uint8List? smallImg = resizeImage(bytes, 80, 80);
-
-      Uint8List bikeBytes = (await NetworkAssetBundle(Uri.parse(bikeImgUrl)).load(bikeImgUrl)).buffer.asUint8List();
-      myPosition = resizeImage(bikeBytes, 80, 80);
+    try {
+      myPosition = await getBikeMarker();
+      destinationMarker = await getDestinationMarker();
 
       setState(() {
         bikePosition = Marker(
           markerId: const MarkerId('bikeID'),
           position: curLocation,
-          icon: BitmapDescriptor.fromBytes(myPosition!),
+          icon: myPosition,
+          rotation: 0.0, // Initial rotation
         );
 
         destinationPosition = Marker(
           markerId: const MarkerId('destination'),
           position: destinationLocation,
           draggable: true,
-          icon: BitmapDescriptor.fromBytes(smallImg!),
+          icon: destinationMarker,
         );
       });
-    }catch (e){
+    } catch (e) {
       print('Marker error $e');
-    }finally{
+    } finally {
       setState(() {
         loadingMarker = false;
       });
     }
   }
 
+  double calculateHeading(LatLng start, LatLng end) {
+    final double lat1 = start.latitude * (pi / 180);
+    final double lon1 = start.longitude * (pi / 180);
+    final double lat2 = end.latitude * (pi / 180);
+    final double lon2 = end.longitude * (pi / 180);
+    final double dLon = lon2 - lon1;
+    final double y = sin(dLon) * cos(lat2);
+    final double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+    final double brng = atan2(y, x);
+    return (brng * (180 / pi) + 360) % 360;
+  }
+
   void updateBikePosition() {
     if (_currentPosition != null) {
-      if(mounted){
+      if (mounted) {
+        final previousLocation = curLocation;
+        curLocation = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
+        final heading = calculateHeading(previousLocation, curLocation);
         setState(() {
-          curLocation = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
           bikePosition = Marker(
             markerId: const MarkerId('bikeID'),
-            icon: BitmapDescriptor.fromBytes(myPosition!),
+            icon: myPosition,
             position: curLocation,
+            rotation: heading,
           );
         });
-      } else{
+      } else {
         return;
       }
       // getDirections(destinationLocation);

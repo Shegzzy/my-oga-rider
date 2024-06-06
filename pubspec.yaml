@@ -49,6 +49,7 @@ dependencies:
   firebase_messaging: 14.3.0
   intl: ^0.17.0
   flutter_dotenv: ^5.1.0
+  google_map_marker_animation: ^0.0.1
   image:
 
 dev_dependencies:
@@ -90,6 +91,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/markers/
     - .env
     #- assets/icons/
     #- images/a_dot_burr.jpeg
