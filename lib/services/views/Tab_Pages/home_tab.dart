@@ -865,8 +865,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                         try{
 
                           final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: incomingRequest.bookingNumber).get();
-                          final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                           if(snapshot.docs.isNotEmpty){
+                            final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                             if( bookingData.status == 'pending'){
                               if (requestController.acceptedRequests.any((
                                   element) => element['type'] == 'Express')) {
@@ -905,7 +905,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                             }
 
                           }else{
-                            Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                            Get.snackbar("Error", "Booking have been cancelled by customer", colorText: Colors.redAccent, backgroundColor: Colors.white);
                             if(mounted){
                               Navigator.pop(context);
                             }

@@ -199,7 +199,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Center(child: Text("Booking Number:  ${widget.bookingData!.bookingNumber!}", style: Theme.of(context).textTheme.headline6,)),
+                    Center(child: Text("Booking Number:  ${widget.bookingData!.bookingNumber!}", style: Theme.of(context).textTheme.titleLarge,)),
                     const SizedBox(height: 15,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
