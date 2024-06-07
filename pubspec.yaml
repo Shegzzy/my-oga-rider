@@ -50,6 +50,7 @@ dependencies:
   intl: ^0.17.0
   flutter_dotenv: ^5.1.0
   google_map_marker_animation: ^0.0.1
+  webview_flutter: ^4.5.0
   image:
 
 dev_dependencies:
