@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:my_oga_rider/services/views/Settings/about_us_screen.dart';
+import 'package:my_oga_rider/services/views/Settings/privacy_policy.dart';
+import 'package:my_oga_rider/services/views/Settings/terms_and_condition_screen.dart';
 import '../../controller/getx_switch_state.dart';
 
 import '../../../constant/text_strings.dart';
@@ -50,11 +53,23 @@ class _SettingScreenState extends State<SettingScreen> {
               ],
             ),
             const SizedBox(height: 20.0,),
-            Text(moPrivacy, style: Theme.of(context).textTheme.headlineMedium,),
+            InkWell(
+                onTap: (){
+                  Get.to(()=> const PrivacyPolicyScreen());
+                },
+                child: Text(moPrivacy, style: Theme.of(context).textTheme.headlineMedium,)),
             const SizedBox(height: 20.0,),
-            Text(moTerms, style: Theme.of(context).textTheme.headlineMedium,),
+            InkWell(
+                onTap: (){
+                  Get.to(()=> const TermsAndConditionScreen());
+                },
+                child: Text(moTerms, style: Theme.of(context).textTheme.headlineMedium,)),
             const SizedBox(height: 20.0,),
-            Text(moAbout, style: Theme.of(context).textTheme.headlineMedium,),
+            InkWell(
+                onTap: (){
+                  Get.to(()=> const AboutUsScreen());
+                },
+                child: Text(moAbout, style: Theme.of(context).textTheme.headlineMedium,)),
             const SizedBox(height: 20.0,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

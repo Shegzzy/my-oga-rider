@@ -212,7 +212,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         SizedBox(
                           width: 120.0,
                           height: 120.0,
-                          child: imageSource == null ? ClipRRect(
+                          child: imageSource != null ? ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                100),
+                            child: Image.file(File(imageSource!)),
+                          )
+                              : ClipRRect(
                             borderRadius: BorderRadius.circular(
                                 100),
                             child: picController.text.isEmpty
@@ -238,11 +243,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               },
                             ),
                           )
-                              :ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                                100),
-                            child: Image.file(File(imageSource!))
-                          ),
                         ),
                         GestureDetector(
                           onTap: () {

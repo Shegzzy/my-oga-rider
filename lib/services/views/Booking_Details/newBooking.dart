@@ -49,7 +49,11 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
       });
 
       final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: widget.bNum).get();
-      _incomingRequest = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
+      if(snapshot.docs.isNotEmpty){
+        _incomingRequest = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
+      } else {
+        Get.snackbar("Error", "Booking have been cancelled by customer", colorText: Colors.redAccent, backgroundColor: Colors.white);
+      }
     }catch (e){
       print('Error fetching the booking $e');
     }finally{
@@ -157,8 +161,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
       });
 
       final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: newRequest.bookingNumber).get();
-      final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
       if(snapshot.docs.isNotEmpty){
+        final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
         if(_requestController.acceptedRequests.length < 3){
           if( bookingData.status == 'pending'){
             if (_requestController.acceptedRequests.any((element) => element['type'] == 'Express')) {
@@ -206,7 +210,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
         }
 
       }else{
-        Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+        Get.snackbar("Error", "Booking have been cancelled by customer", colorText: Colors.redAccent, backgroundColor: Colors.white);
         if(mounted){
           Navigator.pop(context);
         }
@@ -334,7 +338,11 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                   ),
                   ElevatedButton(
                     onPressed: loadingBooking ? null : () async {
-                      await checkBookingBeforeAccepting(_incomingRequest!);
+                      if(_incomingRequest != null){
+                        await checkBookingBeforeAccepting(_incomingRequest!);
+                      } else{
+                        Get.snackbar("Error", "Booking have been cancelled by customer", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                      }
                     },
                     style: Theme.of(context).elevatedButtonTheme.style,
                     child: Center(child: loadingBooking ? const SizedBox(

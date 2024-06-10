@@ -171,7 +171,7 @@ class _AcceptScreenState extends State<AcceptScreen> {
                     Text(
                     'Package: ${bookingData!.packageType ?? ""}', style: theme.textTheme.titleLarge,),
                     const SizedBox(width: 4,),
-                    Text('Delivery Mode: ${bookingData!.deliveryMode == "1" ? "Express" : "Normal"}', style: theme.textTheme.titleLarge, maxLines: 2,
+                    Text('Delivery Mode: ${bookingData!.deliveryMode}', style: theme.textTheme.titleLarge, maxLines: 2,
                     overflow: TextOverflow.ellipsis,),
                   ],
                 ),

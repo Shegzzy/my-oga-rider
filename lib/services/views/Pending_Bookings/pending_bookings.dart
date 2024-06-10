@@ -243,8 +243,8 @@ class _PendingBookingsState extends State<PendingBookings> {
                                 });
 
                                 final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: requestController.requestHistory[index].bookingNumber).get();
-                                final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                                 if(snapshot.docs.isNotEmpty){
+                                final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                                   if(bookingData.status == 'pending'){
                                     if (requestController.acceptedRequests.any((
                                         element) =>

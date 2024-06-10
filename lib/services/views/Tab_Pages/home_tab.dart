@@ -67,6 +67,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   Set<Circle> _circles = {};
   StreamSubscription<DocumentSnapshot>? _subscription;
   StreamSubscription<Position>? _positionStreamSubscription;
+  DateTime? lastFireStoreUpdateTime;
 
 
   static const CameraPosition _kGooglePlex = CameraPosition(
@@ -189,9 +190,9 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
               });
 
               // Update camera position for real-time tracking
-              newGoogleMapController.animateCamera(
-                CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
-              );
+              // newGoogleMapController.animateCamera(
+              //   CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
+              // );
 
               // Update Firestore with the new position
               await _updatePosition(position);
@@ -214,21 +215,28 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
   // updating current location
   Future<void> _updatePosition(Position position) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userID = prefs.getString("UserID")!;
+    DateTime now = DateTime.now();
 
-    // Obtain the new location data
-    String driverLocation = await _getDriverLocation(position);
+    if (lastFireStoreUpdateTime == null || now.difference(lastFireStoreUpdateTime!).inMinutes > 1) {
+      lastFireStoreUpdateTime = now;
 
-    Map<String, dynamic> locationData = {
-      'Driver Latitude': position.latitude.toString(),
-      'Driver Longitude': position.longitude.toString(),
-      'Driver Address': driverLocation,
-    };
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final userID = prefs.getString("UserID")!;
 
-    // Update Firestore
-    await _db.collection('Drivers').doc(userID).set(
-        locationData, SetOptions(merge: true));
+      // Obtain the new location data
+      String driverLocation = await _getDriverLocation(position);
+
+      Map<String, dynamic> locationData = {
+        'Driver Latitude': position.latitude.toString(),
+        'Driver Longitude': position.longitude.toString(),
+        'Driver Address': driverLocation,
+      };
+
+      // Update Firestore
+      await _db.collection('Drivers').doc(userID).set(
+          locationData, SetOptions(merge: true));
+    }
+
   }
 
   // fetching current location
@@ -518,7 +526,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     statusCheckTimer.cancel();
     if(timer.isActive){
-      timer.cancel();
+      _stopRefreshTimer();
     }else{
       return;
     }
@@ -857,8 +865,8 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                         try{
 
                           final snapshot = await _db.collection("Bookings").where("Booking Number", isEqualTo: incomingRequest.bookingNumber).get();
-                          final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                           if(snapshot.docs.isNotEmpty){
+                            final bookingData = snapshot.docs.map((e) => BookingModel.fromSnapshot(e.data())).single;
                             if( bookingData.status == 'pending'){
                               if (requestController.acceptedRequests.any((
                                   element) => element['type'] == 'Express')) {
@@ -897,7 +905,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
                             }
 
                           }else{
-                            Get.snackbar("Error", "Booking has been cancelled", colorText: Colors.redAccent, backgroundColor: Colors.white);
+                            Get.snackbar("Error", "Booking have been cancelled by customer", colorText: Colors.redAccent, backgroundColor: Colors.white);
                             if(mounted){
                               Navigator.pop(context);
                             }
