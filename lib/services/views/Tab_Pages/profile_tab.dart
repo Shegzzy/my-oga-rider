@@ -105,7 +105,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                                             BorderRadius.circular(100),
                                             color: moSecondarColor),
                                         child: const Icon(
-                                            LineAwesomeIcons.alternate_pencil,
+                                            LineAwesomeIcons.pencil_alt_solid,
                                             size: 20.0,
                                             color: Colors.black)),
                                   ),
@@ -149,13 +149,13 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                       }),
                   ProfileMenuWidget(
                       title: moMenu2,
-                      icon: LineAwesomeIcons.receipt,
+                      icon: LineAwesomeIcons.receipt_solid,
                       onPress: () {
                         Get.to(() => const RatingTabPage());
                       }),
                   ProfileMenuWidget(
                       title: moMenu3,
-                      icon: LineAwesomeIcons.cog,
+                      icon: LineAwesomeIcons.cog_solid,
                       onPress: () {
                         Get.to(() => const SettingScreen());
                       }
@@ -164,7 +164,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   const SizedBox(height: 10.0),
                   ProfileMenuWidget(
                     title: moMenu4,
-                    icon: LineAwesomeIcons.alternate_sign_out,
+                    icon: LineAwesomeIcons.sign_out_alt_solid,
                     textColor: Colors.red,
                     endIcon: false,
                     onPress: () async {

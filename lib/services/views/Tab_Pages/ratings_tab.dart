@@ -2,16 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:my_oga_rider/services/controller/getx_switch_state.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/colors.dart';
-import '../../../constant/image_string.dart';
-import '../../../constant/text_strings.dart';
-import '../../../widgets/reviewUI.dart';
+
 
 class RatingTabPage extends StatefulWidget {
   const RatingTabPage({Key? key}) : super(key: key);
@@ -70,7 +67,7 @@ class _RatingTabPageState extends State<RatingTabPage> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Get.back(),
-            icon: const Icon(LineAwesomeIcons.angle_left)),
+            icon: const Icon(LineAwesomeIcons.angle_left_solid)),
         title: Text(
           "Total Average Reviews",
           style: Theme.of(context).textTheme.titleLarge,

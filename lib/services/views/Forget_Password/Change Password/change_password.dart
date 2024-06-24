@@ -51,9 +51,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         centerTitle: true,
         leading: IconButton(
             onPressed: () => Get.back(),
-            icon: const Icon(LineAwesomeIcons.angle_left)),
+            icon: const Icon(LineAwesomeIcons.angle_left_solid)),
         title:
-        Text(moChangePassword, style: Theme.of(context).textTheme.headline4),
+        Text(moChangePassword, style: Theme.of(context).textTheme.headlineMedium),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(

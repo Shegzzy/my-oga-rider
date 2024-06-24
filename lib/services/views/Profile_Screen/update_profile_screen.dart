@@ -129,7 +129,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       Navigator.pop(context);
                     },
                     leading: const Icon(
-                      LineAwesomeIcons.camera, color: PButtonColor,),
+                      LineAwesomeIcons.camera_solid, color: PButtonColor,),
                     title: const Text("Camera"),
                   ),
                   ListTile(
@@ -186,7 +186,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         appBar: AppBar(
           leading: IconButton(
               onPressed: () => Get.back(),
-              icon: const Icon(LineAwesomeIcons.angle_left)),
+              icon: const Icon(LineAwesomeIcons.angle_left_solid)),
           title:
           Text(moEditProfile, style: Theme
               .of(context)
@@ -202,10 +202,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             child: Container(
               padding: const EdgeInsets.all(30.0),
 
-              ///Future Builder
               child: Column(
 
-                ///Wrap this widget with future builder
                   children: [
                     Stack(
                       children: [
@@ -256,7 +254,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                   BorderRadius.circular(100),
                                   color: moSecondarColor),
                               child: const Icon(
-                                LineAwesomeIcons.camera,
+                                LineAwesomeIcons.camera_solid,
                                 size: 20.0,
                                 color: Colors.black,)),
                         ),
@@ -288,7 +286,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               decoration: const InputDecoration(
                                   label: Text(moPhone),
                                   prefixIcon: Icon(
-                                      LineAwesomeIcons.phone)),
+                                      LineAwesomeIcons.phone_solid)),
                             ),
                             const SizedBox(height: 20.0),
                             TextFormField(

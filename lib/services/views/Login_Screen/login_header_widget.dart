@@ -18,8 +18,8 @@ class LoginHeaderWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Image(image: const AssetImage(moSplashImage), height: size.height * 0.1,),
-        Text(moWelcomeBack, style: Theme.of(context).textTheme.headline1,),
-        Text(moWelcomeBackTagline, style: Theme.of(context).textTheme.bodyText1,),
+        Text(moWelcomeBack, style: Theme.of(context).textTheme.displayLarge,),
+        Text(moWelcomeBackTagline, style: Theme.of(context).textTheme.displayLarge,),
       ],
     );
   }

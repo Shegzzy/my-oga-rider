@@ -59,7 +59,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(LineAwesomeIcons.angle_left),
+          icon: const Icon(LineAwesomeIcons.angle_left_solid),
         ),
         title: Text(
           'Privacy Policy',

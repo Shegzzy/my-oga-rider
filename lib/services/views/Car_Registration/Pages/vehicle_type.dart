@@ -38,7 +38,7 @@ class _VehicleTypeState extends State<VehicleType> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("Select your type of vehicle?", style: Theme.of(context).textTheme.headline5,),
+        Text("Select your type of vehicle?", style: Theme.of(context).textTheme.headlineSmall,),
         const SizedBox(height: 10.0,),
 
         Flexible(

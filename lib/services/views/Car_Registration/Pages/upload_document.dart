@@ -33,7 +33,7 @@ class _UploadDocumentState extends State<UploadDocument> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
 
-        Text('Upload Documents (License and Vehicle Papers)',style: Theme.of(context).textTheme.headline5,),
+        Text('Upload Documents (License and Vehicle Papers)',style: Theme.of(context).textTheme.headlineSmall,),
 
         const SizedBox(height: 15,),
 

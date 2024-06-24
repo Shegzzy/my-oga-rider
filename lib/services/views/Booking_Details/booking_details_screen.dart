@@ -177,7 +177,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 5,),
-              const Icon(LineAwesomeIcons.phone, color: moAccentColor, size: 30,),
+              const Icon(LineAwesomeIcons.phone_solid, color: moAccentColor, size: 30,),
               const SizedBox(height: 35,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -274,7 +274,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(result: true), icon: const Icon(LineAwesomeIcons.angle_left)),
+            onPressed: () => Get.back(result: true), icon: const Icon(LineAwesomeIcons.angle_left_solid)),
         title: Text("Booking Details", style: Theme.of(context).textTheme.headlineMedium),
         centerTitle: true,
         backgroundColor: Colors.transparent,

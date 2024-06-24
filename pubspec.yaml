@@ -13,41 +13,41 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  get: ^4.6.5
-  google_fonts: ^4.0.4
-  line_awesome_flutter: ^2.0.0
-  image_picker: ^0.8.5+3
+  get: ^4.6.6
+  google_fonts: ^6.2.1
+  line_awesome_flutter: ^3.0.1
+  image_picker: ^1.1.2
   lite_rolling_switch: ^1.0.0
   flutter_otp_text_field: ^1.1.0+2
-  otp_timer_button: ^1.1.0
-  firebase_core: ^2.17.0
-  firebase_auth: ^4.10.1
-  cloud_firestore: ^4.9.3
-  cloud_functions: 4.0.13
-  firebase_database: ^10.0.9
+  otp_timer_button: ^1.1.1
+  firebase_core: ^3.1.0
+  firebase_auth: ^5.1.0
+  cloud_firestore: ^5.0.1
+  cloud_functions: ^5.0.1
+  firebase_database: ^11.0.1
   google_maps_flutter: ^2.2.3
-  location: ^4.4.0
-  geolocator: ^9.0.2
-  geocoding: ^2.0.5
+  location: ^6.0.2
+  geolocator: ^12.0.0
+  geocoding: ^3.0.0
   url_launcher: ^6.1.10
-  flutter_polyline_points: ^1.0.0
+  flutter_polyline_points: ^2.0.0
   get_storage: ^2.0.3
   shared_preferences: ^2.0.17
-  http: ^0.13.5
+  http: ^1.2.1
   provider: ^6.0.5
   flutter_rating_bar: ^4.0.1
   flutter_spinkit: ^5.1.0
   fl_country_code_picker: ^0.0.4
-  flutter_local_notifications: ^13.0.0
+  flutter_local_notifications: ^17.1.2
   flutter_native_splash: ^2.0.0
-  flutter_launcher_icons: ^0.11.0
-  firebase_storage: ^11.0.10
+  flutter_launcher_icons: ^0.13.1
+  firebase_storage: ^12.0.1
   flutter_rating_stars: ^1.0.3+4
   percent_indicator: ^4.0.1
   date_format: ^2.0.7
-  app_settings: ^4.2.0
-  firebase_messaging: 14.3.0
-  intl: ^0.17.0
+  app_settings: ^5.1.1
+  firebase_messaging: ^15.0.1
+  intl: ^0.18.1
   flutter_dotenv: ^5.1.0
   google_map_marker_animation: ^0.0.1
   webview_flutter: ^4.5.0
@@ -56,7 +56,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^4.0.0
 
 flutter_icons:
   android: true

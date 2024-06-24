@@ -36,7 +36,7 @@ class CustomBtn extends StatelessWidget {
             ]),
         child: Padding(
           padding: const EdgeInsets.all(14),
-          child: Text(text, style: Theme.of(context).textTheme.headline5,),
+          child: Text(text, style: Theme.of(context).textTheme.headlineSmall,),
         ),
       ),
     );

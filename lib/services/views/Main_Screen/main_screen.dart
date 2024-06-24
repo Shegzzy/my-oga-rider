@@ -164,11 +164,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(LineAwesomeIcons.home),
+            icon: Icon(LineAwesomeIcons.home_solid),
             label: moHome,
           ),
           BottomNavigationBarItem(
-            icon: Icon(LineAwesomeIcons.wallet),
+            icon: Icon(LineAwesomeIcons.wallet_solid),
             label: moEarnings,
           ),
           BottomNavigationBarItem(

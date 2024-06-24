@@ -59,7 +59,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(LineAwesomeIcons.angle_left),
+          icon: const Icon(LineAwesomeIcons.angle_left_solid),
         ),
         title: Text(
           'About Us',

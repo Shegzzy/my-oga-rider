@@ -59,7 +59,7 @@ class _VehicleModelState extends State<VehicleModel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text("Model of your vehicle?", style: Theme.of(context).textTheme.headline5,),
+          Text("Model of your vehicle?", style: Theme.of(context).textTheme.headlineSmall,),
           const SizedBox(height: 10.0,),
 
           TextFieldWidget(
