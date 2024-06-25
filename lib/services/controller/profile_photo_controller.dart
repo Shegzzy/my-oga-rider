@@ -72,7 +72,7 @@ class ProfilePhotoController with ChangeNotifier {
                       Navigator.pop(context);
                     },
                     leading: const Icon(
-                      LineAwesomeIcons.camera_solid, color: PButtonColor,),
+                      LineAwesomeIcons.camera_solid),
                     title: const Text("Camera"),
                   ),
                   ListTile(
@@ -81,7 +81,7 @@ class ProfilePhotoController with ChangeNotifier {
                       Navigator.pop(context);
                     },
                     leading: const Icon(
-                      LineAwesomeIcons.image, color: PButtonColor,),
+                      LineAwesomeIcons.image),
                     title: const Text("Gallery"),
                   ),
                 ],
