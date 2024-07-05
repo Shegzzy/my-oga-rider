@@ -60,7 +60,7 @@ class _VehicleNumberState extends State<VehicleNumber> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text('Vehicle Number ?',style: Theme.of(context).textTheme.headline3,),
+        Text('Vehicle Number ?',style: Theme.of(context).textTheme.headlineSmall,),
 
         const SizedBox(height: 30,),
 

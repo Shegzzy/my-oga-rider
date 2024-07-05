@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:my_oga_rider/repo/user_repo.dart';
+import 'package:my_oga_rider/services/controller/request_controller.dart';
 import 'package:my_oga_rider/services/views/Permission_info_screen/permission_alert_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/views/welcome_screen/welcome_screen.dart';
@@ -27,6 +28,7 @@ class AuthenticationRepository extends GetxController {
   var verificationId = "".obs;
   dynamic credentials;
   final _userRepo = Get.put(UserRepository());
+  final requestController = Get.put(FirestoreService());
 
   UserModel? _userModel;
 
@@ -176,14 +178,14 @@ class AuthenticationRepository extends GetxController {
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove("UserID");
-    prefs.remove("aUserID");
-    prefs.remove("UserEmail");
-    prefs.remove("password");
-    prefs.remove("Phone");
-    prefs.remove('pendingBookings');
-    prefs.remove('token');
-    // prefs.remove('acceptedBookings');
+    await prefs.remove("UserID");
+    await prefs.remove("aUserID");
+    await prefs.remove("UserEmail");
+    await prefs.remove("password");
+    await prefs.remove("Phone");
+    await prefs.remove('pendingBookings');
+    await prefs.remove('token');
+    requestController.requestHistory.clear();
     await _auth.signOut();
     Get.offAll(() => const WelcomeScreen());
   }

@@ -248,7 +248,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
               const SizedBox(height: 20,),
               Row(
                 children: [
-                  const Icon(LineAwesomeIcons.street_view),
+                  const Icon(LineAwesomeIcons.street_view_solid),
                   const SizedBox(
                     width: 10.0,
                   ),
@@ -265,7 +265,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
               const SizedBox(height: 20,),
               Row(
                 children: [
-                  const Icon(LineAwesomeIcons.map_marker),
+                  const Icon(LineAwesomeIcons.map_marker_solid),
                   const SizedBox(
                     width: 10.0,
                   ),

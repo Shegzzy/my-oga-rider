@@ -48,7 +48,7 @@ class _LocationPageState extends State<LocationPage> {
             "What service location do you want to register for?", style: Theme
               .of(context)
               .textTheme
-              .headline5,),
+              .headlineSmall,),
           const SizedBox(height: 10.0,),
           
           Flexible(

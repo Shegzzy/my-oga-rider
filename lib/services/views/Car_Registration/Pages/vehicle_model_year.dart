@@ -46,7 +46,7 @@ class _VehicleModelYearState extends State<VehicleModelYear> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
 
-        Text('What is the vehicle model year ?', style: Theme.of(context).textTheme.headline5,),
+        Text('What is the vehicle model year ?', style: Theme.of(context).textTheme.headlineSmall,),
 
         SizedBox(height: 10,),
 

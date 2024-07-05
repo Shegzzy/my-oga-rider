@@ -24,7 +24,7 @@ class ProfileInformation extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
             onPressed: () => Get.back(),
-            icon: const Icon(LineAwesomeIcons.angle_left)),
+            icon: const Icon(LineAwesomeIcons.angle_left_solid)),
         title:
         Text(moProfileInfo, style: Theme.of(context).textTheme.headlineMedium),
         actions: [

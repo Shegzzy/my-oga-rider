@@ -50,6 +50,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await _getUser();
         controllers();
+        setState(() {});
       });
     }
   }
@@ -58,13 +59,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     return await controller.getUserById();
   }
 
-  late TextEditingController fullNameController;
+  late TextEditingController fullNameController = TextEditingController();
   // late TextEditingController emailController;
-  late TextEditingController phoneController;
-  late TextEditingController addressController;
-  late TextEditingController genderController;
-  late TextEditingController dobController;
-  late TextEditingController picController;
+  late TextEditingController phoneController = TextEditingController();
+  late TextEditingController addressController = TextEditingController();
+  late TextEditingController genderController = TextEditingController();
+  late TextEditingController dobController = TextEditingController();
+  late TextEditingController picController = TextEditingController();
 
   controllers() {
     fullNameController = TextEditingController(
@@ -129,7 +130,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       Navigator.pop(context);
                     },
                     leading: const Icon(
-                      LineAwesomeIcons.camera, color: PButtonColor,),
+                      LineAwesomeIcons.camera_solid,),
                     title: const Text("Camera"),
                   ),
                   ListTile(
@@ -138,7 +139,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       Navigator.pop(context);
                     },
                     leading: const Icon(
-                      LineAwesomeIcons.image, color: PButtonColor,),
+                      LineAwesomeIcons.image,),
                     title: const Text("Gallery"),
                   ),
                 ],
@@ -179,14 +180,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery
-        .of(context)
-        .platformBrightness == Brightness.dark;
+    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
               onPressed: () => Get.back(),
-              icon: const Icon(LineAwesomeIcons.angle_left)),
+              icon: const Icon(LineAwesomeIcons.angle_left_solid)),
           title:
           Text(moEditProfile, style: Theme
               .of(context)
@@ -202,241 +202,257 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             child: Container(
               padding: const EdgeInsets.all(30.0),
 
-              ///Future Builder
               child: Column(
-
-                ///Wrap this widget with future builder
                   children: [
-                    Stack(
-                      children: [
-                        SizedBox(
-                          width: 120.0,
-                          height: 120.0,
-                          child: imageSource != null ? ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                                100),
-                            child: Image.file(File(imageSource!)),
-                          )
-                              : ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                                100),
-                            child: picController.text.isEmpty
-                                ? const Icon(
-                              LineAwesomeIcons.user_circle,
-                              size: 35,)
-                                : Image(image: NetworkImage(
-                                picController.text),
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child,
-                                  loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child;
-                                }
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              },
-                              errorBuilder: (context, object,
-                                  stack) {
-                                return const Icon(
-                                  Icons.person,
-                                  color: Colors.blueGrey,);
-                              },
-                            ),
-                          )
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            pickImage(context);
-                          },
-                          child: Container(
-                              width: 35.0,
-                              height: 35.0,
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                  BorderRadius.circular(100),
-                                  color: moSecondarColor),
-                              child: const Icon(
-                                LineAwesomeIcons.camera,
-                                size: 20.0,
-                                color: Colors.black,)),
-                        ),
-                      ],
-                    ),
+                    _buildProfilePic(),
                     const SizedBox(height: 40.0),
-                    Form(
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              controller: fullNameController,
-                              decoration: const InputDecoration(
-                                  label: Text(moFullName),
-                                  prefixIcon: Icon(
-                                      LineAwesomeIcons.user)),
-                            ),
-                            // const SizedBox(height: 20.0),
-                            // TextFormField(
-                            //   controller: emailController,
-                            //   decoration: const InputDecoration(
-                            //       label: Text(moEmail),
-                            //       prefixIcon:
-                            //       Icon(
-                            //           LineAwesomeIcons.envelope)),
-                            // ),
-                            const SizedBox(height: 20.0),
-                            TextFormField(
-                              controller: phoneController,
-                              decoration: const InputDecoration(
-                                  label: Text(moPhone),
-                                  prefixIcon: Icon(
-                                      LineAwesomeIcons.phone)),
-                            ),
-                            const SizedBox(height: 20.0),
-                            TextFormField(
-                              controller: addressController,
-                              decoration: const InputDecoration(
-                                  label: Text(moAddress),
-                                  prefixIcon:
-                                  Icon(LineAwesomeIcons
-                                      .address_card)),
-                            ),
-                            const SizedBox(height: 20.0),
-                            TextFormField(
-                              controller: genderController,
-                              decoration: const InputDecoration(
-                                  label: Text("Gender"),
-                                  prefixIcon:
-                                  Icon(LineAwesomeIcons
-                                      .user_circle)),
-                            ),
-                            const SizedBox(height: 20.0),
-                            TextFormField(
-                              onTap: () async {
-                                DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(1970),
-                                  lastDate: DateTime(2101),
-                                );
-                                if (kDebugMode) {
-                                  print(pickedDate);
-                                }
-                                if (pickedDate != null) {
-                                  setState(() {
-                                    dobController.text = formatDate(
-                                        pickedDate, [yyyy, '-', mm, '-', dd])
-                                        .toString();
-                                  });
-                                }
-                                if (kDebugMode) {
-                                  print(dOB);
-                                }
-                              },
-                              controller: dobController,
-                              decoration: const InputDecoration(
-                                  label: Text("Date of Birth"),
-                                  prefixIcon:
-                                  Icon(
-                                      LineAwesomeIcons.calendar)),
-                            ),
-                            const SizedBox(height: 20.0),
-                            SizedBox(
-                                width: double.infinity,
-                                child: Obx(() =>
-                                isUploading.value
-                                    ? const Center(
-                                    child: CircularProgressIndicator())
-                                    : ElevatedButton(
-                                  onPressed: isUploading.value
-                                      ? null : () async {
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    final String? iD = prefs.getString("UserID");
-                                    isUploading(true);
-                                    if(imageSource != null) {
-                                      await uploadImage();
-                                    }
-                                    await _db.collection("Drivers").doc(iD).update({
-                                      "FullName": fullNameController.text.trim(),
-                                      // "Email": emailController.text.trim(),
-                                      "Phone": phoneController.text.trim(),
-                                      "Address": addressController.text.trim(),
-                                      "Gender": genderController.text.trim(),
-                                      "Date of Birth": dobController.text.trim(),
-                                    }).whenComplete(() =>
-                                        Get.snackbar(
-                                            "Success",
-                                            "Your account have been updated.",
-                                            snackPosition: SnackPosition.TOP,
-                                            backgroundColor: Colors.green
-                                                .withOpacity(0.1),
-                                            colorText: Colors.green),
-                                    ).catchError((error, stackTrace) {
-                                      Get.snackbar("Error",
-                                          "Something went wrong. Try again.",
-                                          snackPosition: SnackPosition.BOTTOM,
-                                          backgroundColor: Colors.redAccent
-                                              .withOpacity(0.1),
-                                          colorText: Colors.red);
-                                    });
-                                    isUploading(false);
-                                    Get.offAll(() => const ProfileTabPage());
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: PButtonColor,
-                                      side: BorderSide.none,
-                                      shape: const StadiumBorder()),
-                                  child: const Text(moUpdate,
-                                      style: TextStyle(
-                                          color: PWhiteColor)),
-                                ),
-                                )
-                            ),
-                            const SizedBox(height: 20.0),
-                            Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text.rich(TextSpan(
-                                    text: moJoined,
-                                    style: const TextStyle(
-                                        fontSize: 12),
-                                    children: [
-
-                                      TextSpan(
-                                          text: MyOgaFormatter.dateFormatter(
-                                              DateTime.parse(
-                                                  userRepositoryController
-                                                      .userModel!
-                                                      .dateCreated!)),
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight
-                                                  .bold,
-                                              fontSize: 12))
-                                    ])),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      FirebaseAuth.instance.currentUser
-                                          ?.delete();
-                                      Get.offAll(() => const WelcomeScreen());
-                                    },
-                                    style: ElevatedButton
-                                        .styleFrom(
-                                        backgroundColor:
-                                        Colors.redAccent
-                                            .withOpacity(0.1),
-                                        elevation: 0,
-                                        foregroundColor: Colors
-                                            .red,
-                                        shape: const StadiumBorder(),
-                                        side: BorderSide.none),
-                                    child: const Text(moDelete))
-                              ],
-                            )
-                          ],
-                        ))
+                    _buildProfileForm(),
+                    const SizedBox(height: 20.0),
+                    _buildUpdateButton(),
+                    const SizedBox(height: 20.0),
+                    _buildDeleteButton()
                   ]),
             ),
           );
         })
+    );
+  }
+
+  Widget _buildProfileForm() {
+    return Form(
+      child: Column(
+        children: [
+          TextFormField(
+            controller: fullNameController,
+            decoration: const InputDecoration(
+                label: Text(moFullName),
+                prefixIcon: Icon(
+                    LineAwesomeIcons.user)),
+          ),
+          // const SizedBox(height: 20.0),
+          // TextFormField(
+          //   controller: emailController,
+          //   decoration: const InputDecoration(
+          //       label: Text(moEmail),
+          //       prefixIcon:
+          //       Icon(
+          //           LineAwesomeIcons.envelope)),
+          // ),
+          const SizedBox(height: 20.0),
+          TextFormField(
+            controller: phoneController,
+            decoration: const InputDecoration(
+                label: Text(moPhone),
+                prefixIcon: Icon(
+                    LineAwesomeIcons.phone_solid)),
+          ),
+          const SizedBox(height: 20.0),
+          TextFormField(
+            controller: addressController,
+            decoration: const InputDecoration(
+                label: Text(moAddress),
+                prefixIcon:
+                Icon(LineAwesomeIcons
+                    .address_card)),
+          ),
+          const SizedBox(height: 20.0),
+          TextFormField(
+            controller: genderController,
+            decoration: const InputDecoration(
+                label: Text("Gender"),
+                prefixIcon:
+                Icon(LineAwesomeIcons
+                    .user_circle)),
+          ),
+          const SizedBox(height: 20.0),
+          TextFormField(
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(1970),
+                lastDate: DateTime(2101),
+              );
+              if (kDebugMode) {
+                print(pickedDate);
+              }
+              if (pickedDate != null) {
+                setState(() {
+                  dobController.text = formatDate(
+                      pickedDate, [yyyy, '-', mm, '-', dd])
+                      .toString();
+                });
+              }
+              if (kDebugMode) {
+                print(dOB);
+              }
+            },
+            controller: dobController,
+            decoration: const InputDecoration(
+                label: Text("Date of Birth"),
+                prefixIcon:
+                Icon(
+                    LineAwesomeIcons.calendar)),
+          ),
+        ],
+      ));
+  }
+
+  Widget _buildUpdateButton() {
+    return SizedBox(
+            width: double.infinity,
+            child: Obx(() =>
+            isUploading.value
+                ? const Center(
+                child: CircularProgressIndicator())
+                : ElevatedButton(
+              onPressed: isUploading.value
+                  ? null : () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                final String? iD = prefs.getString("UserID");
+                isUploading(true);
+                if(imageSource != null) {
+                  await uploadImage();
+                }
+                await _db.collection("Drivers").doc(iD).update({
+                  "FullName": fullNameController.text.trim(),
+                  // "Email": emailController.text.trim(),
+                  "Phone": phoneController.text.trim(),
+                  "Address": addressController.text.trim(),
+                  "Gender": genderController.text.trim(),
+                  "Date of Birth": dobController.text.trim(),
+                }).whenComplete(() =>
+                    Get.snackbar(
+                        "Success",
+                        "Your account have been updated.",
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: Colors.green
+                            .withOpacity(0.1),
+                        colorText: Colors.green),
+                ).catchError((error, stackTrace) {
+                  Get.snackbar("Error",
+                      "Something went wrong. Try again.",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.redAccent
+                          .withOpacity(0.1),
+                      colorText: Colors.red);
+                });
+                isUploading(false);
+                Get.offAll(() => const ProfileTabPage());
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: PButtonColor,
+                  side: BorderSide.none,
+                  shape: const StadiumBorder()),
+              child: const Text(moUpdate,
+                  style: TextStyle(
+                      color: PWhiteColor)),
+            ),
+            )
+        );
+  }
+
+  Widget _buildDeleteButton() {
+    DateTime? dateCreated;
+    try {
+      dateCreated = DateTime.parse(userRepositoryController.userModel?.dateCreated ?? '');
+    } catch (e) {
+      dateCreated = null;
+    }
+
+    return Row(
+          mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
+          children: [
+            Text.rich(TextSpan(
+                text: moJoined,
+                style: const TextStyle(
+                    fontSize: 12),
+                children: [
+
+                  TextSpan(
+                      text: dateCreated != null ? MyOgaFormatter.dateFormatter(dateCreated) : 'Invalid date',
+                      style: const TextStyle(
+                          fontWeight: FontWeight
+                              .bold,
+                          fontSize: 12))
+                ])),
+            ElevatedButton(
+                onPressed: () {
+                  FirebaseAuth.instance.currentUser
+                      ?.delete();
+                  Get.offAll(() => const WelcomeScreen());
+                },
+                style: ElevatedButton
+                    .styleFrom(
+                    backgroundColor:
+                    Colors.redAccent
+                        .withOpacity(0.1),
+                    elevation: 0,
+                    foregroundColor: Colors
+                        .red,
+                    shape: const StadiumBorder(),
+                    side: BorderSide.none),
+                child: const Text(moDelete))
+          ],
+        );
+  }
+
+  Widget _buildProfilePic() {
+    return Stack(
+      children: [
+        SizedBox(
+          width: 120.0,
+          height: 120.0,
+          child: imageSource != null ? ClipRRect(
+            borderRadius: BorderRadius.circular(
+                100),
+            child: Image.file(File(imageSource!)),
+          )
+              : ClipRRect(
+            borderRadius: BorderRadius.circular(
+                100),
+            child: picController.text.isEmpty
+                ? const Icon(
+              LineAwesomeIcons.user_circle,
+              size: 35,)
+                : Image(image: NetworkImage(
+                picController.text),
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child,
+                  loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                }
+                return const Center(
+                    child: CircularProgressIndicator());
+              },
+              errorBuilder: (context, object,
+                  stack) {
+                return const Icon(
+                  Icons.person,
+                  color: Colors.blueGrey,);
+              },
+            ),
+          )
+        ),
+        GestureDetector(
+          onTap: () {
+            pickImage(context);
+          },
+          child: Container(
+              width: 35.0,
+              height: 35.0,
+              decoration: BoxDecoration(
+                  borderRadius:
+                  BorderRadius.circular(100),
+                  color: moSecondarColor),
+              child: const Icon(
+                LineAwesomeIcons.camera_solid,
+                size: 20.0,
+                color: Colors.black,)),
+        ),
+      ],
     );
   }
 }

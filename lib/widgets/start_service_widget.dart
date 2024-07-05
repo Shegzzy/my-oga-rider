@@ -11,13 +11,13 @@ class StartServiceScreen extends StatelessWidget {
     return Container(
       child: Column(
         children: [
-          Text("Booking Status", style: theme.textTheme.headline6,),
+          Text("Booking Status", style: theme.textTheme.titleLarge,),
           const SizedBox(height: 30,),
           Row(
             children: [
               Icon(LineAwesomeIcons.user, size: 30,),
               SizedBox(width: 10.0,),
-              Text("Edward Samuel", style: theme.textTheme.headline5,),
+              Text("Edward Samuel", style: theme.textTheme.headlineSmall,),
               
             ],
           ),

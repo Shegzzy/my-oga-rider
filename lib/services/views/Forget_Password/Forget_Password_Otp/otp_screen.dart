@@ -26,10 +26,10 @@ class OTPScreen extends StatelessWidget {
               const Image(
                 image: AssetImage(moLoginImage),
               ),
-              Text(moOtpTitle, style: Theme.of(context).textTheme.headline6),
+              Text(moOtpTitle, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 40.0),
               Text("Enter code sent for verification.",
-                  style: Theme.of(context).textTheme.bodyText2,
+                  style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center),
               const SizedBox(
                 height: 20.0,

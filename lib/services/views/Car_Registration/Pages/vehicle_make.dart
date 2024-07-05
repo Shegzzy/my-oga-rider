@@ -61,7 +61,7 @@ class _VehicleMakeState extends State<VehicleMake> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("Make of your vehicle?", style: Theme.of(context).textTheme.headline5,),
+        Text("Make of your vehicle?", style: Theme.of(context).textTheme.headlineSmall,),
         const SizedBox(height: 10.0,),
         TextFieldWidget(
             'Enter Make eg. Lexus or Suzuki',

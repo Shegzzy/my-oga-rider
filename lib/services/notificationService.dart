@@ -32,7 +32,7 @@ class NotificationService {
 
     } else {
 
-      AppSettings.openNotificationSettings();
+      AppSettings.openAppSettings();
     }
   }
 

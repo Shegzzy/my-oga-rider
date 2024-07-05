@@ -140,14 +140,16 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
     String driverLocation = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
 
-    setState(() {
-      myPosition = Marker(
-        markerId: const MarkerId('source'),
-        draggable: true,
-        position: LatLng(currentPosition.latitude, currentPosition.longitude),
-        icon: markerIcon!,
-      );
-    });
+    if(markerIcon != null){
+      setState(() {
+        myPosition = Marker(
+          markerId: const MarkerId('source'),
+          draggable: true,
+          position: LatLng(currentPosition.latitude, currentPosition.longitude),
+          icon: markerIcon!,
+        );
+      });
+    }
 
     _startRefreshTimer();
     // _fetchHeatmapData();
@@ -538,6 +540,19 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   // listening for new booking requests
   void _startRefreshTimer() {
     timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      if(markerIcon == null){
+        await _loadMarkerIcon();
+        if(markerIcon != null){
+          setState(() {
+            myPosition = Marker(
+              markerId: const MarkerId('source'),
+              draggable: true,
+              position: LatLng(currentPosition.latitude, currentPosition.longitude),
+              icon: markerIcon!,
+            );
+          });
+        }
+      }
 
       if (requestController.acceptedRequests.length < 3) {
         // for(int i = 0; i < requestController.acceptedBookingList.length; i++){
@@ -711,7 +726,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
               const SizedBox(height: 20,),
               Row(
                 children: [
-                  const Icon(LineAwesomeIcons.street_view),
+                  const Icon(LineAwesomeIcons.street_view_solid),
                   const SizedBox(
                     width: 10.0,
                   ),
@@ -743,7 +758,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
               const SizedBox(height: 20,),
               Row(
                 children: [
-                  const Icon(LineAwesomeIcons.map_marker),
+                  const Icon(LineAwesomeIcons.map_marker_solid),
                   const SizedBox(
                     width: 10.0,
                   ),

@@ -43,7 +43,7 @@ class ReviewUI extends StatelessWidget {
               ),
               Expanded(
                   child: Text(name!,
-                    style: Theme.of(context).textTheme.headline6,
+                    style: Theme.of(context).textTheme.titleLarge,
                   )),
               const SizedBox(
                 width: 20.0,
@@ -72,7 +72,7 @@ class ReviewUI extends StatelessWidget {
               ),
               Text(
                 date!,
-                style: Theme.of(context).textTheme.bodyText1,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ],
           ),
@@ -83,13 +83,13 @@ class ReviewUI extends StatelessWidget {
             onTap: onTap,
             child: isLess! ? Text(
               comment!,
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyMedium,
             ) :
             Text(
               comment!,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ],

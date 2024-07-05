@@ -77,35 +77,24 @@ class _NavigationScreenState extends State<NavigationScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
         children: [
-          Animarker(
-            duration: const Duration(milliseconds: 2000),
-            mapId: _controller.future.then<int>((value) => value.mapId),
-            markers: <Marker>{
-              Marker(
-                markerId: bikePosition!.markerId,
-                position: bikePosition!.position,
-                icon: bikePosition!.icon,
-                rotation: bikePosition!.rotation,
-              ),
-            },
-            child: GoogleMap(
-              zoomControlsEnabled: false,
-              mapType: MapType.normal,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              polylines: Set<Polyline>.of(polylines.values),
-              initialCameraPosition: CameraPosition(
-                target: curLocation,
-                zoom: 14.5,
-              ),
-              markers: {
-                if (destinationPosition != null) destinationPosition!,
-              },
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              indoorViewEnabled: true,
+          GoogleMap(
+            zoomControlsEnabled: false,
+            mapType: MapType.normal,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            polylines: Set<Polyline>.of(polylines.values),
+            initialCameraPosition: CameraPosition(
+              target: curLocation,
+              zoom: 14.5,
             ),
+            markers: {
+              if (destinationPosition != null) destinationPosition!,
+              if (bikePosition != null) bikePosition!,
+            },
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            indoorViewEnabled: true,
           ),
           Positioned(
             bottom: 70,

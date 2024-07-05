@@ -27,7 +27,7 @@ class _SettingScreenState extends State<SettingScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(LineAwesomeIcons.angle_left)),
+            onPressed: () => Get.back(), icon: const Icon(LineAwesomeIcons.angle_left_solid)),
         title: Text(moSetting, style: Theme.of(context).textTheme.headlineMedium),
         backgroundColor: Colors.transparent,
         centerTitle: true,

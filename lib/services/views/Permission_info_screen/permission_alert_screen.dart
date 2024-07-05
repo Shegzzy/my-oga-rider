@@ -26,10 +26,8 @@ class _PermissionScreenState extends State<PermissionScreen> {
         await showDialog(
           context: context,
           builder: (BuildContext context) {
-            return WillPopScope(
-              onWillPop: () async{
-                return false;
-              },
+            return PopScope(
+              canPop: false,
               child: AlertDialog(
                 title: const Text("Location Permission"),
                 content: const Text(
@@ -61,10 +59,8 @@ class _PermissionScreenState extends State<PermissionScreen> {
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async{
-            return false;
-          },
+        return PopScope(
+          canPop: false,
           child: AlertDialog(
             title: const Text("Terms and Conditions"),
             content: const SingleChildScrollView(
@@ -228,7 +224,6 @@ class _PermissionScreenState extends State<PermissionScreen> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

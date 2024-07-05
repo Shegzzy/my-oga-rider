@@ -152,7 +152,7 @@ class UserRepository extends GetxController {
       return _userModel;
     } catch (error) {
       print(error);
-      throw error;
+      throw error.toString();
     } finally {
       _profileLoading = false;
       update();
