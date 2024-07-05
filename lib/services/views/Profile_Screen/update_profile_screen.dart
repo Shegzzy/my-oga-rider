@@ -59,13 +59,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     return await controller.getUserById();
   }
 
-  late TextEditingController fullNameController;
+  late TextEditingController fullNameController = TextEditingController();
   // late TextEditingController emailController;
-  late TextEditingController phoneController;
-  late TextEditingController addressController;
-  late TextEditingController genderController;
-  late TextEditingController dobController;
-  late TextEditingController picController;
+  late TextEditingController phoneController = TextEditingController();
+  late TextEditingController addressController = TextEditingController();
+  late TextEditingController genderController = TextEditingController();
+  late TextEditingController dobController = TextEditingController();
+  late TextEditingController picController = TextEditingController();
 
   controllers() {
     fullNameController = TextEditingController(
