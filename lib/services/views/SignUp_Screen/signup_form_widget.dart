@@ -71,11 +71,11 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
 
       await controller.registerUser(controller.email.text.trim(), controller.password.text.trim());
       await controller.createUser(user);
-      controller.phoneAuthentication(countryCode.dialCode+controller.phoneNo.text.trim());
+      // controller.phoneAuthentication(countryCode.dialCode+controller.phoneNo.text.trim());
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("Phone", countryCode.dialCode+controller.phoneNo.text.trim());
-      Get.to(() => const OTPScreen());
-
+      // Get.to(() => const OTPScreen());
+      Get.to(() => const CarRegistrationWidget());
     } catch (e){
       print('Error $e');
     } finally {
@@ -120,6 +120,7 @@ class _SignupFormWidgetState extends State<SignupFormWidget> {
                     label: Text(moEmail),
                     prefixIcon: Icon(Icons.email_outlined)),
                 controller: controller.email,
+                keyboardType: TextInputType.emailAddress,
                 validator: (value){
                   if(value == null || value.isEmpty)
                   {

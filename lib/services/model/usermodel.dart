@@ -93,8 +93,8 @@ class UserModel {
   updateToJson() {
     return {
       "FullName": fullname,
-      "Email": email,
-      "Password": password,
+      // "Email": email,
+      // "Password": password,
       "Phone": phoneNo,
       "Address": address,
       "Profile Photo": profilePic,

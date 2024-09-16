@@ -21,7 +21,6 @@ class _VerificaitonPendingScreenState extends State<VerificaitonPendingScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if(mounted){
       _timer= Timer.periodic(const Duration(seconds: 20), (timer){
@@ -32,7 +31,6 @@ class _VerificaitonPendingScreenState extends State<VerificaitonPendingScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _timer.cancel();
   }
@@ -50,14 +48,12 @@ class _VerificaitonPendingScreenState extends State<VerificaitonPendingScreen> {
 
           const SizedBox(height: 20,),
 
-
           Expanded(child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text('Verification Pending',style: TextStyle(fontSize: 22,fontWeight: FontWeight.w600,color: Colors.black),),
               const SizedBox(height: 20,),
-
 
               const Text('Your document is still pending for verification. Once it’s all verified you start getting rides. please sit tight',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w400,color: Color(0xff7D7D7D)),textAlign: TextAlign.center,),
 
@@ -66,10 +62,6 @@ class _VerificaitonPendingScreenState extends State<VerificaitonPendingScreen> {
             ],
           )),
           const SizedBox(height: 40,),
-
-
-
-
         ],
       ),
     );

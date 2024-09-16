@@ -120,6 +120,7 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
                 ],
               ),
             ),),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -149,7 +150,7 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
                             Get.snackbar('Notice', 'Please fill in all required fields.');
                           }
                         } else if (document.isEmpty) {
-                          Get.snackbar('Notice', 'Upload your documents');
+                          Get.snackbar('Notice', 'Please upload photo of your documents');
                         } else {
                           uploadDriverCarEntry();
                         }
@@ -239,7 +240,7 @@ class _CarRegistrationWidgetState extends State<CarRegistrationWidget> {
     await _controller.uploadCarEntry(carData);
     isUploading(false);
 
-    Get.off(()=>const VerificaitonPendingScreen());
+    // Get.off(()=>const VerificaitonPendingScreen());
   }
 
 }

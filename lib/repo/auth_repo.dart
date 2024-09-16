@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
@@ -8,11 +9,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:my_oga_rider/repo/user_repo.dart';
 import 'package:my_oga_rider/services/controller/request_controller.dart';
+import 'package:my_oga_rider/services/views/Email_Verification_Screen/email_verification_screen.dart';
 import 'package:my_oga_rider/services/views/Permission_info_screen/permission_alert_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/views/welcome_screen/welcome_screen.dart';
 import '../services/model/usermodel.dart';
 import '../services/notificationService.dart';
+import '../services/views/Car_Registration/car_regitration_widget.dart';
 import '../services/views/Car_Registration/verification_pending.dart';
 import '../services/views/Login_Screen/login_screen.dart';
 import '../services/views/Main_Screen/main_screen.dart';
@@ -23,7 +26,10 @@ class AuthenticationRepository extends GetxController {
   static AuthenticationRepository get instance => Get.find();
 
   //Variables
+  late Timer timer;
   final _auth = FirebaseAuth.instance;
+  get auth => _auth;
+
   final _db = FirebaseFirestore.instance;
   var verificationId = "".obs;
   dynamic credentials;
@@ -33,8 +39,7 @@ class AuthenticationRepository extends GetxController {
   UserModel? _userModel;
 
 
-// Functions
-
+  // Functions
   void phoneAuthentication(String phoneNo) async {
     await _auth.verifyPhoneNumber(
       phoneNumber: phoneNo,
@@ -94,8 +99,8 @@ class AuthenticationRepository extends GetxController {
         prefs.setString("aUserID", firebaseUser.user!.uid);
         prefs.setString("UserEmail", firebaseUser.user!.email!);
         prefs.setString("password", password);
-        final user = firebaseUser.user!;
-        user.sendEmailVerification();
+        // final user = firebaseUser.user!;
+        // user.sendEmailVerification();
       }
     } on FirebaseAuthException catch (e) {
       final ex = SignUpWithEmailAndPasswordFailure.code(e.code);
@@ -121,13 +126,6 @@ class AuthenticationRepository extends GetxController {
       final firebaseUser = await _auth.signInWithEmailAndPassword(email: email, password: password);
       if(firebaseUser.user != null){
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        // await NotificationService().getDeviceToken().then((token) async {
-        //   // print(token);
-        //   await _db.collection("Drivers").doc(firebaseUser.user?.uid).update({
-        //     "Token": token
-        //   });
-        //   prefs.setString("token", token);
-        // });
         prefs.setString("UserID", firebaseUser.user!.uid);
         prefs.setString("UserEmail", firebaseUser.user!.email!);
         checkVerification();
@@ -190,28 +188,45 @@ class AuthenticationRepository extends GetxController {
     Get.offAll(() => const WelcomeScreen());
   }
 
-  Future<bool> uploadCarEntry(Map<String,dynamic> carData)async{
+  Future<bool> uploadCarEntry(Map<String, dynamic> carData) async {
     bool isUploaded = false;
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userID = prefs.getString("aUserID")!;
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final userID = prefs.getString("aUserID")!;
 
-    await FirebaseFirestore.instance.collection('Drivers').doc(userID).set(carData,SetOptions(merge: true));
+      await FirebaseFirestore.instance
+          .collection('Drivers')
+          .doc(userID)
+          .set(carData, SetOptions(merge: true))
+          .whenComplete(() {
+        checkVerification();
+      });
 
-    isUploaded = true;
+      isUploaded = true;
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Failed to upload car data",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
 
     return isUploaded;
   }
 
-
   checkVerification() async {
     String? docId = "";
+    String? company = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userID = prefs.getString("UserID")!;
     try {
       /// Getting Driver Details 2
       await _db.collection("Drivers").doc(userID).get().then((value) {
         docId = value.data()!["Verified"];
+        company = value.data()?["Company"] ?? "";
       }).catchError((error, stackTrace) {
         Get.snackbar("Error", "Not Allowed",
             snackPosition: SnackPosition.TOP,
@@ -222,20 +237,26 @@ class AuthenticationRepository extends GetxController {
 
       var myInt = int.tryParse(docId!);
 
-      if (docId == "0") {
+      if(company == "") {
+        Get.snackbar("Attention!!", "Please complete your registration",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.white,
+            colorText: Colors.green);
+        Get.to(() => const CarRegistrationWidget());
+      } else if (docId == "0") {
         await _auth.signOut();
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove("UserID");
         prefs.remove("UserEmail");
         Get.offAll(() => const VerificaitonPendingScreen());
-      }
-      else if (docId == "1") {
+      } else if (docId == "1") {
         final user = _auth.currentUser!;
         if (user.emailVerified) {
-          _checkUserType();
+          checkUserType();
         } else {
-          user.sendEmailVerification();
-          _checkUserType();
+          await user.sendEmailVerification();
+          Get.offAll(() => const EmailVerificationScreen());
+          // checkUserType();
         }
       } else if (docId == "Hold"){
         await logout();
@@ -263,7 +284,7 @@ class AuthenticationRepository extends GetxController {
     }
   }
 
-  _checkUserType() async {
+  checkUserType() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     LocationPermission permission;
     permission = await Geolocator.checkPermission();
@@ -286,6 +307,23 @@ class AuthenticationRepository extends GetxController {
           colorText: Colors.red);
       logout();
     }
+  }
+
+  void autoRedirectTimer() {
+    timer = Timer.periodic(const Duration(seconds: 3), (timer){
+      _auth.currentUser?.reload();
+      final user = _auth.currentUser;
+
+      if(user != null){
+        if(user.emailVerified){
+          timer.cancel();
+          checkVerification();
+        }
+      } else {
+        // timer.cancel();
+        return;
+      }
+    });
   }
 
 }
