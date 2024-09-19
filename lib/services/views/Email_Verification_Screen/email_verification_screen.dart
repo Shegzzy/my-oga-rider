@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:otp_timer_button/otp_timer_button.dart';
 
 import '../../../repo/auth_repo.dart';
 
@@ -42,8 +43,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               const Text('A verification mail has been sent to your email address, please check your email for a verification link to verify your email address', textAlign: TextAlign.center,),
 
               const SizedBox(height: 25,),
-              TextButton(
-                  onPressed: (){
+              SizedBox(
+                width: 160,
+                child: OtpTimerButton(
+                  onPressed: () async {
                     controller.auth.currentUser?.sendEmailVerification();
                     Get.snackbar(
                         "Success", "Link sent",
@@ -52,7 +55,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         colorText: Colors.green
                     );
                   },
-                  child: const Text('Resend Link')),
+                  text: const Text('Resend Link', style: TextStyle(
+                    color: Colors.blue
+                  ),),
+                  duration: 60,
+                  backgroundColor: Colors.white,
+                  buttonType: ButtonType.text_button,
+                ),
+              ),
 
               TextButton(
                   onPressed: (){

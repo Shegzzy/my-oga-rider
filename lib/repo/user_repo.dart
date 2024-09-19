@@ -132,7 +132,7 @@ class UserRepository extends GetxController {
 
   ///Retrieving Delivery Mode Details From Database
   Future<List<CompanyModel>?>getCompany() async {
-    final snapshot = await _db.collection("Companies").get();
+    final snapshot = await _db.collection("Companies").where("verification", isEqualTo: "verified").get();
     final modeData = snapshot.docs.map((e) => CompanyModel.fromSnapshot(e)).toList();
     return modeData;
   }

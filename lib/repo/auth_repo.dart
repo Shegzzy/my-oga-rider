@@ -27,8 +27,8 @@ class AuthenticationRepository extends GetxController {
 
   //Variables
   late Timer timer;
-  final _auth = FirebaseAuth.instance;
-  get auth => _auth;
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth get auth => _auth;
 
   final _db = FirebaseFirestore.instance;
   var verificationId = "".obs;
@@ -221,7 +221,8 @@ class AuthenticationRepository extends GetxController {
     String? docId = "";
     String? company = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userID = prefs.getString("UserID")!;
+    var userID = prefs.getString("UserID");
+    userID ??= prefs.getString("aUserID");
     try {
       /// Getting Driver Details 2
       await _db.collection("Drivers").doc(userID).get().then((value) {

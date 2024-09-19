@@ -48,6 +48,8 @@ void main() async {
   _init();
 }
 
+AuthenticationRepository authenticationRepository = Get.put(AuthenticationRepository());
+
 _checkUserType() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   LocationPermission permission;
@@ -96,7 +98,7 @@ _init() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   final token = prefs.getString("UserID");
   if (token != null) {
-    _checkUserType();
+    authenticationRepository.checkVerification();
   }
   else {
     Get.to(() => const WelcomeScreen());
