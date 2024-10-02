@@ -279,7 +279,7 @@ class ProfileInformation extends StatelessWidget {
                               );
                             }
                             else if (snapshot.hasError) {
-                              return Center(
+                              return const Center(
                                 child: Text("Profile incomplete: click here to complete profile"),
                               );
                             }

@@ -42,12 +42,6 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
         }
       });
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _userRepo.dispose();
-  }
   
   @override
   Widget build(BuildContext context) {

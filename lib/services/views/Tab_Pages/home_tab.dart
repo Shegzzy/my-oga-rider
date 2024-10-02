@@ -42,7 +42,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   late GoogleMapController newGoogleMapController;
   final GetXSwitchState getXSwitchState = Get.find();
 
-  late Timer timer;
+  Timer? timer;
   late Timer statusCheckTimer;
 
   BookingModel? currentRequest;
@@ -141,14 +141,16 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
     String driverLocation = '${pMark.subThoroughfare} ${pMark.thoroughfare}, ${pMark.subLocality} ${pMark.locality}, ${pMark.subAdministrativeArea}, ${pMark.administrativeArea} ${pMark.postalCode}, ${pMark.country}';
 
     if(markerIcon != null){
-      setState(() {
-        myPosition = Marker(
-          markerId: const MarkerId('source'),
-          draggable: true,
-          position: LatLng(currentPosition.latitude, currentPosition.longitude),
-          icon: markerIcon!,
-        );
-      });
+      if(mounted){
+        setState(() {
+          myPosition = Marker(
+            markerId: const MarkerId('source'),
+            draggable: true,
+            position: LatLng(currentPosition.latitude, currentPosition.longitude),
+            icon: markerIcon!,
+          );
+        });
+      }
     }
 
     _startRefreshTimer();
@@ -519,7 +521,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
 
     if (isDetached) {
       getController.switchDataController.write('isSwitched', false);
-      timer.cancel();
+      timer?.cancel();
     }
   }
 
@@ -527,11 +529,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.addObserver(this);
     statusCheckTimer.cancel();
-    if(timer.isActive){
-      _stopRefreshTimer();
-    }else{
-      return;
-    }
+    _stopRefreshTimer();
     _subscription?.cancel();
     _positionStreamSubscription?.cancel();
     super.dispose();
@@ -616,7 +614,7 @@ class _HomeTabPageState extends State<HomeTabPage> with WidgetsBindingObserver {
   }
 
   void _stopRefreshTimer() {
-    timer.cancel();
+    timer?.cancel();
   }
 
   // Getting customer ratings

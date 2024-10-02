@@ -176,7 +176,82 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
           colorText: Colors.red
       );
       });
-    }
+  }
+
+  void showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 40.0,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(3),
+                width: 45.0,
+                height: 45.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: const Color(0xFFFBD0D0),
+                ),
+                child: const Icon(Icons.info, color: Colors.redAccent,),
+              ),
+              const SizedBox(height: 15.0),
+              const Text(
+                "Are you sure you want to delete your account?",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16.0,
+                  letterSpacing: 0.32,
+                ),
+              ),
+              const SizedBox(height: 40.0),
+              SizedBox(
+                width: double.maxFinite,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await FirebaseAuth.instance.currentUser?.delete();
+                    Get.offAll(const WelcomeScreen());
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent.withOpacity(0.1),
+                      elevation: 0,
+                      foregroundColor: Colors.red,
+                      shape: const StadiumBorder(),
+                      side: BorderSide.none),
+                  child: const Text(moDelete),
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              SizedBox(
+                width: double.maxFinite,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: PButtonColor,
+                      elevation: 0,
+                      shape: const StadiumBorder(),
+                      side: BorderSide.none),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.white),),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -311,9 +386,11 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 final String? iD = prefs.getString("UserID");
                 isUploading(true);
+
                 if(imageSource != null) {
                   await uploadImage();
                 }
+
                 await _db.collection("Drivers").doc(iD).update({
                   "FullName": fullNameController.text.trim(),
                   // "Email": emailController.text.trim(),
@@ -327,8 +404,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         "Your account have been updated.",
                         snackPosition: SnackPosition.TOP,
                         backgroundColor: Colors.green
-                            .withOpacity(0.1),
-                        colorText: Colors.green),
+                            .withOpacity(0.6),
+                        colorText: Colors.white),
                 ).catchError((error, stackTrace) {
                   Get.snackbar("Error",
                       "Something went wrong. Try again.",
@@ -337,8 +414,11 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                           .withOpacity(0.1),
                       colorText: Colors.red);
                 });
+
                 isUploading(false);
-                Get.offAll(() => const ProfileTabPage());
+                if(mounted){
+                  Navigator.of(context).pop();
+                }
               },
               style: ElevatedButton.styleFrom(
                   backgroundColor: PButtonColor,
@@ -379,9 +459,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 ])),
             ElevatedButton(
                 onPressed: () {
-                  FirebaseAuth.instance.currentUser
-                      ?.delete();
-                  Get.offAll(() => const WelcomeScreen());
+                  showDeleteDialog(context);
                 },
                 style: ElevatedButton
                     .styleFrom(
